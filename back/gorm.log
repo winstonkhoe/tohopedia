@@ -1,0 +1,30 @@
+
+2022/02/02 11:45:53 [32mC:/Users/winst/go/pkg/mod/gorm.io/driver/mysql@v1.2.3/migrator.go:234
+[0m[33m[1.073ms] [34;1m[rows:-][0m SELECT DATABASE()
+
+2022/02/02 11:45:53 [32mC:/Users/winst/go/pkg/mod/gorm.io/driver/mysql@v1.2.3/migrator.go:237
+[0m[33m[16.451ms] [34;1m[rows:1][0m SELECT SCHEMA_NAME from Information_schema.SCHEMATA where SCHEMA_NAME LIKE 'tohopedia%' ORDER BY SCHEMA_NAME='tohopedia' DESC limit 1
+
+2022/02/02 11:45:53 [32mD:/ASLAB/TPA/WEB/tohopedia/back/migration/migration.go:11
+[0m[33m[4.714ms] [34;1m[rows:-][0m SELECT count(*) FROM information_schema.tables WHERE table_schema = 'tohopedia' AND table_name = 'users' AND table_type = 'BASE TABLE'
+
+2022/02/02 11:45:53 [32mC:/Users/winst/go/pkg/mod/gorm.io/driver/mysql@v1.2.3/migrator.go:234
+[0m[33m[0.000ms] [34;1m[rows:-][0m SELECT DATABASE()
+
+2022/02/02 11:45:53 [32mC:/Users/winst/go/pkg/mod/gorm.io/driver/mysql@v1.2.3/migrator.go:237
+[0m[33m[0.914ms] [34;1m[rows:1][0m SELECT SCHEMA_NAME from Information_schema.SCHEMATA where SCHEMA_NAME LIKE 'tohopedia%' ORDER BY SCHEMA_NAME='tohopedia' DESC limit 1
+
+2022/02/02 11:45:53 [32mC:/Users/winst/go/pkg/mod/gorm.io/driver/mysql@v1.2.3/migrator.go:205
+[0m[33m[2.520ms] [34;1m[rows:-][0m SELECT column_name, is_nullable, data_type, character_maximum_length, numeric_precision, numeric_scale , datetime_precision FROM information_schema.columns WHERE table_schema = 'tohopedia' AND table_name = 'users' ORDER BY ORDINAL_POSITION
+
+2022/02/02 11:45:56 [32mD:/ASLAB/TPA/WEB/tohopedia/back/service/user.go:47
+[0m[33m[24.510ms] [34;1m[rows:1][0m SELECT * FROM `users` WHERE email LIKE 'winstonkhoe@yahoo.com' LIMIT 1
+
+2022/02/02 12:24:17 [32mD:/ASLAB/TPA/WEB/tohopedia/back/service/user.go:47
+[0m[33m[3.276ms] [34;1m[rows:1][0m SELECT * FROM `users` WHERE email LIKE 'winstonkhoe@yahoo.com' LIMIT 1
+
+2022/02/02 12:40:58 [32mD:/ASLAB/TPA/WEB/tohopedia/back/service/user.go:47
+[0m[33m[1.265ms] [34;1m[rows:1][0m SELECT * FROM `users` WHERE email LIKE 'winstonkhoe@yahoo.com' LIMIT 1
+
+2022/02/02 12:41:10 [32mD:/ASLAB/TPA/WEB/tohopedia/back/service/user.go:47
+[0m[33m[0.565ms] [34;1m[rows:1][0m SELECT * FROM `users` WHERE email LIKE 'winstonkhoe@yahoo.com' LIMIT 1

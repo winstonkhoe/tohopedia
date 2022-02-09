@@ -1,0 +1,94 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @auth on FIELD_DEFINITION
+
+scalar Any
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  phone: String!
+  gender: String!
+  dob: Date!
+  profilePic: String!
+  role: String!
+  isSuspended: Boolean!
+  shop: Shop! @goField(forceResolver: true)
+  carts: [Cart!]! @goField(forceResolver: true)
+  addresses: [Address!]! @goField(forceResolver: true)
+
+}
+
+type Shop {
+  id: ID!
+  name: String!
+  slug: String!
+  address: String!
+  slogan: String!
+  description: String!
+  picture: String!
+  openTime: Time!
+  closeTime: Time!
+  isOpen: Boolean!
+  reputationPoint: Int!
+  user: User! @goField(forceResolver: true)
+  products: [Product!]! @goField(forceResolver: true)
+}
+
+type Product {
+  id: ID!
+  name: String!
+  images: [ProductImage!]! @goField(forceResolver: true)
+  description: String!
+  price: Int!
+  discount: Int!
+  stock: Int!
+  metadata: String!
+  createdAt: Time!
+  category: Category! @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
+}
+
+type Category {
+
+}
+
+type Address {
+
+}
+
+type Cart {
+
+}
+
+type ProductImage {
+  id: ID!
+  product: Product! @goField(forceResolver: true)
+  image: String!
+}
+
+input NewUser {
+  name: String!
+  email: String!
+  password: String!
+}
+
+type AuthOps {
+  login(email: String!, password: String!): Any! @goField(forceResolver: true)
+  register(input: NewUser!): Any! @goField(forceResolver: true)
+}
+
+type Query {
+  user(id: ID!): User! @goField(forceResolver: true)
+  users: [User!]! @goField(forceResolver: true)
+  getCurrentUser: User! @goField(forceResolver: true) @auth
+}
+
+type Mutation {
+  auth: AuthOps! @goField(forceResolver: true)
+}
