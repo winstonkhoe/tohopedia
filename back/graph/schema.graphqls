@@ -6,6 +6,8 @@ directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | I
 directive @auth on FIELD_DEFINITION
 
 scalar Any
+scalar Time
+scalar Date
 
 type User {
   id: ID!
@@ -24,20 +26,32 @@ type User {
 
 }
 
+input NewShop {
+  name: String!
+  slug: String!
+  phone: String!
+  city: String!
+  postalCode: String!
+  address: String!
+}
+
 type Shop {
   id: ID!
   name: String!
   slug: String!
-  address: String!
+  phone: String!
   slogan: String!
   description: String!
-  picture: String!
+  image: String!
   openTime: Time!
   closeTime: Time!
   isOpen: Boolean!
   reputationPoint: Int!
   user: User! @goField(forceResolver: true)
   products: [Product!]! @goField(forceResolver: true)
+  city: String!
+  postalCode: String!
+  address: String!
 }
 
 type Product {
@@ -55,15 +69,24 @@ type Product {
 }
 
 type Category {
-
+  id: ID!
+  name: String!
 }
 
 type Address {
-
+  id: ID!
+  label: String!
+  receiver: String!
+  phone: String!
+  city: String!
+  postalCode: String!
+  address: String!
 }
 
 type Cart {
-
+  id: ID!
+  product: Product! @goField(forceResolver: true)
+  quantity: Int!
 }
 
 type ProductImage {
@@ -91,4 +114,6 @@ type Query {
 
 type Mutation {
   auth: AuthOps! @goField(forceResolver: true)
+  openShop(userId: ID!, input: NewShop!): Shop!
+  editShop(id: ID!, image: String!, name: String!, slug: String!, slogan: String!, description: String!, openTime: Time!, closeTime: Time!, isOpen: Boolean!): Shop!
 }

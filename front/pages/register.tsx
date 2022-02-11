@@ -5,48 +5,237 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
-import styles from "../styles/login.module.scss";
+import styles from "../styles/register.module.scss";
 import { useForm } from "react-hook-form";
 import { redirect } from "next/dist/server/api-utils";
 import Router from "next/router";
+import { init, send } from "@emailjs/browser";
+import { OTPGenerator } from "../misc/otp";
+import { useToasts } from "react-toast-notifications";
+
+
+const SERVICE_ID = "service_egdaufp";
+const TEMPLATE_ID = "template_fg0ncxa";
 
 const Register: NextPage = () => {
+  const { addToast } = useToasts();
   const { register, handleSubmit } = useForm();
-  const [result, setResult] = useState("");
+  const [first, setFirst] = useState(false);
+  const [second, setSecond] = useState(false);
+  const [third, setThird] = useState(true);
 
-  const [name, setName] = useState("");
-  var element = "";
+  const [email, setEmail] = useState("");
+  const [generatedOTP, setGeneratedOTP] = useState("");
 
-  const LOGIN_QUERY = gql`
-    mutation auth($email: String!, $password: String!) {
+  init("user_3FcFw9m04bwuTvX6TklJs");
+
+  const REGISTER_QUERY = gql`
+    mutation register($name: String!, $email: String!, $password: String!) {
       auth {
-        login(email: $email, password: $password)
+        register(input: { name: $name, email: $email, password: $password })
       }
     }
   `;
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      console.log(name);
-      // Send Axios request here
-    }, 3000);
+  function First() {
+    async function sendMail(formData: any) {
+      console.log("SendMailFunction")
+      console.log(formData.email)
+      console.log("email: " + email)
+      var temp = OTPGenerator();
+      setGeneratedOTP(temp);
+      let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      
+      if (re.test(formData.email)) {
+        setEmail(formData.email);
+        console.log("1 Original: " + generatedOTP)
+        var templateParams = {
+          email_reply: "winstonkcoding@gmail.com",
+          email_destination: formData.email,
+          otp_code: temp,
+        };
+        send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
+          function (response) {
+            console.log("SUCCESS!", response.status, response.text);
+            console.log("2 Original: " + generatedOTP)
+            setSecond(true);
+            setFirst(false);
+          },
+          function (error) {
+            console.log("FAILED...", error);
+          }
+        );
+      } else {
+        addToast("Format email salah", { appearance: "error" });
+      }
+    }
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [name]);
+    return (
+      // {/* Register Body */}
+      <div className={styles.body}>
+        <div className={styles.login_image}>
+          <Image
+            src="/assets/login_image.png"
+            alt="tohopedia logo"
+            layout="fill"
+          />
+        </div>
+        <section>
+          <div className={styles.section_header}>
+            <h3>Daftar</h3>
+            <Link href="/login">
+              <a>Masuk</a>
+            </Link>
+          </div>
+          <div className={styles.section_body}>
+            <form autoComplete="on" onSubmit={handleSubmit(sendMail)}>
+              <div className={styles.label_fields_container}>
+                <label htmlFor="email">Email</label>
+                <div tabIndex={-1}>
+                  <input type="email" {...register("email")} defaultValue={email}/>
+                </div>
+              </div>
+              <button type="submit">
+                <span>Daftar</span>
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+      // {/* End Register Body */}
+    );
+  }
 
-  const [getLogin, { loading, error, data }] = useMutation(LOGIN_QUERY);
+  function Second() {
+    console.log("3 Original: " + generatedOTP)
+    async function onChange(otpVal: any) {
+      var otp = otpVal.target.value;
+      console.log(email)
+      console.log("4 Original: " + generatedOTP)
+      if (otp.length == 6) {
+        if (otp == generatedOTP) {
+          setSecond(false);
+          setThird(true);
+        } else {
+          console.log("5 Original: " + generatedOTP)
+          console.log("User Input: " + otp)
+          addToast("Kode yang kamu masukkan salah", { appearance: "error" });
+        }
+      }
+    }
+
+    return (
+      <div className={styles.body}>
+        <div className={styles.login_image}>
+          <Image
+            src="/assets/login_image.png"
+            alt="tohopedia logo"
+            layout="fill"
+          />
+        </div>
+        <section>
+          <div className={styles.section_header}>
+          <a className={styles.back_arrow} data-testid="back_arrow" onClick={InitializeFirst}>&nbsp;</a>
+            <h3 className={styles.extra_margin}>Verification</h3>
+          </div>
+          <div className={styles.section_body}>
+            <form autoComplete="on" onSubmit={handleSubmit(onSubmit)}>
+              <div className={styles.label_fields_container}>
+                <label htmlFor="email">OTP</label>
+                <div tabIndex={-1}>
+                  <input
+                    type="email"
+                    maxLength={6}
+                    onChange={(e) => onChange(e)}
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  function InitializeFirst() {
+    setFirst(true);
+    setSecond(false);
+    setThird(false);
+  }
+
+  function Third() {
+
+    async function onSubmit(formData: any) {
+      try {
+        await getRegister({
+          variables: {
+            name: formData.name,
+            email: email,
+            password: formData.password,
+          },
+        });
+        Router.push("/");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    return (
+      // {/* Register Body */}
+      <div className={styles.body}>
+        <div className={styles.login_image}>
+          <Image
+            src="/assets/login_image.png"
+            alt="tohopedia logo"
+            layout="fill"
+          />
+        </div>
+        <section>
+          <div className={styles.register_ending_header}>
+            <a className={styles.back_arrow} data-testid="back_arrow" onClick={InitializeFirst}>&nbsp;</a>
+            <h3>Daftar dengan Email </h3>
+            <p>{email}</p>
+          </div>
+          <div className={styles.section_body}>
+            <form autoComplete="on" onSubmit={handleSubmit(onSubmit)}>
+              <div className={styles.label_fields_container}>
+                <label htmlFor="name">Nama Lengkap</label>
+                <div tabIndex={-1}>
+                  <input type="text" {...register("name")} />
+                </div>
+              </div>
+
+              <div className={styles.label_fields_container}>
+                <label htmlFor="password">Kata Sandi</label>
+                <div tabIndex={-1}>
+                  <input type="password" {...register("password")} />
+                </div>
+              </div>
+              <button type="submit">
+                <span>Selesai</span>
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+      // {/* End Register Body */}
+    );
+  }
+
+  const [getRegister, { loading, error, data }] = useMutation(REGISTER_QUERY);
 
   async function onSubmit(formData: any) {
     try {
-      await getLogin({
+      await getRegister({
         variables: {
+          name: formData.name,
           email: formData.email,
           password: formData.password,
         },
       });
-      Router.push('/')
+      Router.push("/");
     } catch (error) {
-      console.log(error)      
+      console.log(error);
     }
   }
 
@@ -57,7 +246,7 @@ const Register: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Masuk / Login | Tohopedia</title>
+        <title>Daftar / Register | Tohopedia</title>
         <meta name="description" content="Generated by create next app" />
         <link rel="icon" href="/favicon.ico" />
         <link
@@ -93,60 +282,9 @@ const Register: NextPage = () => {
             </div>
           </Link>
         </div>
-
-        {/* Login Body */}
-        <div className={styles.body}>
-          <div className={styles.login_image}>
-            <Image
-              src="/assets/login_image.png"
-              alt="tohopedia logo"
-              layout="fill"
-            />
-          </div>
-          <section>
-            <div className={styles.section_header}>
-              <h3>Masuk</h3>
-              <Link href="/register">
-                <a>Daftar</a>
-              </Link>
-            </div>
-            <div className={styles.section_body}>
-              <form autoComplete="on" onSubmit={handleSubmit(onSubmit)}>
-                <div className={styles.label_fields_container}>
-                  <label htmlFor="email">Email</label>
-                  <div tabIndex={-1}>
-                    <input type="email" {...register("email")} />
-                  </div>
-                </div>
-
-                <div className={styles.label_fields_container}>
-                  <label htmlFor="email">Kata Sandi</label>
-                  <div tabIndex={-1}>
-                    <input type="password" {...register("password")} />
-                  </div>
-                </div>
-
-                {/* Ingat Saya && Lupa kata sandi */}
-                <div className={styles.remember_forget_container}>
-                  {/* Remember Me */}
-                  <div>
-                    <div className={styles.remember_me}>
-                      <label htmlFor="remember-me">
-                        <input type="checkbox" name="" id="remember_me" />
-                        <span></span>
-                      </label>
-                    </div>
-                    <span>Ingat Saya</span>
-                  </div>
-                </div>
-                <button type="submit">
-                  <span>Masuk</span>
-                </button>
-              </form>
-            </div>
-          </section>
-        </div>
-        {/* End Login Body */}
+        {first && First()}
+        {second && Second()}
+        {third && Third()}
       </div>
     </div>
   );

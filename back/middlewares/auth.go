@@ -44,18 +44,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
     })
 }
 
-// func (r *queryResolver) GetCurrentUser(ctx context.Context) (*model.User, error) {
-//     if ctx.Value("auth") == nil {
-//         return nil, &gqlerror.Error{
-//             Message: "Error, token gaada",
-//         }
-//     }
-
-//     id := ctx.Value("auth").(*service.JwtCustomClaim).ID
-
-//     return service.UserGetByID(ctx, id)
-// }
-
 func CtxValue(ctx context.Context) *service.JwtCustomClaim {
 	raw, _ := ctx.Value("auth").(*service.JwtCustomClaim)
 	return raw
