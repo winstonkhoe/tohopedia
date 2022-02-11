@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"tohopedia/graph/model"
-	"tohopedia/tools"
+	"tohopedia/helpers"
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"gorm.io/gorm"
@@ -46,7 +46,7 @@ func UserLogin(ctx context.Context, email string, password string) (interface{},
 		return nil, err
 	}
 
-	if !tools.ComparePassword(getUser.Password, password) {
+	if !helpers.ComparePassword(getUser.Password, password) {
 		return nil, &gqlerror.Error{
 			Message: "Password gk sama",
 		}

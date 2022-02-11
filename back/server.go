@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
+
 	// "github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
@@ -32,22 +33,23 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
-
+	
 	db:= config.GetDB()
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
-
+	
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{
-        AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
         // AllowOriginFunc:  func(origin string) bool { return true },
         AllowedMethods:   []string{},
         AllowedHeaders:   []string{},
         AllowCredentials: true,
         Debug:            true,
-    }).Handler)
-
+	}).Handler)
+		
 	router.Use(middlewares.AuthMiddleware)
+
 	c := generated.Config{Resolvers: &graph.Resolver{}}
 	c.Directives.Auth = directives.Auth
 

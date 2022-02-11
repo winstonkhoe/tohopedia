@@ -37,8 +37,10 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Address() AddressResolver
 	AuthOps() AuthOpsResolver
 	Cart() CartResolver
+	Category() CategoryResolver
 	Mutation() MutationResolver
 	Product() ProductResolver
 	ProductImage() ProductImageResolver
@@ -60,6 +62,7 @@ type ComplexityRoot struct {
 		Phone      func(childComplexity int) int
 		PostalCode func(childComplexity int) int
 		Receiver   func(childComplexity int) int
+		User       func(childComplexity int) int
 	}
 
 	AuthOps struct {
@@ -71,17 +74,19 @@ type ComplexityRoot struct {
 		ID       func(childComplexity int) int
 		Product  func(childComplexity int) int
 		Quantity func(childComplexity int) int
+		User     func(childComplexity int) int
 	}
 
 	Category struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Products func(childComplexity int) int
 	}
 
 	Mutation struct {
 		Auth     func(childComplexity int) int
 		EditShop func(childComplexity int, id string, image string, name string, slug string, slogan string, description string, openTime time.Time, closeTime time.Time, isOpen bool) int
-		OpenShop func(childComplexity int, userID string, input model.NewShop) int
+		OpenShop func(childComplexity int, input model.NewShop) int
 	}
 
 	Product struct {
@@ -136,26 +141,33 @@ type ComplexityRoot struct {
 		Email       func(childComplexity int) int
 		Gender      func(childComplexity int) int
 		ID          func(childComplexity int) int
+		Image       func(childComplexity int) int
 		IsSuspended func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Password    func(childComplexity int) int
 		Phone       func(childComplexity int) int
-		ProfilePic  func(childComplexity int) int
 		Role        func(childComplexity int) int
 		Shop        func(childComplexity int) int
 	}
 }
 
+type AddressResolver interface {
+	User(ctx context.Context, obj *model.Address) (*model.User, error)
+}
 type AuthOpsResolver interface {
 	Login(ctx context.Context, obj *model.AuthOps, email string, password string) (interface{}, error)
 	Register(ctx context.Context, obj *model.AuthOps, input model.NewUser) (interface{}, error)
 }
 type CartResolver interface {
 	Product(ctx context.Context, obj *model.Cart) (*model.Product, error)
+	User(ctx context.Context, obj *model.Cart) (*model.User, error)
+}
+type CategoryResolver interface {
+	Products(ctx context.Context, obj *model.Category) ([]*model.Product, error)
 }
 type MutationResolver interface {
 	Auth(ctx context.Context) (*model.AuthOps, error)
-	OpenShop(ctx context.Context, userID string, input model.NewShop) (*model.Shop, error)
+	OpenShop(ctx context.Context, input model.NewShop) (*model.Shop, error)
 	EditShop(ctx context.Context, id string, image string, name string, slug string, slogan string, description string, openTime time.Time, closeTime time.Time, isOpen bool) (*model.Shop, error)
 }
 type ProductResolver interface {
@@ -246,6 +258,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Address.Receiver(childComplexity), true
 
+	case "Address.user":
+		if e.complexity.Address.User == nil {
+			break
+		}
+
+		return e.complexity.Address.User(childComplexity), true
+
 	case "AuthOps.login":
 		if e.complexity.AuthOps.Login == nil {
 			break
@@ -291,6 +310,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Cart.Quantity(childComplexity), true
 
+	case "Cart.user":
+		if e.complexity.Cart.User == nil {
+			break
+		}
+
+		return e.complexity.Cart.User(childComplexity), true
+
 	case "Category.id":
 		if e.complexity.Category.ID == nil {
 			break
@@ -304,6 +330,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.Name(childComplexity), true
+
+	case "Category.products":
+		if e.complexity.Category.Products == nil {
+			break
+		}
+
+		return e.complexity.Category.Products(childComplexity), true
 
 	case "Mutation.auth":
 		if e.complexity.Mutation.Auth == nil {
@@ -334,7 +367,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.OpenShop(childComplexity, args["userId"].(string), args["input"].(model.NewShop)), true
+		return e.complexity.Mutation.OpenShop(childComplexity, args["input"].(model.NewShop)), true
 
 	case "Product.category":
 		if e.complexity.Product.Category == nil {
@@ -614,6 +647,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ID(childComplexity), true
 
+	case "User.image":
+		if e.complexity.User.Image == nil {
+			break
+		}
+
+		return e.complexity.User.Image(childComplexity), true
+
 	case "User.isSuspended":
 		if e.complexity.User.IsSuspended == nil {
 			break
@@ -641,13 +681,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Phone(childComplexity), true
-
-	case "User.profilePic":
-		if e.complexity.User.ProfilePic == nil {
-			break
-		}
-
-		return e.complexity.User.ProfilePic(childComplexity), true
 
 	case "User.role":
 		if e.complexity.User.Role == nil {
@@ -746,7 +779,7 @@ type User {
   phone: String!
   gender: String!
   dob: Date!
-  profilePic: String!
+  image: String!
   role: String!
   isSuspended: Boolean!
   shop: Shop! @goField(forceResolver: true)
@@ -800,6 +833,7 @@ type Product {
 type Category {
   id: ID!
   name: String!
+  products: [Product!]! @goField(forceResolver: true)
 }
 
 type Address {
@@ -810,11 +844,13 @@ type Address {
   city: String!
   postalCode: String!
   address: String!
+  user: User! @goField(forceResolver: true)
 }
 
 type Cart {
   id: ID!
   product: Product! @goField(forceResolver: true)
+  user: User! @goField(forceResolver: true)
   quantity: Int!
 }
 
@@ -843,7 +879,7 @@ type Query {
 
 type Mutation {
   auth: AuthOps! @goField(forceResolver: true)
-  openShop(userId: ID!, input: NewShop!): Shop!
+  openShop(input: NewShop!): Shop!
   editShop(id: ID!, image: String!, name: String!, slug: String!, slogan: String!, description: String!, openTime: Time!, closeTime: Time!, isOpen: Boolean!): Shop!
 }`, BuiltIn: false},
 }
@@ -982,24 +1018,15 @@ func (ec *executionContext) field_Mutation_editShop_args(ctx context.Context, ra
 func (ec *executionContext) field_Mutation_openShop_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["userId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["userId"] = arg0
-	var arg1 model.NewShop
+	var arg0 model.NewShop
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNNewShop2tohopediaᚋgraphᚋmodelᚐNewShop(ctx, tmp)
+		arg0, err = ec.unmarshalNNewShop2tohopediaᚋgraphᚋmodelᚐNewShop(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1316,6 +1343,41 @@ func (ec *executionContext) _Address_address(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Address_user(ctx context.Context, field graphql.CollectedField, obj *model.Address) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Address",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Address().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖtohopediaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _AuthOps_login(ctx context.Context, field graphql.CollectedField, obj *model.AuthOps) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1470,6 +1532,41 @@ func (ec *executionContext) _Cart_product(ctx context.Context, field graphql.Col
 	return ec.marshalNProduct2ᚖtohopediaᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Cart_user(ctx context.Context, field graphql.CollectedField, obj *model.Cart) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Cart",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Cart().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖtohopediaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Cart_quantity(ctx context.Context, field graphql.CollectedField, obj *model.Cart) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1575,6 +1672,41 @@ func (ec *executionContext) _Category_name(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Category_products(ctx context.Context, field graphql.CollectedField, obj *model.Category) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Category().Products(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚕᚖtohopediaᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1635,7 +1767,7 @@ func (ec *executionContext) _Mutation_openShop(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().OpenShop(rctx, args["userId"].(string), args["input"].(model.NewShop))
+		return ec.resolvers.Mutation().OpenShop(rctx, args["input"].(model.NewShop))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3192,7 +3324,7 @@ func (ec *executionContext) _User_dob(ctx context.Context, field graphql.Collect
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_profilePic(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_image(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3210,7 +3342,7 @@ func (ec *executionContext) _User_profilePic(ctx context.Context, field graphql.
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ProfilePic, nil
+		return obj.Image, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4648,38 +4780,52 @@ func (ec *executionContext) _Address(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Address_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "label":
 			out.Values[i] = ec._Address_label(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "receiver":
 			out.Values[i] = ec._Address_receiver(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "phone":
 			out.Values[i] = ec._Address_phone(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "city":
 			out.Values[i] = ec._Address_city(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "postalCode":
 			out.Values[i] = ec._Address_postalCode(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "address":
 			out.Values[i] = ec._Address_address(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "user":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Address_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4771,6 +4917,20 @@ func (ec *executionContext) _Cart(ctx context.Context, sel ast.SelectionSet, obj
 				}
 				return res
 			})
+		case "user":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Cart_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "quantity":
 			out.Values[i] = ec._Cart_quantity(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4801,13 +4961,27 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._Category_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Category_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "products":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Category_products(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5248,8 +5422,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "profilePic":
-			out.Values[i] = ec._User_profilePic(ctx, field, obj)
+		case "image":
+			out.Values[i] = ec._User_image(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}

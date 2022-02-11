@@ -36,6 +36,7 @@ const Login: NextPage = () => {
   }, [name]);
 
   const [getLogin, { loading, error, data }] = useMutation(LOGIN_QUERY);
+  const [getRambut, { loading: Load, error: err, data: d }] = useMutation(LOGIN_QUERY);
 
   async function onSubmit(formData: any) {
     try {

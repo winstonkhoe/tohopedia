@@ -1,14 +1,14 @@
 package model
 
 type User struct {
-	ID    		string 	   `json:"id" gorm:"type:varchar(255); primaryKey"`
-	Name  		string 	   `json:"name" gorm:"type:varchar(100); not null"`
-	Email 		string 	   `json:"email" gorm:"type:varchar(100); not null"`
-	Password 	string 	   `json:"password" gorm:"type:varchar(100); not null"`
+	ID    		string 	   `json:"id"`
+	Name  		string 	   `json:"name"`
+	Email 		string 	   `json:"email"`
+	Password 	string 	   `json:"password"`
 	Phone       string     `json:"phone"`
 	Gender      string     `json:"gender"`
 	Dob         string     `json:"dob"`
-	ProfilePic  string     `json:"profilePic"`
+	Image  		string     `json:"image"`
 	Role        string     `json:"role"`
 	IsSuspended bool       `json:"isSuspended"`
 	ShopID		string	   `json:"shopId" gorm:"size:191"`

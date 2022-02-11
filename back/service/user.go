@@ -4,7 +4,7 @@ import (
 	"context"
 	"tohopedia/config"
 	"tohopedia/graph/model"
-	"tohopedia/tools"
+	"tohopedia/helpers"
 	"strings"
 
 	"github.com/google/uuid"
@@ -13,7 +13,7 @@ import (
 func UserCreate(ctx context.Context, input model.NewUser) (*model.User, error) {
 	db := config.GetDB()
 
-	input.Password = tools.HashPassword(input.Password)
+	input.Password = helpers.HashPassword(input.Password)
 
 	user := model.User{
 		ID:       uuid.New().String(),

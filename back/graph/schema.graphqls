@@ -17,7 +17,7 @@ type User {
   phone: String!
   gender: String!
   dob: Date!
-  profilePic: String!
+  image: String!
   role: String!
   isSuspended: Boolean!
   shop: Shop! @goField(forceResolver: true)
@@ -71,6 +71,7 @@ type Product {
 type Category {
   id: ID!
   name: String!
+  products: [Product!]! @goField(forceResolver: true)
 }
 
 type Address {
@@ -81,11 +82,13 @@ type Address {
   city: String!
   postalCode: String!
   address: String!
+  user: User! @goField(forceResolver: true)
 }
 
 type Cart {
   id: ID!
   product: Product! @goField(forceResolver: true)
+  user: User! @goField(forceResolver: true)
   quantity: Int!
 }
 
@@ -114,6 +117,6 @@ type Query {
 
 type Mutation {
   auth: AuthOps! @goField(forceResolver: true)
-  openShop(userId: ID!, input: NewShop!): Shop!
+  openShop(input: NewShop!): Shop! @auth
   editShop(id: ID!, image: String!, name: String!, slug: String!, slogan: String!, description: String!, openTime: Time!, closeTime: Time!, isOpen: Boolean!): Shop!
 }

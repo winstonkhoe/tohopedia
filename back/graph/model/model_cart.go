@@ -1,8 +1,10 @@
 package model
 
 type Cart struct {
-	ID       	string  	`json:"id" gorm:"type:varchar(255); primaryKey"`
+	ID       	string  	`json:"id"`
 	ProductID  	string 		`json:"productId" gorm:"size:191"`
 	Product  	*Product 	`json:"product"`
-	Quantity 	int      	`json:"quantity" gorm:"type:int; not null"`
+	UserId		string		`json:"userId" gorm:"size:191"`
+	User		*User		`json:"user"`
+	Quantity 	int      	`json:"quantity"`
 }

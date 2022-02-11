@@ -16,6 +16,10 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
+func (r *addressResolver) User(ctx context.Context, obj *model.Address) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *authOpsResolver) Login(ctx context.Context, obj *model.AuthOps, email string, password string) (interface{}, error) {
 	return service.UserLogin(ctx, email, password)
 }
@@ -28,20 +32,36 @@ func (r *cartResolver) Product(ctx context.Context, obj *model.Cart) (*model.Pro
 	panic(fmt.Errorf("not implemented"))
 }
 
+func (r *cartResolver) User(ctx context.Context, obj *model.Cart) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *categoryResolver) Products(ctx context.Context, obj *model.Category) ([]*model.Product, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOps, error) {
 	return &model.AuthOps{}, nil
 }
 
-func (r *mutationResolver) OpenShop(ctx context.Context, userID string, input model.NewShop) (*model.Shop, error) {
+func (r *mutationResolver) OpenShop(ctx context.Context, input model.NewShop) (*model.Shop, error) {
 	db := config.GetDB()
 
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
 	user := new(model.User)
-	if err := db.First(user, "id = ?", userID).Error; err != nil {
+	if err := db.First(user, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 
 	shop := &model.Shop{
-		ID:			uuid.NewString(),
+		ID:         uuid.NewString(),
 		Name:       input.Name,
 		Slug:       input.Slug,
 		Phone:      input.Phone,
@@ -62,7 +82,26 @@ func (r *mutationResolver) OpenShop(ctx context.Context, userID string, input mo
 }
 
 func (r *mutationResolver) EditShop(ctx context.Context, id string, image string, name string, slug string, slogan string, description string, openTime time.Time, closeTime time.Time, isOpen bool) (*model.Shop, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	shop := new(model.Shop)
+	if err := db.First(shop, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	shop.Image = image
+	shop.Name = name
+	shop.Slug = slug
+	shop.Slogan = slogan
+	shop.Description = description
+	shop.OpenTime = openTime
+	shop.CloseTime = closeTime
+	shop.IsOpen = isOpen
+
+	if err := db.Save(shop).Error; err != nil {
+		return nil, err
+	}
+
+	return shop, nil
 }
 
 func (r *productResolver) Images(ctx context.Context, obj *model.Product) ([]*model.ProductImage, error) {
@@ -86,7 +125,9 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	var models []*model.User
+	return models, db.Find(&models).Error
 }
 
 func (r *queryResolver) GetCurrentUser(ctx context.Context) (*model.User, error) {
@@ -121,11 +162,17 @@ func (r *userResolver) Addresses(ctx context.Context, obj *model.User) ([]*model
 	panic(fmt.Errorf("not implemented"))
 }
 
+// Address returns generated.AddressResolver implementation.
+func (r *Resolver) Address() generated.AddressResolver { return &addressResolver{r} }
+
 // AuthOps returns generated.AuthOpsResolver implementation.
 func (r *Resolver) AuthOps() generated.AuthOpsResolver { return &authOpsResolver{r} }
 
 // Cart returns generated.CartResolver implementation.
 func (r *Resolver) Cart() generated.CartResolver { return &cartResolver{r} }
+
+// Category returns generated.CategoryResolver implementation.
+func (r *Resolver) Category() generated.CategoryResolver { return &categoryResolver{r} }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
@@ -145,8 +192,10 @@ func (r *Resolver) Shop() generated.ShopResolver { return &shopResolver{r} }
 // User returns generated.UserResolver implementation.
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
+type addressResolver struct{ *Resolver }
 type authOpsResolver struct{ *Resolver }
 type cartResolver struct{ *Resolver }
+type categoryResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type productResolver struct{ *Resolver }
 type productImageResolver struct{ *Resolver }
