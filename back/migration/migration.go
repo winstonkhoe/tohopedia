@@ -1,7 +1,6 @@
 package migration
 
 import (
-	"fmt"
 	"tohopedia/config"
 	"tohopedia/graph/model"
 )
@@ -17,10 +16,10 @@ func MigrateTable() {
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
-	err := db.AutoMigrate(&model.Category{})
-	if err != nil {
-		fmt.Println(err)
-	}
+	db.AutoMigrate(&model.Category{})
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 	db.AutoMigrate(&model.Product{})
 	db.AutoMigrate(&model.ProductImage{})
 	db.AutoMigrate(&model.Cart{})

@@ -1,0 +1,37 @@
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password: String!
+  phone: String!
+  gender: String!
+  dob: Date!
+  image: String!
+  role: String!
+  isSuspended: Boolean!
+  shop: Shop! @goField(forceResolver: true)
+  carts: [Cart!]! @goField(forceResolver: true)
+  addresses: [Address!]! @goField(forceResolver: true)
+}
+
+input NewUser {
+  name: String!
+  email: String!
+  password: String!
+}
+
+type AuthOps {
+  login(email: String!, password: String!): Any! @goField(forceResolver: true)
+  register(input: NewUser!): Any! @goField(forceResolver: true)
+}
+
+extend type Query {
+  user(id: ID!): User! @goField(forceResolver: true)
+  users: [User!]! @goField(forceResolver: true)
+  getCurrentUser: User! @goField(forceResolver: true) @auth
+}
+
+extend type Mutation {
+  auth: AuthOps! @goField(forceResolver: true)
+}

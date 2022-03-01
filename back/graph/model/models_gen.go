@@ -7,6 +7,31 @@ type AuthOps struct {
 	Register interface{} `json:"register"`
 }
 
+type NewAddress struct {
+	Label      string `json:"label"`
+	Receiver   string `json:"receiver"`
+	Phone      string `json:"phone"`
+	City       string `json:"city"`
+	PostalCode string `json:"postalCode"`
+	Address    string `json:"address"`
+}
+
+type NewCart struct {
+	ProductID string `json:"productId"`
+	Quantity  int    `json:"quantity"`
+}
+
+type NewProduct struct {
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Price       int      `json:"price"`
+	Stock       int      `json:"stock"`
+	Discount    int      `json:"discount"`
+	Metadata    *string  `json:"metadata"`
+	CategoryID  string   `json:"categoryId"`
+	Images      []string `json:"images"`
+}
+
 type NewShop struct {
 	Name       string `json:"name"`
 	Slug       string `json:"slug"`

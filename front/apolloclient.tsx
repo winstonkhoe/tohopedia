@@ -6,11 +6,8 @@ const token = getCookie('tokenid')
 const client = new ApolloClient({
   uri: 'http://localhost:8080/query',
   cache: new InMemoryCache(),
-  headers: token
-  ? {
-      Authorization: 'bearer ' + token,
-    }
-  : {},
+  headers: token ? {authorization: `bearer ${token}`,} : {},
 })
+console.log(token ? `bearer ${token}` : "No")
 
 export default client

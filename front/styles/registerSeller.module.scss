@@ -1,24 +1,37 @@
 $main-color: #42b549;
+$main-color-darker: #13883e;
 $hover-color: #f3f3f3;
 $nav-font-size: 12px;
 $color-nav-faded: rgba(0, 0, 0, 0.54);
 $color-text-high: rgba(49, 53, 59, 0.96);
 $color-shadow: rgba(49, 53, 59, 0.12);
+$phone: 550px;
 
 .container {
+  overflow: overlay;
   display: flex;
+  position: relative;
   min-height: calc(100vh - 110px);
   -webkit-box-align: center;
   align-items: center;
-  width: 1000px;
-  margin: 0px auto;
+  width: 100%;
 
+  @media screen and (max-width: $phone) {
+    flex-direction: column;
+  }
   .container_left {
     display: flex;
     flex-direction: column;
     -webkit-box-align: center;
     align-items: center;
+    width: 50%;
+    height: 100%;
 
+    @media screen and (max-width: $phone) {
+      display: none;
+      // width: 100%;
+      // margin-bottom: 50px;
+    }
     h2 {
       display: block;
       position: relative;
@@ -60,168 +73,201 @@ $color-shadow: rgba(49, 53, 59, 0.12);
     }
 
     .container_left_image {
-      position: relative;
-      display: block;
-      width: 360px;
-      height: 270px;
+      // position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: auto;
       margin: 0px auto;
     }
   }
 
   .container_right {
-    padding: 32px 40px 40px 32px;
-    border: 1px solid rgb(224, 224, 224);
-    box-sizing: border-box;
-    border-radius: 16px;
+    width: 50%;
 
-    .register_seller_hp {
-      height: 86px;
-      position: relative;
-      transition: height 0.3s ease-out 0s;
 
-      .register_seller_hp_top {
-        padding-left: 56px;
-        display: flex;
-        -webkit-box-align: center;
-        align-items: center;
-        min-height: 32px;
+    @media screen and (max-width: $phone) {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: calc(100vh - 110px);
+      // margin-bottom: 50px;
+    }
+    .container_right_inner {
+      max-width: 70%;
+      margin: 0px 40px;
+      padding: 20px 40px 20px 40px;
+      border: 1px solid rgb(224, 224, 224);
+      box-sizing: border-box;
+      border-radius: 16px;
 
-        .register_seller_hp_top_label {
-          background: var(--G500, #03ac0e);
-          border: 1px solid var(--N0, #ffffff);
-          transition: all 0.3s ease-out 0s;
-          position: absolute;
+      .register_seller_hp {
+        height: 86px;
+        transition: height 0.3s ease-out 0s;
+  
+        .register_seller_hp_top {
+          padding-left: 56px;
           display: flex;
           -webkit-box-align: center;
           align-items: center;
-          -webkit-box-pack: center;
-          justify-content: center;
-          font-weight: bold;
-          color: var(--G500, #03ac0e);
-          left: 0px;
-          top: 0px;
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          z-index: 2;
-
-          div {
-            width: 16px;
-            height: 16px;
+          min-height: 32px;
+  
+          .register_seller_hp_top_label {
+            background: var(--G500, #03ac0e);
+            border: 1px solid var(--N0, #ffffff);
+            transition: all 0.3s ease-out 0s;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--G500, #03ac0e);
+            left: 0px;
+            top: 0px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            z-index: 2;
+  
+            div {
+              width: 16px;
+              height: 16px;
+              position: relative;
+            }
+          }
+  
+          h4 {
+            display: block;
+            margin: 0;
             position: relative;
+            font-weight: 600;
+            font-family: "Nunito Sans", -apple-system, sans-serif;
+            font-size: 1rem;
+            line-height: 22px;
+            color: rgba(49, 53, 59, 0.96);
+            text-decoration: initial;
           }
         }
-
-        h4 {
-          display: block;
-          margin: 0;
-          position: relative;
-          font-weight: 600;
-          font-family: "Nunito Sans", -apple-system, sans-serif;
-          font-size: 1rem;
-          line-height: 22px;
-          color: rgba(49, 53, 59, 0.96);
-          text-decoration: initial;
-        }
-      }
-
-      .register_seller_hp_bottom {
-        padding-top: 8px;
-        margin-left: 56px;
-        padding-bottom: 24px;
-
-        p {
-          display: block;
-          position: relative;
-          font-weight: 300;
-          font-size: 1rem;
-          line-height: 22px;
-          color: var(--color-text-high, rgba(49, 53, 59, 0.96));
-          text-decoration: initial;
-          margin: 0px;
-        }
-      }
-
-      // &::after {
-      //   background-color: var(--G500, #03ac0e);
-      //   transition: all 0.3s ease-out 0s;
-      //   content: "";
-      //   position: absolute;
-      //   height: 100%;
-      //   width: 2px;
-      //   left: 15px;
-      //   top: 0px;
-      //   z-index: 1;
-      // }
-    }
-
-    .register_seller_nama {
-      height: 350px;
-      position: relative;
-      transition: height 0.3s ease-out 0s;
-
-      .register_seller_nama_bottom {
-        padding-top: 8px;
-        // margin-left: 56px;
-        padding-bottom: 24px;
-
-        form {
-          // opacity: 0;
-          // animation-name: animation-2o1k43;
-          animation-duration: 0.8s;
-          animation-fill-mode: forwards;
-
-          .register_seller_nama_input_container {
+  
+        .register_seller_hp_bottom {
+          padding-top: 8px;
+          margin-left: 56px;
+          padding-bottom: 24px;
+  
+          p {
+            display: block;
             position: relative;
-
-            div {
-              height: 40px;
-              border-radius: 8px;
-              margin-bottom: 20px;
-              display: flex;
-              -webkit-box-align: center;
-              align-items: center;
-              flex: 1 1 0%;
+            font-weight: 300;
+            font-size: 1rem;
+            line-height: 22px;
+            color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+            text-decoration: initial;
+            margin: 0px;
+          }
+        }
+  
+        // &::after {
+        //   background-color: var(--G500, #03ac0e);
+        //   transition: all 0.3s ease-out 0s;
+        //   content: "";
+        //   position: absolute;
+        //   height: 100%;
+        //   width: 2px;
+        //   left: 15px;
+        //   top: 0px;
+        //   z-index: 1;
+        // }
+      }
+  
+      .register_seller_nama {
+        position: relative;
+        transition: height 0.3s ease-out 0s;
+  
+        .register_seller_nama_bottom {
+          padding-top: 8px;
+          // margin-left: 56px;
+          padding-bottom: 24px;
+  
+          form {
+            // opacity: 0;
+            // animation-name: animation-2o1k43;
+            animation-duration: 0.8s;
+            animation-fill-mode: forwards;
+  
+            .register_seller_nama_input_container {
               position: relative;
-              overflow: hidden;
-              transition: border-color 280ms ease 0s;
-              background-color: var(--color-page-background, #ffffff);
-              border: 1px solid var(--color-border, #e5e7e9);
-
-              input {
-                min-width: 0;
-                min-height: 0;
-                width: 100%;
-                color: $color-text-high;
-                font-family: inherit;
-                background-color: transparent;
-                line-height: 22px;
-                border: none;
-                outline: none;
-                height: auto;
-                font-size: 14px;
-                padding-top: 8px;
-                padding-bottom: 8px;
-                padding-right: 12px;
-                padding-left: 12px;
+  
+              div {
+                height: 40px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                display: flex;
+                -webkit-box-align: center;
+                align-items: center;
+                flex: 1 1 0%;
+                position: relative;
+                overflow: hidden;
+                transition: border-color 280ms ease 0s;
+                background-color: var(--color-page-background, #ffffff);
+                border: 1px solid var(--color-border, #e5e7e9);
+  
+                input {
+                  min-width: 0;
+                  min-height: 0;
+                  width: 100%;
+                  color: $color-text-high;
+                  font-family: inherit;
+                  background-color: transparent;
+                  line-height: 22px;
+                  border: none;
+                  outline: none;
+                  height: auto;
+                  font-size: 14px;
+                  padding-top: 8px;
+                  padding-bottom: 8px;
+                  padding-right: 12px;
+                  padding-left: 12px;
+                }
               }
             }
           }
         }
+  
+        // &::after {
+        //   background-color: var(--G500, #fff);
+        //   border-color: #03ac0e;
+        //   transition: all 0.3s ease-out 0s;
+        //   content: "";
+        //   position: absolute;
+        //   height: 100%;
+        //   width: 2px;
+        //   left: 15px;
+        //   top: 0px;
+        //   z-index: 1;
+        // }
       }
 
-      // &::after {
-      //   background-color: var(--G500, #fff);
-      //   border-color: #03ac0e;
-      //   transition: all 0.3s ease-out 0s;
-      //   content: "";
-      //   position: absolute;
-      //   height: 100%;
-      //   width: 2px;
-      //   left: 15px;
-      //   top: 0px;
-      //   z-index: 1;
-      // }
     }
+  }
+}
+
+.button_daftar {
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  height: 40px;
+  background-color: $main-color;
+  
+  &:hover {
+    background-color: $main-color-darker;
+    cursor: pointer;
+  }
+  span {
+    color: #ffffff;
+    font-weight: 600;
+    font-family: "Open Sans";
   }
 }

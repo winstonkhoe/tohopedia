@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { ApolloProvider } from "@apollo/client";
 import client from "../apolloclient";
 import { ToastProvider } from "react-toast-notifications";
+import HeadIcon from "../components/head_icon";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

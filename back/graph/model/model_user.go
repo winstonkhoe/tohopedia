@@ -11,7 +11,6 @@ type User struct {
 	Image  		string     `json:"image"`
 	Role        string     `json:"role"`
 	IsSuspended bool       `json:"isSuspended"`
-	ShopID		string	   `json:"shopId" gorm:"size:191"`
 	Shop        *Shop      `json:"shop"`
 	Carts       []*Cart    `json:"carts"`
 	Addresses   []*Address `json:"addresses"`

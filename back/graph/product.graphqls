@@ -1,0 +1,51 @@
+
+type Product {
+  id: ID!
+  originalId: String!
+  name: String!
+  images: [ProductImage!]! @goField(forceResolver: true)
+  description: String!
+  price: Int!
+  discount: Int!
+  stock: Int!
+  metadata: String
+  createdAt: Time!
+  validTo: Time
+  category: Category! @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
+}
+
+input NewProduct {
+  name: String!
+  description: String!
+  price: Int!
+  stock: Int!
+  discount: Int!
+  metadata: String
+  categoryId: String!
+  images: [String!]!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  products: [Product!]! @goField(forceResolver: true)
+}
+
+type ProductImage {
+  id: ID!
+  product: Product! @goField(forceResolver: true)
+  image: String!
+}
+
+extend type Query {
+  categories: [Category!]! @goField(forceResolver: true)
+  product(id: ID!): Product! @goField(forceResolver: true)
+  products: [Product!]! @goField(forceResolver: true)
+  topProductDiscount: [Product!]! @goField(forceResolver: true)
+}
+
+extend type Mutation {
+  createCategory(name: String!): Category!
+  addProduct(input: NewProduct!): Product! @auth
+}

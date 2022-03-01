@@ -2,121 +2,39 @@
 #
 # https://gqlgen.com/getting-started/
 
-directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 directive @auth on FIELD_DEFINITION
 
 scalar Any
 scalar Time
 scalar Date
 
-type User {
-  id: ID!
-  name: String!
-  email: String!
-  password: String!
-  phone: String!
-  gender: String!
-  dob: Date!
-  image: String!
-  role: String!
-  isSuspended: Boolean!
-  shop: Shop! @goField(forceResolver: true)
-  carts: [Cart!]! @goField(forceResolver: true)
-  addresses: [Address!]! @goField(forceResolver: true)
-
-}
-
-input NewShop {
-  name: String!
-  slug: String!
-  phone: String!
-  city: String!
-  postalCode: String!
-  address: String!
-}
-
-type Shop {
-  id: ID!
-  name: String!
-  slug: String!
-  phone: String!
-  slogan: String!
-  description: String!
-  image: String!
-  openTime: Time!
-  closeTime: Time!
-  isOpen: Boolean!
-  reputationPoint: Int!
-  user: User! @goField(forceResolver: true)
-  products: [Product!]! @goField(forceResolver: true)
-  city: String!
-  postalCode: String!
-  address: String!
-}
-
-type Product {
-  id: ID!
-  name: String!
-  images: [ProductImage!]! @goField(forceResolver: true)
-  description: String!
-  price: Int!
-  discount: Int!
-  stock: Int!
-  metadata: String!
-  createdAt: Time!
-  category: Category! @goField(forceResolver: true)
-  shop: Shop! @goField(forceResolver: true)
-}
-
-type Category {
-  id: ID!
-  name: String!
-  products: [Product!]! @goField(forceResolver: true)
-}
-
-type Address {
-  id: ID!
-  label: String!
-  receiver: String!
-  phone: String!
-  city: String!
-  postalCode: String!
-  address: String!
-  user: User! @goField(forceResolver: true)
-}
-
 type Cart {
   id: ID!
   product: Product! @goField(forceResolver: true)
   user: User! @goField(forceResolver: true)
   quantity: Int!
+  checked: Boolean!
+  createdAt: Time!
 }
 
-type ProductImage {
-  id: ID!
-  product: Product! @goField(forceResolver: true)
-  image: String!
-}
-
-input NewUser {
-  name: String!
-  email: String!
-  password: String!
-}
-
-type AuthOps {
-  login(email: String!, password: String!): Any! @goField(forceResolver: true)
-  register(input: NewUser!): Any! @goField(forceResolver: true)
+input NewCart {
+  productId: String!
+  quantity: Int!
 }
 
 type Query {
-  user(id: ID!): User! @goField(forceResolver: true)
-  users: [User!]! @goField(forceResolver: true)
-  getCurrentUser: User! @goField(forceResolver: true) @auth
+  getCartProduct(productId: ID!): Cart! @goField(forceResolver: true) @auth
+  getUserCheckedCart: [Cart!] @goField(forceResolver: true) @auth
 }
 
 type Mutation {
-  auth: AuthOps! @goField(forceResolver: true)
-  openShop(input: NewShop!): Shop! @auth
-  editShop(id: ID!, image: String!, name: String!, slug: String!, slogan: String!, description: String!, openTime: Time!, closeTime: Time!, isOpen: Boolean!): Shop!
+  # addCart(input: NewCart!): Cart! @auth
+  createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
+  updateCart(id: ID! quantity: Int!): Cart! @auth
+  toggleCheckCart(id: ID! checked: Boolean!): Cart! @auth
+  deleteCart(id: ID!): Cart! @auth
 }

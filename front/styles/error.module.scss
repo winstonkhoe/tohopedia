@@ -1,0 +1,102 @@
+.big_container {
+  width: 100%;
+
+  .error_container {
+    background-color: var(--N0, #ffffff);
+    width: 1000px;
+    min-height: 600px;
+    margin: 0px auto;
+
+    .error_container_display {
+      display: flex;
+      flex-direction: column;
+      -webkit-box-pack: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      align-items: center;
+      flex: initial;
+      text-align: center;
+
+      .error_image_relative {
+        width: 400px;
+        height: 300px;
+        position: relative;
+      }
+
+      .error_description_container {
+        .error_description_header {
+          display: block;
+          position: relative;
+          font-weight: 400;
+          font-family: "Nunito Sans", -apple-system, sans-serif;
+          font-size: 2.71429rem;
+          line-height: 34px;
+          color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+          text-decoration: initial;
+          margin: 0px;
+        }
+        .error_description_paragraph {
+          display: block;
+          position: relative;
+          font-weight: 400;
+          font-size: 1rem;
+          line-height: 20px;
+          color: var(--color-text-low, rgba(49, 53, 59, 0.68));
+          text-decoration: initial;
+          margin: 8px 0px 0px;
+        }
+
+        .error_button_container {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          -webkit-box-align: center;
+          align-items: center;
+          margin-top: 24px;
+          margin-left: -4px;
+          margin-right: -4px;
+
+          .error_button_inner_container {
+            width: 100%;
+            padding-right: 4px;
+            padding-left: 4px;
+            margin-top: 0px;
+
+            .error_button_return {
+                min-width: 300px;
+                width: auto;
+                height: 48px;
+                color: rgb(255, 255, 255);
+                font-family: "Nunito Sans", sans-serif;
+                font-weight: 700;
+                font-size: 1.14286rem;
+                line-height: 22px;
+                text-indent: initial;
+                background-color: var(--G500,#03AC0E);
+                border: none;
+                border-radius: 8px;
+                display: inline-block;
+                outline: none;
+                cursor: pointer;
+                position: relative;
+                padding: 0px 16px;
+                transition: background-color 300ms ease 0s;
+                
+                .error_button_span_text {
+                    font-size: inherit;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    opacity: 1;
+                    display: block;
+                    overflow: hidden;
+                    position: relative;
+                    top: 0px;
+                    transition: opacity 300ms linear 0s, top 300ms linear 0s;
+                }
+            }
+          }
+        }
+      }
+    }
+  }
+}

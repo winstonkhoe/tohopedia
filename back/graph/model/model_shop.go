@@ -14,9 +14,11 @@ type Shop struct {
 	CloseTime       time.Time  `json:"closeTime"`
 	IsOpen          bool       `json:"isOpen"`
 	ReputationPoint int        `json:"reputationPoint"`
+	UserId			string	   `json:"userId" gorm:"size:191"`
 	User            *User      `json:"user"`
 	Products        []*Product `json:"products"`
 	City           	string     `json:"city"`
 	PostalCode		string     `json:"postalCode"`
 	Address         string     `json:"address"`
+	Type            int		   `json:"type"`	
 }

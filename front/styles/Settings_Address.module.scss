@@ -1,0 +1,342 @@
+.address_container {
+  padding: 36px 16px 16px;
+
+  .address_search_add_address_container {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+
+    // Search Bar
+    div {
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+
+      div {
+        border-radius: 8px;
+        display: flex;
+        -webkit-box-flex: inherit;
+        flex-grow: inherit;
+        -webkit-box-align: stretch;
+        align-items: stretch;
+        overflow: hidden;
+        transition: border-color 280ms ease 0s;
+        width: 300px;
+        height: auto;
+        background-color: var(--color-page-background, #ffffff);
+        border: 1px solid var(--color-border, #e5e7e9);
+        flex-direction: row-reverse;
+
+        button {
+          border: none;
+          outline: none;
+          position: relative;
+          cursor: pointer;
+          padding: 0;
+          -webkit-transition: background-color 280ms ease;
+          transition: background-color 280ms ease;
+          width: 40px;
+          background-color: var(--color-chip-disabled, #f3f4f5);
+          -webkit-flex: 0 0 auto;
+          -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+
+          &::after {
+            content: "";
+            background-size: 24px;
+            background-image: url("/logo/search_icon.svg");
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+          }
+        }
+
+        input {
+          padding-right: 12px;
+          padding-left: 12px;
+          min-width: 0;
+          min-height: 0;
+          width: 100%;
+          color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+          font-family: inherit;
+          background-color: transparent;
+          line-height: 22px;
+          border: none;
+          outline: none;
+          height: auto;
+          font-size: 14px;
+          padding-top: 8px;
+          padding-bottom: 8px;
+        }
+      }
+    }
+
+    // Tambah Alamat Baru
+    button {
+      width: auto;
+      height: 40px;
+      color: rgb(255, 255, 255);
+      font-family: "Nunito Sans", sans-serif;
+      font-weight: 700;
+      font-size: 0.857143rem;
+      line-height: 24px;
+      text-indent: initial;
+      background-color: var(--G500, #03ac0e);
+      border: none;
+      border-radius: 8px;
+      display: inline-block;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+      padding: 0px 16px;
+      transition: background-color 300ms ease 0s;
+
+      &:hover {
+        background-color: #12883d;
+      }
+
+      span {
+        font-size: inherit;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        opacity: 1;
+        display: block;
+        overflow: hidden;
+        position: relative;
+        top: 0px;
+        transition: opacity 300ms linear 0s, top 300ms linear 0s;
+      }
+    }
+    // END Tambah Alamat Baru
+  }
+
+  section {
+    margin: 16px 4px 4px;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px 0 var(--color-shadow, rgba(49, 53, 59, 0.12));
+    cursor: default;
+    position: relative;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 0px;
+      width: 6px;
+      height: 34px;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      background-color: var(--G500, #03ac0e);
+    }
+
+    .address_item_detail {
+      padding-right: 16px;
+      position: relative;
+      z-index: 1;
+
+      h5 {
+        display: flex;
+        align-items: center;
+        position: relative;
+        font-weight: 400;
+        font-family: "Nunito Sans", -apple-system, sans-serif;
+        font-size: 1rem;
+        line-height: 20px;
+        color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+        text-decoration: initial;
+        margin: 0px;
+
+        span {
+          display: block;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          max-width: 350px;
+        }
+
+        div {
+          margin-left: 4px;
+          position: relative;
+          display: inline-flex;
+          -webkit-box-align: center;
+          align-items: center;
+          font-weight: 700;
+          border-radius: 3px;
+          line-height: 16px;
+          padding: 0px 8px;
+          height: 20px;
+          font-size: 0.714286rem;
+          background-color: var(--N50, #f3f4f5);
+          color: var(--N200, #9fa6b0);
+          margin: 0px;
+          overflow: initial;
+          -webkit-box-pack: center;
+          justify-content: center;
+          transition: all 280ms ease-out 0s;
+        }
+      }
+
+      h4 {
+        display: block;
+        position: relative;
+        font-weight: 400;
+        font-family: "Nunito Sans", -apple-system, sans-serif;
+        font-size: 1.14286rem;
+        line-height: 22px;
+        color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+        text-decoration: initial;
+        margin: 4px 0px 0px;
+
+        span {
+          display: block;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          max-width: 350px;
+        }
+      }
+
+      p {
+        display: block;
+        position: relative;
+        font-weight: 400;
+        font-size: 1rem;
+        line-height: 20px;
+        color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+        text-decoration: initial;
+        margin: 4px 0px 0px;
+
+        span {
+          display: block;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          max-width: 350px;
+        }
+      }
+
+      .paragraph_flex {
+        display: flex;
+        align-items: center;
+      }
+
+      .flex_options_container {
+        margin-top: 16px;
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+      }
+
+      .ubah_container {
+        margin-top: 16px;
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+
+        a {
+          color: var(--G500, #03ac0e);
+          font-size: 0.857143rem;
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
+
+      .hapus_container {
+        &::before {
+          content: "";
+          display: block;
+          width: 2px;
+          height: 16px;
+          margin: 0px 12px;
+          background-color: var(--N75, #e5e7e9);
+        }
+      }
+    }
+
+    button {
+      flex-shrink: 0;
+      width: 96px;
+      height: 32px;
+      color: rgb(255, 255, 255);
+      font-family: "Nunito Sans", sans-serif;
+      font-weight: 700;
+      font-size: 0.857143rem;
+      line-height: 18px;
+      text-indent: initial;
+      background-color: var(--G500, #03ac0e);
+      border: none;
+      border-radius: 8px;
+      display: inline-block;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+      padding: 0px 16px;
+      transition: background-color 300ms ease 0s;
+
+      &:hover {
+        background-color: #12883d;
+      }
+      span {
+        font-size: inherit;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        opacity: 1;
+        display: block;
+        overflow: hidden;
+        position: relative;
+        top: 0px;
+        transition: opacity 300ms linear 0s, top 300ms linear 0s;
+      }
+    }
+
+    .address_checklist_container {
+      position: absolute;
+      top: 50%;
+      right: 24px;
+      transform: translateY(-50%);
+
+      picture {
+        width: 100%;
+        border-radius: 4px;
+        height: 100%;
+        display: flex;
+        background-image: none;
+
+        div {
+          position: relative;
+          width: 24px;
+          height: 24px;
+          border-radius: 4px;
+        }
+      }
+    }
+  }
+  .address_item_selected {
+    background-color: var(--G100, #ebffef);
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      border: 1px solid var(--G400, #4fd15a);
+      border-radius: 8px;
+    }
+  }
+  .address_item {
+  }
+}

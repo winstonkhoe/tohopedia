@@ -1,0 +1,32 @@
+type Address {
+  id: ID!
+  label: String!
+  receiver: String!
+  phone: String!
+  city: String!
+  postalCode: String!
+  address: String!
+  main: Boolean!
+  isDeleted: Boolean!
+  user: User! @goField(forceResolver: true)
+}
+
+input NewAddress {
+  label: String!
+  receiver: String!
+  phone: String!
+  city: String!
+  postalCode: String!
+  address: String!
+}
+
+extend type Query {
+  getAddress(query: String): [Address!]! @goField(forceResolver: true) @auth
+}
+
+extend type Mutation {
+  addAddress(input: NewAddress!): Address! @auth
+  updateAddress(id: ID! input: NewAddress!): Address! @auth
+  setMainAddress(id: ID!): [Address!]! @auth
+  deleteAddress(id: ID!): Address! @auth
+}

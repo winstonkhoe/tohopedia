@@ -10,198 +10,192 @@ import (
 	"tohopedia/config"
 	"tohopedia/graph/generated"
 	"tohopedia/graph/model"
+	"tohopedia/helpers"
 	"tohopedia/service"
 
 	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-func (r *addressResolver) User(ctx context.Context, obj *model.Address) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *authOpsResolver) Login(ctx context.Context, obj *model.AuthOps, email string, password string) (interface{}, error) {
-	return service.UserLogin(ctx, email, password)
-}
-
-func (r *authOpsResolver) Register(ctx context.Context, obj *model.AuthOps, input model.NewUser) (interface{}, error) {
-	return service.UserRegister(ctx, input)
-}
-
 func (r *cartResolver) Product(ctx context.Context, obj *model.Cart) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	product := new(model.Product)
+
+	if err := db.FirstOrInit(product, "id = ?", obj.ProductID).Error; err != nil {
+		return nil, err
+	}
+
+	helpers.ParseTime(&product.CreatedAt)
+	helpers.ParseTime(&product.ValidTo)
+
+	return product, nil
 }
 
 func (r *cartResolver) User(ctx context.Context, obj *model.Cart) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *categoryResolver) Products(ctx context.Context, obj *model.Category) ([]*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOps, error) {
-	return &model.AuthOps{}, nil
-}
-
-func (r *mutationResolver) OpenShop(ctx context.Context, input model.NewShop) (*model.Shop, error) {
 	db := config.GetDB()
-
-	if ctx.Value("auth") == nil {
-		return nil, &gqlerror.Error{
-			Message: "Error, token gaada",
-		}
-	}
-
-	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
-
 	user := new(model.User)
-	if err := db.First(user, "id = ?", id).Error; err != nil {
+
+	if err := db.First(user, "id = ?", obj.UserId).Error; err != nil {
 		return nil, err
 	}
 
-	shop := &model.Shop{
-		ID:         uuid.NewString(),
-		Name:       input.Name,
-		Slug:       input.Slug,
-		Phone:      input.Phone,
-		City:       input.City,
-		PostalCode: input.PostalCode,
-		Address:    input.Address,
-	}
-	err := db.Create(shop).Error
-
-	// Update Shop Id in User's Model
-	user.ShopID = shop.ID
-
-	if err := db.Save(user).Error; err != nil {
-		return nil, err
-	}
-
-	return shop, err
+	return user, nil
 }
 
-func (r *mutationResolver) EditShop(ctx context.Context, id string, image string, name string, slug string, slogan string, description string, openTime time.Time, closeTime time.Time, isOpen bool) (*model.Shop, error) {
+func (r *mutationResolver) CreateUpdateCart(ctx context.Context, productID string, quantity int) (*model.Cart, error) {
 	db := config.GetDB()
-	shop := new(model.Shop)
-	if err := db.First(shop, "id = ?", id).Error; err != nil {
-		return nil, err
-	}
-
-	shop.Image = image
-	shop.Name = name
-	shop.Slug = slug
-	shop.Slogan = slogan
-	shop.Description = description
-	shop.OpenTime = openTime
-	shop.CloseTime = closeTime
-	shop.IsOpen = isOpen
-
-	if err := db.Save(shop).Error; err != nil {
-		return nil, err
-	}
-
-	return shop, nil
-}
-
-func (r *productResolver) Images(ctx context.Context, obj *model.Product) ([]*model.ProductImage, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*model.Category, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *productResolver) Shop(ctx context.Context, obj *model.Product) (*model.Shop, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *productImageResolver) Product(ctx context.Context, obj *model.ProductImage) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	return service.UserGetByID(ctx, id)
-}
-
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	db := config.GetDB()
-	var models []*model.User
-	return models, db.Find(&models).Error
-}
-
-func (r *queryResolver) GetCurrentUser(ctx context.Context) (*model.User, error) {
+	cart := new(model.Cart)
+	product := new(model.Product)
 	if ctx.Value("auth") == nil {
 		return nil, &gqlerror.Error{
 			Message: "Error, token gaada",
 		}
 	}
 
-	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
 
-	return service.UserGetByID(ctx, id)
+	err := db.First(cart, "user_id = ? AND product_id = ?", userId, productID).Error
+
+	if len(cart.ID) == 0 {
+		loc, _ := time.LoadLocation("Asia/Jakarta")
+		now := time.Now().In(loc)
+		cart = &model.Cart{
+			ID:        uuid.NewString(),
+			ProductID: productID,
+			UserId:    userId,
+			Quantity:  quantity,
+			CreatedAt: now,
+			Checked:   true,
+		}
+
+		err := db.Create(cart).Error
+
+		return cart, err
+	} else if err != nil {
+		return nil, err
+	}
+
+	if err := db.First(product, "id = ?", productID).Error; err != nil {
+		return nil, err
+	}
+
+	if quantity >= 0 && (cart.Quantity+quantity) <= product.Stock {
+		cart.Quantity += quantity
+	}
+
+	if err := db.Save(cart).Error; err != nil {
+		return nil, err
+	}
+
+	helpers.ParseTime(&cart.CreatedAt)
+
+	return cart, nil
 }
 
-func (r *shopResolver) User(ctx context.Context, obj *model.Shop) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) UpdateCart(ctx context.Context, id string, quantity int) (*model.Cart, error) {
+	db := config.GetDB()
+	cart := new(model.Cart)
+	product := new(model.Product)
+
+	if err := db.First(cart, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	if err := db.First(product, "id = ?", cart.ProductID).Error; err != nil {
+		return nil, err
+	}
+
+	if cart.Quantity > 0 && cart.Quantity <= product.Stock {
+		cart.Quantity = quantity
+	}
+
+	if err := db.Save(cart).Error; err != nil {
+		return nil, err
+	}
+
+	helpers.ParseTime(&cart.CreatedAt)
+
+	return cart, nil
 }
 
-func (r *shopResolver) Products(ctx context.Context, obj *model.Shop) ([]*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) ToggleCheckCart(ctx context.Context, id string, checked bool) (*model.Cart, error) {
+	db := config.GetDB()
+	cart := new(model.Cart)
+
+	if err := db.First(cart, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	cart.Checked = checked
+
+	if err := db.Save(cart).Error; err != nil {
+		return nil, err
+	}
+
+	helpers.ParseTime(&cart.CreatedAt)
+
+	return cart, nil
 }
 
-func (r *userResolver) Shop(ctx context.Context, obj *model.User) (*model.Shop, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) DeleteCart(ctx context.Context, id string) (*model.Cart, error) {
+	db := config.GetDB()
+	cart := new(model.Cart)
+	if err := db.First(cart, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	helpers.ParseTime(&cart.CreatedAt)
+	return cart, db.Delete(cart).Error
 }
 
-func (r *userResolver) Carts(ctx context.Context, obj *model.User) ([]*model.Cart, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) GetCartProduct(ctx context.Context, productID string) (*model.Cart, error) {
+	db := config.GetDB()
+	cart := new(model.Cart)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.First(cart, "product_id = ? AND user_id = ?", productID, userId).Error; err != nil {
+		return nil, err
+	}
+
+	return cart, nil
 }
 
-func (r *userResolver) Addresses(ctx context.Context, obj *model.User) ([]*model.Address, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) GetUserCheckedCart(ctx context.Context) ([]*model.Cart, error) {
+	db := config.GetDB()
+	var carts []*model.Cart
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("user_id = ? AND checked = ?", userId, true).Find(&carts).Error; err != nil {
+		return nil, err
+	}
+
+	return carts, nil
 }
-
-// Address returns generated.AddressResolver implementation.
-func (r *Resolver) Address() generated.AddressResolver { return &addressResolver{r} }
-
-// AuthOps returns generated.AuthOpsResolver implementation.
-func (r *Resolver) AuthOps() generated.AuthOpsResolver { return &authOpsResolver{r} }
 
 // Cart returns generated.CartResolver implementation.
 func (r *Resolver) Cart() generated.CartResolver { return &cartResolver{r} }
 
-// Category returns generated.CategoryResolver implementation.
-func (r *Resolver) Category() generated.CategoryResolver { return &categoryResolver{r} }
-
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
-
-// Product returns generated.ProductResolver implementation.
-func (r *Resolver) Product() generated.ProductResolver { return &productResolver{r} }
-
-// ProductImage returns generated.ProductImageResolver implementation.
-func (r *Resolver) ProductImage() generated.ProductImageResolver { return &productImageResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
-// Shop returns generated.ShopResolver implementation.
-func (r *Resolver) Shop() generated.ShopResolver { return &shopResolver{r} }
-
-// User returns generated.UserResolver implementation.
-func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
-
-type addressResolver struct{ *Resolver }
-type authOpsResolver struct{ *Resolver }
 type cartResolver struct{ *Resolver }
-type categoryResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
-type productResolver struct{ *Resolver }
-type productImageResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type shopResolver struct{ *Resolver }
-type userResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
@@ -209,6 +203,34 @@ type userResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *cartResolver) Checked(ctx context.Context, obj *model.Cart) (bool, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *mutationResolver) AddCart(ctx context.Context, input model.NewCart) (*model.Cart, error) {
+	db := config.GetDB()
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	cart := &model.Cart{
+		ID:        uuid.NewString(),
+		ProductID: input.ProductID,
+		UserId:    userId,
+		Quantity:  input.Quantity,
+	}
+
+	err := db.Create(cart).Error
+
+	return cart, err
+}
+func (r *productResolver) OriginalID(ctx context.Context, obj *model.Product) (string, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 func (r *shopResolver) Phone(ctx context.Context, obj *model.Shop) (string, error) {
 	panic(fmt.Errorf("not implemented"))
 }
