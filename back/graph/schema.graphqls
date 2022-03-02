@@ -12,6 +12,105 @@ scalar Any
 scalar Time
 scalar Date
 
+type ShipmentType {
+  id: ID!
+  name: String!
+  shipments: [Shipment!]! @goField(forceResolver: true)
+}
+
+type Shipment {
+  id: ID!
+  name: String!
+  duration: Int!
+  shipmentType: ShipmentType! @goField(forceResolver: true)
+  price: Int!
+}
+
+input NewShipment {
+  name: String!
+  duration: Int!
+  shipmentTypeId: String!
+  price: Int!
+}
+
+type Coupon {
+  id: ID!
+  code: String!
+  discount: Int!
+  minimumPayment: Int!
+  maxDiscount: Int!
+  shop: Shop! @goField(forceResolver: true)
+}
+
+input NewCoupon {
+  code: String!
+  discount: Int!
+  minimumPayment: Int!
+  maxDiscount: Int!
+}
+
+type Wishlist {
+  id: ID!
+  product: Product! @goField(forceResolver: true)
+  user: User! @goField(forceResolver: true)
+}
+
+input NewWishlist {
+  productId: String!
+}
+
+type Transaction {
+  id: ID!
+  details: [TransactionDetail!]! @goField(forceResolver: true)
+  address: Address! @goField(forceResolver: true)
+  shipment: Shipment! @goField(forceResolver: true)
+  user: User!  @goField(forceResolver: true)
+  transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
+  date: Time! @goField(forceResolver: true)
+  status: Int!
+}
+
+input NewTransaction {
+  addressId: String!
+  shipmentId: String!
+  couponId: String
+}
+
+type TransactionDetail {
+  id: ID!
+  transaction: Transaction! @goField(forceResolver: true)
+  product: Product! @goField(forceResolver: true)
+  quantity: Int! @goField(forceResolver: true)
+}
+
+type TransactionCoupon {
+  id: ID!
+  transaction: Transaction! @goField(forceResolver: true)
+  coupon: Coupon! @goField(forceResolver: true)
+}
+
+input NewTransactionDetail {
+  transactionHeaderId: String!
+  productId: String!
+  quantity: Int!
+}
+
+type Ulasan {
+  id: ID!
+  transactionDetail: TransactionDetail! @goField(forceResolver: true)
+  user: User! @goField(forceResolver: true)
+  rating: Int!
+  message: String
+  anonymous: Boolean!
+}
+
+input NewUlasan {
+  transactionDetailId: String!
+  rating: Int!
+  message: String
+  anonymous: Boolean!
+}
+
 type Cart {
   id: ID!
   product: Product! @goField(forceResolver: true)
@@ -29,9 +128,12 @@ input NewCart {
 type Query {
   getCartProduct(productId: ID!): Cart! @goField(forceResolver: true) @auth
   getUserCheckedCart: [Cart!] @goField(forceResolver: true) @auth
+  shipmentTypes: [ShipmentType!]! @goField(forceResolver: true) @auth
 }
 
 type Mutation {
+  addShipmentType(name: String!): ShipmentType! @auth
+  addShipment(input: NewShipment!): Shipment! @auth
   # addCart(input: NewCart!): Cart! @auth
   createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
   updateCart(id: ID! quantity: Int!): Cart! @auth

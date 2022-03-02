@@ -21,6 +21,13 @@ type NewCart struct {
 	Quantity  int    `json:"quantity"`
 }
 
+type NewCoupon struct {
+	Code           string `json:"code"`
+	Discount       int    `json:"discount"`
+	MinimumPayment int    `json:"minimumPayment"`
+	MaxDiscount    int    `json:"maxDiscount"`
+}
+
 type NewProduct struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -32,6 +39,13 @@ type NewProduct struct {
 	Images      []string `json:"images"`
 }
 
+type NewShipment struct {
+	Name           string `json:"name"`
+	Duration       int    `json:"duration"`
+	ShipmentTypeID string `json:"shipmentTypeId"`
+	Price          int    `json:"price"`
+}
+
 type NewShop struct {
 	Name       string `json:"name"`
 	Slug       string `json:"slug"`
@@ -41,8 +55,31 @@ type NewShop struct {
 	Address    string `json:"address"`
 }
 
+type NewTransaction struct {
+	AddressID  string  `json:"addressId"`
+	ShipmentID string  `json:"shipmentId"`
+	CouponID   *string `json:"couponId"`
+}
+
+type NewTransactionDetail struct {
+	TransactionHeaderID string `json:"transactionHeaderId"`
+	ProductID           string `json:"productId"`
+	Quantity            int    `json:"quantity"`
+}
+
+type NewUlasan struct {
+	TransactionDetailID string  `json:"transactionDetailId"`
+	Rating              int     `json:"rating"`
+	Message             *string `json:"message"`
+	Anonymous           bool    `json:"anonymous"`
+}
+
 type NewUser struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type NewWishlist struct {
+	ProductID string `json:"productId"`
 }

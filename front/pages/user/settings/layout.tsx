@@ -10,12 +10,26 @@ import Link from "next/link";
 import { gql, useQuery } from "@apollo/client";
 import React, { Children, useState } from "react";
 import { UserNavbar } from "../../../components/user/user_navbar";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
+import { render } from "sass";
 
-const Layout = (props: { children: any } ) => {
+const Layout = (props: { children: any }) => {
+  const router = useRouter()
 //   const [kotak, setKotak] = useState(true);
 //   const [pembelian, setPembelian] = useState(true);
 //   const [profil, setProfil] = useState(true);
+  // console.log(router.pathname)
+  // console.log(router.pathname.split('/'))
+
+  function checkPathExists(array: any, path: string) {
+    return array.indexOf(path) >= 0
+  }
+
+  const paths = router.pathname.split('/')
+  const [activeTab, setActiveTab] = useState(checkPathExists(paths, "address") ? "address" : "index")
+  const indicatorStyle = {
+    index: {width: "131px", left: "0px"}, address: {width: "148px", left: "131px"}
+  }
   const ALL_PRODUCT_QUERY = gql`
     query GetAllProduct {
       products {
@@ -207,15 +221,15 @@ const Layout = (props: { children: any } ) => {
                       className={styles.settings_tab_navigator_container_flex}
                     >
                       <div
-                        className={styles.settings_tab_navigator_item_active}
-                        onClick={()=>{Router.replace('/user/settings')}}
+                        className={activeTab == "index" ? styles.settings_tab_navigator_item_active : styles.settings_tab_navigator_item_inactive}
+                        onClick={() => { setActiveTab("index");  Router.replace('/user/settings')}}
                                           >
                         Biodata Diri
                         
                       </div>
                       <div
-                                              className={styles.settings_tab_navigator_item_inactive}
-                                              onClick={()=>{Router.replace('/user/settings/address')}}
+                                              className={activeTab == "address" ? styles.settings_tab_navigator_item_active : styles.settings_tab_navigator_item_inactive}
+                        onClick={() => { setActiveTab("address"); Router.replace('/user/settings/address')}}
                       >
                         Daftar Alamat
                       </div>
@@ -223,6 +237,8 @@ const Layout = (props: { children: any } ) => {
                         className={
                           styles.settings_tab_navigator_active_indicator
                         }
+                        style={indicatorStyle[activeTab]}
+                        // style={{width: "131px", left: "0px"}}
                       ></div>
                     </div>
                   </div>

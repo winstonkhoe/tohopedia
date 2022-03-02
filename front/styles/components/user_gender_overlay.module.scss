@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  // width: 100%;
+  justify-content: center;
+}
+
+.radio_container {
+  display: flex;
+  align-items: center;
+
+  input {
+
+    &:hover {
+        background-color: #75ad78;
+    }
+    &:checked::after {
+      width: 15px;
+      height: 15px;
+      border-radius: 15px;
+      top: -4px;
+      left: -4px;
+      position: relative;
+      background-color: #96dc9a;
+      content: "";
+      display: inline-block;
+      visibility: visible;
+      border: 2px solid white;
+    }
+  }
+}

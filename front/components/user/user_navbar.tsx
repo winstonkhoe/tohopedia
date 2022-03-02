@@ -1,3 +1,4 @@
+import { gql, useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -8,13 +9,26 @@ export function UserNavbar() {
   const [pembelian, setPembelian] = useState(true);
   const [profil, setProfil] = useState(true);
 
+  const USER_DATA_QUERY = gql`
+    query GetUser {
+      getCurrentUser {
+        name
+        image
+      }
+    }
+  `;
+
+  const { loading: userLoad, error: userErr, data: userData } = useQuery(USER_DATA_QUERY, {
+    pollInterval: 2000,
+  });
+
   return (
     <div className={styles.main_left_container}>
       <div className={styles.settings_user_profile_container}>
         <div className={styles.settings_user_profile_image_container}>
           <div className={styles.settings_user_profile_image_relative}>
             <Image
-              src={"/uploads/1645900279556_0.jpg"}
+              src={`/uploads/${userData?.getCurrentUser?.image}`}
               alt=""
               layout="fill"
               objectFit="cover"
@@ -22,7 +36,7 @@ export function UserNavbar() {
           </div>
         </div>
         <div className={styles.settings_user_profile_detail_container}>
-          <h6 className={styles.settings_user_profile_name}>Winston</h6>
+          <h6 className={styles.settings_user_profile_name}>{userData?.getCurrentUser?.name}</h6>
           <div className={styles.settings_user_profile_other}>
             <div className={styles.settings_user_profile_other_icon_relative}>
               <Image

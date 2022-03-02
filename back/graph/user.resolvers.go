@@ -27,6 +27,139 @@ func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOps, error) {
 	return &model.AuthOps{}, nil
 }
 
+func (r *mutationResolver) UpdateUserName(ctx context.Context, name string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Name = name
+
+	return user, db.Save(user).Error
+}
+
+func (r *mutationResolver) UpdateUserEmail(ctx context.Context, email string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Email = email
+
+	return user, db.Save(user).Error
+}
+
+func (r *mutationResolver) UpdateUserPhone(ctx context.Context, phone string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Phone = phone
+
+	return user, db.Save(user).Error
+}
+
+func (r *mutationResolver) UpdateUserGender(ctx context.Context, gender string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	genderInt := 0
+	if gender == "female" || gender == "Female" {
+		genderInt = 0
+	} else if gender == "male" || gender == "Male" {
+		genderInt = 1
+	}
+
+	user.Gender = genderInt
+
+	return user, db.Save(user).Error
+}
+
+func (r *mutationResolver) UpdateUserDob(ctx context.Context, dob string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Dob = dob
+
+	return user, db.Save(user).Error
+}
+
+func (r *mutationResolver) UpdateUserImage(ctx context.Context, image string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Image = image
+
+	return user, db.Save(user).Error
+}
+
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	return service.UserGetByID(ctx, id)
 }
@@ -84,3 +217,137 @@ func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
 type authOpsResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) UpdateName(ctx context.Context, name string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Name = name
+
+	return user, db.Save(user).Error
+}
+func (r *mutationResolver) UpdateEmail(ctx context.Context, email string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Email = email
+
+	return user, db.Save(user).Error
+}
+func (r *mutationResolver) UpdatePhone(ctx context.Context, phone string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Phone = phone
+
+	return user, db.Save(user).Error
+}
+func (r *mutationResolver) UpdateGender(ctx context.Context, gender string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	genderInt := 0
+	if gender == "female" || gender == "Female" {
+		genderInt = 0
+	} else if gender == "male" || gender == "Male" {
+		genderInt = 1
+	}
+
+	user.Gender = genderInt
+
+	return user, db.Save(user).Error
+}
+func (r *mutationResolver) UpdateDob(ctx context.Context, dob string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Dob = dob
+
+	return user, db.Save(user).Error
+}
+func (r *mutationResolver) UpdateImage(ctx context.Context, image string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Image = image
+
+	return user, db.Save(user).Error
+}

@@ -22,6 +22,8 @@ func (r *addressResolver) User(ctx context.Context, obj *model.Address) (*model.
 func (r *mutationResolver) AddAddress(ctx context.Context, input model.NewAddress) (*model.Address, error) {
 	db := config.GetDB()
 
+	var addresses []*model.Address
+
 	if ctx.Value("auth") == nil {
 		return nil, &gqlerror.Error{
 			Message: "Error, token gaada",
@@ -29,6 +31,8 @@ func (r *mutationResolver) AddAddress(ctx context.Context, input model.NewAddres
 	}
 
 	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	err := db.Where("user_id = ?", userId).Find(&addresses).Error
 
 	address := &model.Address{
 		ID:         uuid.NewString(),
@@ -41,6 +45,9 @@ func (r *mutationResolver) AddAddress(ctx context.Context, input model.NewAddres
 		Main:       false,
 		IsDeleted:  false,
 		UserId:     userId,
+	}
+	if err != nil || len(addresses) == 0 {
+		address.Main = true
 	}
 
 	return address, db.Create(&address).Error
@@ -70,7 +77,15 @@ func (r *mutationResolver) SetMainAddress(ctx context.Context, id string) ([]*mo
 
 	var address []*model.Address
 
-	if err := db.Where("id = ?", id).Find(&address).Error; err != nil {
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("user_id = ?", userId).Find(&address).Error; err != nil {
 		return nil, err
 	}
 
@@ -99,13 +114,29 @@ func (r *mutationResolver) DeleteAddress(ctx context.Context, id string) (*model
 	return address, db.Save(address).Error
 }
 
-func (r *queryResolver) GetAddress(ctx context.Context, query *string) ([]*model.Address, error) {
+func (r *queryResolver) GetAddress(ctx context.Context, query string) ([]*model.Address, error) {
 	db := config.GetDB()
 
 	var address []*model.Address
 
-	if err := db.Where("receiver LIKE %?% OR address LIKE %?%", query, query).Find(&address).Error; err != nil {
-		return nil, err
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	stringQ := "%" + query + "%"
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if query == "" {
+		if err := db.Where("user_id = ? AND is_deleted = ?", userId, false).Order("main DESC").Order("label").Find(&address).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := db.Where(`(receiver LIKE ? OR address LIKE ?) AND user_id = ? AND is_deleted = ?`, stringQ, stringQ, userId, false).Order("main DESC").Order("receiver").Find(&address).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	return address, nil

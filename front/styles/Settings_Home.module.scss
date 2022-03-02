@@ -689,13 +689,13 @@ $card-color: #ffffff;
 
             .settings_tab_navigator_active_indicator {
               min-width: 16px;
-              width: 131px;
+              // width: 131px;
               height: 2px;
               border-radius: 1px;
               background-color: var(--G500, #03ac0e);
               position: absolute;
               bottom: 0px;
-              left: 0px;
+              // left: 0px;
               transition-duration: 300ms;
               transition-timing-function: cubic-bezier(0.63, 0.01, 0.29, 1);
             }

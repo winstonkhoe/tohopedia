@@ -42,6 +42,35 @@ func (r *cartResolver) User(ctx context.Context, obj *model.Cart) (*model.User, 
 	return user, nil
 }
 
+func (r *couponResolver) Shop(ctx context.Context, obj *model.Coupon) (*model.Shop, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) AddShipmentType(ctx context.Context, name string) (*model.ShipmentType, error) {
+	db := config.GetDB()
+
+	shipmentType := &model.ShipmentType{
+		ID:   uuid.NewString(),
+		Name: name,
+	}
+
+	return shipmentType, db.Save(shipmentType).Error
+}
+
+func (r *mutationResolver) AddShipment(ctx context.Context, input model.NewShipment) (*model.Shipment, error) {
+	db := config.GetDB()
+
+	shipment := &model.Shipment{
+		ID:             uuid.NewString(),
+		Name:           input.Name,
+		Duration:       input.Duration,
+		ShipmentTypeId: input.ShipmentTypeID,
+		Price:          input.Price,
+	}
+
+	return shipment, db.Save(shipment).Error
+}
+
 func (r *mutationResolver) CreateUpdateCart(ctx context.Context, productID string, quantity int) (*model.Cart, error) {
 	db := config.GetDB()
 	cart := new(model.Cart)
@@ -184,8 +213,83 @@ func (r *queryResolver) GetUserCheckedCart(ctx context.Context) ([]*model.Cart, 
 	return carts, nil
 }
 
+func (r *queryResolver) ShipmentTypes(ctx context.Context) ([]*model.ShipmentType, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *shipmentResolver) ShipmentType(ctx context.Context, obj *model.Shipment) (*model.ShipmentType, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *shipmentTypeResolver) Shipments(ctx context.Context, obj *model.ShipmentType) ([]*model.Shipment, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) Details(ctx context.Context, obj *model.Transaction) ([]*model.TransactionDetail, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) Address(ctx context.Context, obj *model.Transaction) (*model.Address, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) Shipment(ctx context.Context, obj *model.Transaction) (*model.Shipment, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) User(ctx context.Context, obj *model.Transaction) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) TransactionCoupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) Date(ctx context.Context, obj *model.Transaction) (*time.Time, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionCouponResolver) Transaction(ctx context.Context, obj *model.TransactionCoupon) (*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionCouponResolver) Coupon(ctx context.Context, obj *model.TransactionCoupon) (*model.Coupon, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionDetailResolver) Transaction(ctx context.Context, obj *model.TransactionDetail) (*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionDetailResolver) Product(ctx context.Context, obj *model.TransactionDetail) (*model.Product, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionDetailResolver) Quantity(ctx context.Context, obj *model.TransactionDetail) (int, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *ulasanResolver) TransactionDetail(ctx context.Context, obj *model.Ulasan) (*model.TransactionDetail, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *ulasanResolver) User(ctx context.Context, obj *model.Ulasan) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *wishlistResolver) Product(ctx context.Context, obj *model.Wishlist) (*model.Product, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *wishlistResolver) User(ctx context.Context, obj *model.Wishlist) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Cart returns generated.CartResolver implementation.
 func (r *Resolver) Cart() generated.CartResolver { return &cartResolver{r} }
+
+// Coupon returns generated.CouponResolver implementation.
+func (r *Resolver) Coupon() generated.CouponResolver { return &couponResolver{r} }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
@@ -193,9 +297,42 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// Shipment returns generated.ShipmentResolver implementation.
+func (r *Resolver) Shipment() generated.ShipmentResolver { return &shipmentResolver{r} }
+
+// ShipmentType returns generated.ShipmentTypeResolver implementation.
+func (r *Resolver) ShipmentType() generated.ShipmentTypeResolver { return &shipmentTypeResolver{r} }
+
+// Transaction returns generated.TransactionResolver implementation.
+func (r *Resolver) Transaction() generated.TransactionResolver { return &transactionResolver{r} }
+
+// TransactionCoupon returns generated.TransactionCouponResolver implementation.
+func (r *Resolver) TransactionCoupon() generated.TransactionCouponResolver {
+	return &transactionCouponResolver{r}
+}
+
+// TransactionDetail returns generated.TransactionDetailResolver implementation.
+func (r *Resolver) TransactionDetail() generated.TransactionDetailResolver {
+	return &transactionDetailResolver{r}
+}
+
+// Ulasan returns generated.UlasanResolver implementation.
+func (r *Resolver) Ulasan() generated.UlasanResolver { return &ulasanResolver{r} }
+
+// Wishlist returns generated.WishlistResolver implementation.
+func (r *Resolver) Wishlist() generated.WishlistResolver { return &wishlistResolver{r} }
+
 type cartResolver struct{ *Resolver }
+type couponResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type shipmentResolver struct{ *Resolver }
+type shipmentTypeResolver struct{ *Resolver }
+type transactionResolver struct{ *Resolver }
+type transactionCouponResolver struct{ *Resolver }
+type transactionDetailResolver struct{ *Resolver }
+type ulasanResolver struct{ *Resolver }
+type wishlistResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
@@ -203,6 +340,21 @@ type queryResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *transactionResolver) Coupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *transactionCouponResolver) TransactionHeader(ctx context.Context, obj *model.TransactionCoupon) (*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *transactionDetailResolver) TransactionHeader(ctx context.Context, obj *model.TransactionDetail) (*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *shipmentResolver) ShipmentTypeID(ctx context.Context, obj *model.Shipment) (*model.ShipmentType, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *shipmentResolver) Type(ctx context.Context, obj *model.Shipment) (*model.ShipmentType, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 func (r *cartResolver) Checked(ctx context.Context, obj *model.Cart) (bool, error) {
 	panic(fmt.Errorf("not implemented"))
 }
