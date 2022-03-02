@@ -1,0 +1,26 @@
+type Cart {
+  id: ID!
+  product: Product! @goField(forceResolver: true)
+  user: User! @goField(forceResolver: true)
+  quantity: Int!
+  checked: Boolean!
+  createdAt: Time!
+}
+
+input NewCart {
+  productId: String!
+  quantity: Int!
+}
+
+extend type Query {
+  getCartProduct(productId: ID!): Cart! @goField(forceResolver: true) @auth
+  getUserCheckedCart: [Cart!] @goField(forceResolver: true) @auth
+}
+
+extend type Mutation {
+  # addCart(input: NewCart!): Cart! @auth
+  createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
+  updateCart(id: ID! quantity: Int!): Cart! @auth
+  toggleCheckCart(id: ID! checked: Boolean!): Cart! @auth
+  deleteCart(id: ID!): Cart! @auth
+}

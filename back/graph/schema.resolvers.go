@@ -10,175 +10,18 @@ import (
 	"tohopedia/config"
 	"tohopedia/graph/generated"
 	"tohopedia/graph/model"
-	"tohopedia/helpers"
 	"tohopedia/service"
 
 	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
-func (r *cartResolver) Product(ctx context.Context, obj *model.Cart) (*model.Product, error) {
-	db := config.GetDB()
-	product := new(model.Product)
-
-	if err := db.FirstOrInit(product, "id = ?", obj.ProductID).Error; err != nil {
-		return nil, err
-	}
-
-	helpers.ParseTime(&product.CreatedAt)
-	helpers.ParseTime(&product.ValidTo)
-
-	return product, nil
-}
-
-func (r *cartResolver) User(ctx context.Context, obj *model.Cart) (*model.User, error) {
-	db := config.GetDB()
-	user := new(model.User)
-
-	if err := db.First(user, "id = ?", obj.UserId).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
 func (r *couponResolver) Shop(ctx context.Context, obj *model.Coupon) (*model.Shop, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) AddShipmentType(ctx context.Context, name string) (*model.ShipmentType, error) {
+func (r *mutationResolver) AddTransaction(ctx context.Context, input model.NewTransaction) (*model.Transaction, error) {
 	db := config.GetDB()
-
-	shipmentType := &model.ShipmentType{
-		ID:   uuid.NewString(),
-		Name: name,
-	}
-
-	return shipmentType, db.Save(shipmentType).Error
-}
-
-func (r *mutationResolver) AddShipment(ctx context.Context, input model.NewShipment) (*model.Shipment, error) {
-	db := config.GetDB()
-
-	shipment := &model.Shipment{
-		ID:             uuid.NewString(),
-		Name:           input.Name,
-		Duration:       input.Duration,
-		ShipmentTypeId: input.ShipmentTypeID,
-		Price:          input.Price,
-	}
-
-	return shipment, db.Save(shipment).Error
-}
-
-func (r *mutationResolver) CreateUpdateCart(ctx context.Context, productID string, quantity int) (*model.Cart, error) {
-	db := config.GetDB()
-	cart := new(model.Cart)
-	product := new(model.Product)
-	if ctx.Value("auth") == nil {
-		return nil, &gqlerror.Error{
-			Message: "Error, token gaada",
-		}
-	}
-
-	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
-
-	err := db.First(cart, "user_id = ? AND product_id = ?", userId, productID).Error
-
-	if len(cart.ID) == 0 {
-		loc, _ := time.LoadLocation("Asia/Jakarta")
-		now := time.Now().In(loc)
-		cart = &model.Cart{
-			ID:        uuid.NewString(),
-			ProductID: productID,
-			UserId:    userId,
-			Quantity:  quantity,
-			CreatedAt: now,
-			Checked:   true,
-		}
-
-		err := db.Create(cart).Error
-
-		return cart, err
-	} else if err != nil {
-		return nil, err
-	}
-
-	if err := db.First(product, "id = ?", productID).Error; err != nil {
-		return nil, err
-	}
-
-	if quantity >= 0 && (cart.Quantity+quantity) <= product.Stock {
-		cart.Quantity += quantity
-	}
-
-	if err := db.Save(cart).Error; err != nil {
-		return nil, err
-	}
-
-	helpers.ParseTime(&cart.CreatedAt)
-
-	return cart, nil
-}
-
-func (r *mutationResolver) UpdateCart(ctx context.Context, id string, quantity int) (*model.Cart, error) {
-	db := config.GetDB()
-	cart := new(model.Cart)
-	product := new(model.Product)
-
-	if err := db.First(cart, "id = ?", id).Error; err != nil {
-		return nil, err
-	}
-
-	if err := db.First(product, "id = ?", cart.ProductID).Error; err != nil {
-		return nil, err
-	}
-
-	if cart.Quantity > 0 && cart.Quantity <= product.Stock {
-		cart.Quantity = quantity
-	}
-
-	if err := db.Save(cart).Error; err != nil {
-		return nil, err
-	}
-
-	helpers.ParseTime(&cart.CreatedAt)
-
-	return cart, nil
-}
-
-func (r *mutationResolver) ToggleCheckCart(ctx context.Context, id string, checked bool) (*model.Cart, error) {
-	db := config.GetDB()
-	cart := new(model.Cart)
-
-	if err := db.First(cart, "id = ?", id).Error; err != nil {
-		return nil, err
-	}
-
-	cart.Checked = checked
-
-	if err := db.Save(cart).Error; err != nil {
-		return nil, err
-	}
-
-	helpers.ParseTime(&cart.CreatedAt)
-
-	return cart, nil
-}
-
-func (r *mutationResolver) DeleteCart(ctx context.Context, id string) (*model.Cart, error) {
-	db := config.GetDB()
-	cart := new(model.Cart)
-	if err := db.First(cart, "id = ?", id).Error; err != nil {
-		return nil, err
-	}
-	helpers.ParseTime(&cart.CreatedAt)
-	return cart, db.Delete(cart).Error
-}
-
-func (r *queryResolver) GetCartProduct(ctx context.Context, productID string) (*model.Cart, error) {
-	db := config.GetDB()
-	cart := new(model.Cart)
 
 	if ctx.Value("auth") == nil {
 		return nil, &gqlerror.Error{
@@ -188,40 +31,42 @@ func (r *queryResolver) GetCartProduct(ctx context.Context, productID string) (*
 
 	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
 
-	if err := db.First(cart, "product_id = ? AND user_id = ?", productID, userId).Error; err != nil {
-		return nil, err
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	now := time.Now().In(loc)
+
+	transaction := &model.Transaction{
+		ID:                uuid.NewString(),
+		AddressId:         input.AddressID,
+		ShipmentId:        input.ShipmentID,
+		ShopId:            input.ShopID,
+		UserId:            userId,
+		Date:              now,
+		Status:            0,
 	}
 
-	return cart, nil
-}
+	err := db.Create(transaction).Error
 
-func (r *queryResolver) GetUserCheckedCart(ctx context.Context) ([]*model.Cart, error) {
-	db := config.GetDB()
-	var carts []*model.Cart
+	if err == nil {
+		for i := 0; i < len(input.ProductIds); i++ {
+			transactionDetail := &model.TransactionDetail{
+				ID:            uuid.NewString(),
+				TransactionId: transaction.ID,
+				ProductId:     input.ProductIds[i],
+				Quantity:      input.Quantity[i],
+			}
 
-	if ctx.Value("auth") == nil {
-		return nil, &gqlerror.Error{
-			Message: "Error, token gaada",
+			err := db.Create(transactionDetail).Error
+
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
-	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
 
-	if err := db.Where("user_id = ? AND checked = ?", userId, true).Find(&carts).Error; err != nil {
-		return nil, err
-	}
-
-	return carts, nil
+	return transaction, err
 }
 
-func (r *queryResolver) ShipmentTypes(ctx context.Context) ([]*model.ShipmentType, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *shipmentResolver) ShipmentType(ctx context.Context, obj *model.Shipment) (*model.ShipmentType, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *shipmentTypeResolver) Shipments(ctx context.Context, obj *model.ShipmentType) ([]*model.Shipment, error) {
+func (r *queryResolver) GetUserTransactions(ctx context.Context) ([]*model.Transaction, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -238,6 +83,10 @@ func (r *transactionResolver) Shipment(ctx context.Context, obj *model.Transacti
 }
 
 func (r *transactionResolver) User(ctx context.Context, obj *model.Transaction) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *transactionResolver) Shop(ctx context.Context, obj *model.Transaction) (*model.Shop, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -285,9 +134,6 @@ func (r *wishlistResolver) User(ctx context.Context, obj *model.Wishlist) (*mode
 	panic(fmt.Errorf("not implemented"))
 }
 
-// Cart returns generated.CartResolver implementation.
-func (r *Resolver) Cart() generated.CartResolver { return &cartResolver{r} }
-
 // Coupon returns generated.CouponResolver implementation.
 func (r *Resolver) Coupon() generated.CouponResolver { return &couponResolver{r} }
 
@@ -296,12 +142,6 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
-
-// Shipment returns generated.ShipmentResolver implementation.
-func (r *Resolver) Shipment() generated.ShipmentResolver { return &shipmentResolver{r} }
-
-// ShipmentType returns generated.ShipmentTypeResolver implementation.
-func (r *Resolver) ShipmentType() generated.ShipmentTypeResolver { return &shipmentTypeResolver{r} }
 
 // Transaction returns generated.TransactionResolver implementation.
 func (r *Resolver) Transaction() generated.TransactionResolver { return &transactionResolver{r} }
@@ -322,12 +162,9 @@ func (r *Resolver) Ulasan() generated.UlasanResolver { return &ulasanResolver{r}
 // Wishlist returns generated.WishlistResolver implementation.
 func (r *Resolver) Wishlist() generated.WishlistResolver { return &wishlistResolver{r} }
 
-type cartResolver struct{ *Resolver }
 type couponResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type shipmentResolver struct{ *Resolver }
-type shipmentTypeResolver struct{ *Resolver }
 type transactionResolver struct{ *Resolver }
 type transactionCouponResolver struct{ *Resolver }
 type transactionDetailResolver struct{ *Resolver }

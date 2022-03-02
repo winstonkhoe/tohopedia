@@ -20,6 +20,8 @@ type Transaction struct {
 	Address    *Address             `json:"address"`
 	ShipmentId string               `json:"shipmentId" gorm:"size:191"`
 	Shipment   *Shipment            `json:"shipment"`
+	ShopId     string               `json:"shopId" gorm:"size:191"`
+	Shop       *Shop                `json:"shop"`
 	UserId     string               `json:"userId" gorm:"size:191"`
 	User       *User                `json:"user"`
 	TransactionCoupon     *TransactionCoupon   `json:"coupon"`

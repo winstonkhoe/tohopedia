@@ -12,27 +12,6 @@ scalar Any
 scalar Time
 scalar Date
 
-type ShipmentType {
-  id: ID!
-  name: String!
-  shipments: [Shipment!]! @goField(forceResolver: true)
-}
-
-type Shipment {
-  id: ID!
-  name: String!
-  duration: Int!
-  shipmentType: ShipmentType! @goField(forceResolver: true)
-  price: Int!
-}
-
-input NewShipment {
-  name: String!
-  duration: Int!
-  shipmentTypeId: String!
-  price: Int!
-}
-
 type Coupon {
   id: ID!
   code: String!
@@ -65,6 +44,7 @@ type Transaction {
   address: Address! @goField(forceResolver: true)
   shipment: Shipment! @goField(forceResolver: true)
   user: User!  @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
   transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
   date: Time! @goField(forceResolver: true)
   status: Int!
@@ -73,6 +53,9 @@ type Transaction {
 input NewTransaction {
   addressId: String!
   shipmentId: String!
+  shopId: String!
+  productIds: [String!]!
+  quantity: [Int!]!
   couponId: String
 }
 
@@ -111,32 +94,10 @@ input NewUlasan {
   anonymous: Boolean!
 }
 
-type Cart {
-  id: ID!
-  product: Product! @goField(forceResolver: true)
-  user: User! @goField(forceResolver: true)
-  quantity: Int!
-  checked: Boolean!
-  createdAt: Time!
-}
-
-input NewCart {
-  productId: String!
-  quantity: Int!
-}
-
 type Query {
-  getCartProduct(productId: ID!): Cart! @goField(forceResolver: true) @auth
-  getUserCheckedCart: [Cart!] @goField(forceResolver: true) @auth
-  shipmentTypes: [ShipmentType!]! @goField(forceResolver: true) @auth
+  getUserTransactions: [Transaction!]! @goField(forceResolver: true)
 }
 
 type Mutation {
-  addShipmentType(name: String!): ShipmentType! @auth
-  addShipment(input: NewShipment!): Shipment! @auth
-  # addCart(input: NewCart!): Cart! @auth
-  createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
-  updateCart(id: ID! quantity: Int!): Cart! @auth
-  toggleCheckCart(id: ID! checked: Boolean!): Cart! @auth
-  deleteCart(id: ID!): Cart! @auth
+  addTransaction(input: NewTransaction!): Transaction! @goField(forceResolver: true)
 }

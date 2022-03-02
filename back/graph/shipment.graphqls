@@ -1,0 +1,31 @@
+
+type ShipmentType {
+  id: ID!
+  name: String!
+  shipments: [Shipment!]! @goField(forceResolver: true)
+}
+
+type Shipment {
+  id: ID!
+  name: String!
+  duration: Int!
+  shipmentType: ShipmentType! @goField(forceResolver: true)
+  price: Int!
+}
+
+input NewShipment {
+  name: String!
+  duration: Int!
+  shipmentTypeId: String!
+  price: Int!
+}
+
+extend type Query {
+  shipmentTypes: [ShipmentType!]! @goField(forceResolver: true) @auth
+  getShipments: [Shipment!]! @goField(forceResolver: true)
+}
+
+extend type Mutation {
+  addShipmentType(name: String!): ShipmentType! @auth
+  addShipment(input: NewShipment!): Shipment! @auth
+}

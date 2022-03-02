@@ -58,18 +58,38 @@ func (r *mutationResolver) UpdateAddress(ctx context.Context, id string, input m
 
 	address := new(model.Address)
 
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
 	if err := db.Where("id = ?", id).First(&address).Error; err != nil {
 		return nil, err
 	}
 
-	address.Label = input.Label
-	address.Receiver = input.Receiver
-	address.Phone = input.Phone
-	address.City = input.City
-	address.PostalCode = input.PostalCode
-	address.Address = input.Address
+	address.IsDeleted = true
 
-	return address, db.Save(address).Error
+	if err := db.Save(address).Error; err != nil {
+		return nil, err
+	}
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	newAddress := &model.Address{
+		ID:         uuid.NewString(),
+		Label:      input.Label,
+		Receiver:   input.Receiver,
+		Phone:      input.Phone,
+		City:       input.City,
+		PostalCode: input.PostalCode,
+		Address:    input.Address,
+		Main:       address.Main,
+		IsDeleted:  false,
+		UserId:     userId,
+	}
+
+	return address, db.Create(&newAddress).Error
 }
 
 func (r *mutationResolver) SetMainAddress(ctx context.Context, id string) ([]*model.Address, error) {

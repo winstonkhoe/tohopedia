@@ -109,6 +109,7 @@ type ComplexityRoot struct {
 		AddProduct       func(childComplexity int, input model.NewProduct) int
 		AddShipment      func(childComplexity int, input model.NewShipment) int
 		AddShipmentType  func(childComplexity int, name string) int
+		AddTransaction   func(childComplexity int, input model.NewTransaction) int
 		Auth             func(childComplexity int) int
 		CreateCategory   func(childComplexity int, name string) int
 		CreateUpdateCart func(childComplexity int, productID string, quantity int) int
@@ -151,18 +152,20 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Categories         func(childComplexity int) int
-		GetAddress         func(childComplexity int, query string) int
-		GetCartProduct     func(childComplexity int, productID string) int
-		GetCurrentShop     func(childComplexity int) int
-		GetCurrentUser     func(childComplexity int) int
-		GetUserCheckedCart func(childComplexity int) int
-		Product            func(childComplexity int, id string) int
-		Products           func(childComplexity int) int
-		ShipmentTypes      func(childComplexity int) int
-		TopProductDiscount func(childComplexity int) int
-		User               func(childComplexity int, id string) int
-		Users              func(childComplexity int) int
+		Categories          func(childComplexity int) int
+		GetAddress          func(childComplexity int, query string) int
+		GetCartProduct      func(childComplexity int, productID string) int
+		GetCurrentShop      func(childComplexity int) int
+		GetCurrentUser      func(childComplexity int) int
+		GetShipments        func(childComplexity int) int
+		GetUserCheckedCart  func(childComplexity int) int
+		GetUserTransactions func(childComplexity int) int
+		Product             func(childComplexity int, id string) int
+		Products            func(childComplexity int) int
+		ShipmentTypes       func(childComplexity int) int
+		TopProductDiscount  func(childComplexity int) int
+		User                func(childComplexity int, id string) int
+		Users               func(childComplexity int) int
 	}
 
 	Shipment struct {
@@ -205,6 +208,7 @@ type ComplexityRoot struct {
 		Details           func(childComplexity int) int
 		ID                func(childComplexity int) int
 		Shipment          func(childComplexity int) int
+		Shop              func(childComplexity int) int
 		Status            func(childComplexity int) int
 		TransactionCoupon func(childComplexity int) int
 		User              func(childComplexity int) int
@@ -273,18 +277,19 @@ type CouponResolver interface {
 	Shop(ctx context.Context, obj *model.Coupon) (*model.Shop, error)
 }
 type MutationResolver interface {
-	AddShipmentType(ctx context.Context, name string) (*model.ShipmentType, error)
-	AddShipment(ctx context.Context, input model.NewShipment) (*model.Shipment, error)
-	CreateUpdateCart(ctx context.Context, productID string, quantity int) (*model.Cart, error)
-	UpdateCart(ctx context.Context, id string, quantity int) (*model.Cart, error)
-	ToggleCheckCart(ctx context.Context, id string, checked bool) (*model.Cart, error)
-	DeleteCart(ctx context.Context, id string) (*model.Cart, error)
+	AddTransaction(ctx context.Context, input model.NewTransaction) (*model.Transaction, error)
 	AddAddress(ctx context.Context, input model.NewAddress) (*model.Address, error)
 	UpdateAddress(ctx context.Context, id string, input model.NewAddress) (*model.Address, error)
 	SetMainAddress(ctx context.Context, id string) ([]*model.Address, error)
 	DeleteAddress(ctx context.Context, id string) (*model.Address, error)
+	CreateUpdateCart(ctx context.Context, productID string, quantity int) (*model.Cart, error)
+	UpdateCart(ctx context.Context, id string, quantity int) (*model.Cart, error)
+	ToggleCheckCart(ctx context.Context, id string, checked bool) (*model.Cart, error)
+	DeleteCart(ctx context.Context, id string) (*model.Cart, error)
 	CreateCategory(ctx context.Context, name string) (*model.Category, error)
 	AddProduct(ctx context.Context, input model.NewProduct) (*model.Product, error)
+	AddShipmentType(ctx context.Context, name string) (*model.ShipmentType, error)
+	AddShipment(ctx context.Context, input model.NewShipment) (*model.Shipment, error)
 	OpenShop(ctx context.Context, input model.NewShop) (*model.Shop, error)
 	EditShop(ctx context.Context, id string, image *string, name string, slug string, slogan *string, description *string, openTime time.Time, closeTime time.Time, isOpen bool) (*model.Shop, error)
 	Auth(ctx context.Context) (*model.AuthOps, error)
@@ -305,14 +310,16 @@ type ProductImageResolver interface {
 	Product(ctx context.Context, obj *model.ProductImage) (*model.Product, error)
 }
 type QueryResolver interface {
+	GetUserTransactions(ctx context.Context) ([]*model.Transaction, error)
+	GetAddress(ctx context.Context, query string) ([]*model.Address, error)
 	GetCartProduct(ctx context.Context, productID string) (*model.Cart, error)
 	GetUserCheckedCart(ctx context.Context) ([]*model.Cart, error)
-	ShipmentTypes(ctx context.Context) ([]*model.ShipmentType, error)
-	GetAddress(ctx context.Context, query string) ([]*model.Address, error)
 	Categories(ctx context.Context) ([]*model.Category, error)
 	Product(ctx context.Context, id string) (*model.Product, error)
 	Products(ctx context.Context) ([]*model.Product, error)
 	TopProductDiscount(ctx context.Context) ([]*model.Product, error)
+	ShipmentTypes(ctx context.Context) ([]*model.ShipmentType, error)
+	GetShipments(ctx context.Context) ([]*model.Shipment, error)
 	GetCurrentShop(ctx context.Context) (*model.Shop, error)
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context) ([]*model.User, error)
@@ -333,6 +340,7 @@ type TransactionResolver interface {
 	Address(ctx context.Context, obj *model.Transaction) (*model.Address, error)
 	Shipment(ctx context.Context, obj *model.Transaction) (*model.Shipment, error)
 	User(ctx context.Context, obj *model.Transaction) (*model.User, error)
+	Shop(ctx context.Context, obj *model.Transaction) (*model.Shop, error)
 	TransactionCoupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error)
 	Date(ctx context.Context, obj *model.Transaction) (*time.Time, error)
 }
@@ -620,6 +628,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddShipmentType(childComplexity, args["name"].(string)), true
+
+	case "Mutation.addTransaction":
+		if e.complexity.Mutation.AddTransaction == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addTransaction_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddTransaction(childComplexity, args["input"].(model.NewTransaction)), true
 
 	case "Mutation.auth":
 		if e.complexity.Mutation.Auth == nil {
@@ -977,12 +997,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetCurrentUser(childComplexity), true
 
+	case "Query.getShipments":
+		if e.complexity.Query.GetShipments == nil {
+			break
+		}
+
+		return e.complexity.Query.GetShipments(childComplexity), true
+
 	case "Query.getUserCheckedCart":
 		if e.complexity.Query.GetUserCheckedCart == nil {
 			break
 		}
 
 		return e.complexity.Query.GetUserCheckedCart(childComplexity), true
+
+	case "Query.getUserTransactions":
+		if e.complexity.Query.GetUserTransactions == nil {
+			break
+		}
+
+		return e.complexity.Query.GetUserTransactions(childComplexity), true
 
 	case "Query.product":
 		if e.complexity.Query.Product == nil {
@@ -1245,6 +1279,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Transaction.Shipment(childComplexity), true
+
+	case "Transaction.shop":
+		if e.complexity.Transaction.Shop == nil {
+			break
+		}
+
+		return e.complexity.Transaction.Shop(childComplexity), true
 
 	case "Transaction.status":
 		if e.complexity.Transaction.Status == nil {
@@ -1567,6 +1608,33 @@ extend type Mutation {
   deleteAddress(id: ID!): Address! @auth
 }
 `, BuiltIn: false},
+	{Name: "graph/cart.graphqls", Input: `type Cart {
+  id: ID!
+  product: Product! @goField(forceResolver: true)
+  user: User! @goField(forceResolver: true)
+  quantity: Int!
+  checked: Boolean!
+  createdAt: Time!
+}
+
+input NewCart {
+  productId: String!
+  quantity: Int!
+}
+
+extend type Query {
+  getCartProduct(productId: ID!): Cart! @goField(forceResolver: true) @auth
+  getUserCheckedCart: [Cart!] @goField(forceResolver: true) @auth
+}
+
+extend type Mutation {
+  # addCart(input: NewCart!): Cart! @auth
+  createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
+  updateCart(id: ID! quantity: Int!): Cart! @auth
+  toggleCheckCart(id: ID! checked: Boolean!): Cart! @auth
+  deleteCart(id: ID!): Cart! @auth
+}
+`, BuiltIn: false},
 	{Name: "graph/product.graphqls", Input: `
 type Product {
   id: ID!
@@ -1633,27 +1701,6 @@ scalar Any
 scalar Time
 scalar Date
 
-type ShipmentType {
-  id: ID!
-  name: String!
-  shipments: [Shipment!]! @goField(forceResolver: true)
-}
-
-type Shipment {
-  id: ID!
-  name: String!
-  duration: Int!
-  shipmentType: ShipmentType! @goField(forceResolver: true)
-  price: Int!
-}
-
-input NewShipment {
-  name: String!
-  duration: Int!
-  shipmentTypeId: String!
-  price: Int!
-}
-
 type Coupon {
   id: ID!
   code: String!
@@ -1686,6 +1733,7 @@ type Transaction {
   address: Address! @goField(forceResolver: true)
   shipment: Shipment! @goField(forceResolver: true)
   user: User!  @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
   transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
   date: Time! @goField(forceResolver: true)
   status: Int!
@@ -1694,6 +1742,9 @@ type Transaction {
 input NewTransaction {
   addressId: String!
   shipmentId: String!
+  shopId: String!
+  productIds: [String!]!
+  quantity: [Int!]!
   couponId: String
 }
 
@@ -1732,34 +1783,44 @@ input NewUlasan {
   anonymous: Boolean!
 }
 
-type Cart {
-  id: ID!
-  product: Product! @goField(forceResolver: true)
-  user: User! @goField(forceResolver: true)
-  quantity: Int!
-  checked: Boolean!
-  createdAt: Time!
-}
-
-input NewCart {
-  productId: String!
-  quantity: Int!
-}
-
 type Query {
-  getCartProduct(productId: ID!): Cart! @goField(forceResolver: true) @auth
-  getUserCheckedCart: [Cart!] @goField(forceResolver: true) @auth
-  shipmentTypes: [ShipmentType!]! @goField(forceResolver: true) @auth
+  getUserTransactions: [Transaction!]! @goField(forceResolver: true)
 }
 
 type Mutation {
+  addTransaction(input: NewTransaction!): Transaction! @goField(forceResolver: true)
+}
+`, BuiltIn: false},
+	{Name: "graph/shipment.graphqls", Input: `
+type ShipmentType {
+  id: ID!
+  name: String!
+  shipments: [Shipment!]! @goField(forceResolver: true)
+}
+
+type Shipment {
+  id: ID!
+  name: String!
+  duration: Int!
+  shipmentType: ShipmentType! @goField(forceResolver: true)
+  price: Int!
+}
+
+input NewShipment {
+  name: String!
+  duration: Int!
+  shipmentTypeId: String!
+  price: Int!
+}
+
+extend type Query {
+  shipmentTypes: [ShipmentType!]! @goField(forceResolver: true) @auth
+  getShipments: [Shipment!]! @goField(forceResolver: true)
+}
+
+extend type Mutation {
   addShipmentType(name: String!): ShipmentType! @auth
   addShipment(input: NewShipment!): Shipment! @auth
-  # addCart(input: NewCart!): Cart! @auth
-  createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
-  updateCart(id: ID! quantity: Int!): Cart! @auth
-  toggleCheckCart(id: ID! checked: Boolean!): Cart! @auth
-  deleteCart(id: ID!): Cart! @auth
 }
 `, BuiltIn: false},
 	{Name: "graph/shop.graphqls", Input: `
@@ -1953,6 +2014,21 @@ func (ec *executionContext) field_Mutation_addShipment_args(ctx context.Context,
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNNewShipment2tohopediaᚋgraphᚋmodelᚐNewShipment(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addTransaction_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewTransaction
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewTransaction2tohopediaᚋgraphᚋmodelᚐNewTransaction(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -3381,7 +3457,7 @@ func (ec *executionContext) _Coupon_shop(ctx context.Context, field graphql.Coll
 	return ec.marshalNShop2ᚖtohopediaᚋgraphᚋmodelᚐShop(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Mutation_addShipmentType(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_addTransaction(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3398,35 +3474,15 @@ func (ec *executionContext) _Mutation_addShipmentType(ctx context.Context, field
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_addShipmentType_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_addTransaction_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().AddShipmentType(rctx, args["name"].(string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.ShipmentType); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.ShipmentType`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddTransaction(rctx, args["input"].(model.NewTransaction))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3438,319 +3494,9 @@ func (ec *executionContext) _Mutation_addShipmentType(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ShipmentType)
+	res := resTmp.(*model.Transaction)
 	fc.Result = res
-	return ec.marshalNShipmentType2ᚖtohopediaᚋgraphᚋmodelᚐShipmentType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_addShipment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_addShipment_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().AddShipment(rctx, args["input"].(model.NewShipment))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Shipment); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Shipment`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Shipment)
-	fc.Result = res
-	return ec.marshalNShipment2ᚖtohopediaᚋgraphᚋmodelᚐShipment(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_createUpdateCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_createUpdateCart_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().CreateUpdateCart(rctx, args["productId"].(string), args["quantity"].(int))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Cart); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Cart)
-	fc.Result = res
-	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_updateCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_updateCart_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateCart(rctx, args["id"].(string), args["quantity"].(int))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Cart); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Cart)
-	fc.Result = res
-	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_toggleCheckCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_toggleCheckCart_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().ToggleCheckCart(rctx, args["id"].(string), args["checked"].(bool))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Cart); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Cart)
-	fc.Result = res
-	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_deleteCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_deleteCart_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().DeleteCart(rctx, args["id"].(string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*model.Cart); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Cart)
-	fc.Result = res
-	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
+	return ec.marshalNTransaction2ᚖtohopediaᚋgraphᚋmodelᚐTransaction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_addAddress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4001,6 +3747,254 @@ func (ec *executionContext) _Mutation_deleteAddress(ctx context.Context, field g
 	return ec.marshalNAddress2ᚖtohopediaᚋgraphᚋmodelᚐAddress(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createUpdateCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createUpdateCart_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateUpdateCart(rctx, args["productId"].(string), args["quantity"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Cart); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Cart)
+	fc.Result = res
+	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateCart_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateCart(rctx, args["id"].(string), args["quantity"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Cart); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Cart)
+	fc.Result = res
+	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_toggleCheckCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_toggleCheckCart_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ToggleCheckCart(rctx, args["id"].(string), args["checked"].(bool))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Cart); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Cart)
+	fc.Result = res
+	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteCart(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteCart_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteCart(rctx, args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Cart); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Cart`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Cart)
+	fc.Result = res
+	return ec.marshalNCart2ᚖtohopediaᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createCategory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4103,6 +4097,130 @@ func (ec *executionContext) _Mutation_addProduct(ctx context.Context, field grap
 	res := resTmp.(*model.Product)
 	fc.Result = res
 	return ec.marshalNProduct2ᚖtohopediaᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_addShipmentType(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_addShipmentType_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddShipmentType(rctx, args["name"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ShipmentType); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.ShipmentType`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ShipmentType)
+	fc.Result = res
+	return ec.marshalNShipmentType2ᚖtohopediaᚋgraphᚋmodelᚐShipmentType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_addShipment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_addShipment_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddShipment(rctx, args["input"].(model.NewShipment))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Shipment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Shipment`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Shipment)
+	fc.Result = res
+	return ec.marshalNShipment2ᚖtohopediaᚋgraphᚋmodelᚐShipment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_openShop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5190,6 +5308,103 @@ func (ec *executionContext) _ProductImage_image(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getUserTransactions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUserTransactions(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Transaction)
+	fc.Result = res
+	return ec.marshalNTransaction2ᚕᚖtohopediaᚋgraphᚋmodelᚐTransactionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getAddress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getAddress_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetAddress(rctx, args["query"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Address); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*tohopedia/graph/model.Address`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Address)
+	fc.Result = res
+	return ec.marshalNAddress2ᚕᚖtohopediaᚋgraphᚋmodelᚐAddressᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getCartProduct(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5302,123 +5517,6 @@ func (ec *executionContext) _Query_getUserCheckedCart(ctx context.Context, field
 	res := resTmp.([]*model.Cart)
 	fc.Result = res
 	return ec.marshalOCart2ᚕᚖtohopediaᚋgraphᚋmodelᚐCartᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_shipmentTypes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().ShipmentTypes(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.ShipmentType); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*tohopedia/graph/model.ShipmentType`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.ShipmentType)
-	fc.Result = res
-	return ec.marshalNShipmentType2ᚕᚖtohopediaᚋgraphᚋmodelᚐShipmentTypeᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_getAddress(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getAddress_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetAddress(rctx, args["query"].(string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.Auth == nil {
-				return nil, errors.New("directive auth is not implemented")
-			}
-			return ec.directives.Auth(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.Address); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*tohopedia/graph/model.Address`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Address)
-	fc.Result = res
-	return ec.marshalNAddress2ᚕᚖtohopediaᚋgraphᚋmodelᚐAddressᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_categories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -5566,6 +5664,96 @@ func (ec *executionContext) _Query_topProductDiscount(ctx context.Context, field
 	res := resTmp.([]*model.Product)
 	fc.Result = res
 	return ec.marshalNProduct2ᚕᚖtohopediaᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_shipmentTypes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ShipmentTypes(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.ShipmentType); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*tohopedia/graph/model.ShipmentType`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ShipmentType)
+	fc.Result = res
+	return ec.marshalNShipmentType2ᚕᚖtohopediaᚋgraphᚋmodelᚐShipmentTypeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getShipments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetShipments(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Shipment)
+	fc.Result = res
+	return ec.marshalNShipment2ᚕᚖtohopediaᚋgraphᚋmodelᚐShipmentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getCurrentShop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -6874,6 +7062,41 @@ func (ec *executionContext) _Transaction_user(ctx context.Context, field graphql
 	res := resTmp.(*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚖtohopediaᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Transaction_shop(ctx context.Context, field graphql.CollectedField, obj *model.Transaction) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Transaction().Shop(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Shop)
+	fc.Result = res
+	return ec.marshalNShop2ᚖtohopediaᚋgraphᚋmodelᚐShop(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Transaction_transactionCoupon(ctx context.Context, field graphql.CollectedField, obj *model.Transaction) (ret graphql.Marshaler) {
@@ -9470,6 +9693,30 @@ func (ec *executionContext) unmarshalInputNewTransaction(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
+		case "shopId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shopId"))
+			it.ShopID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "productIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productIds"))
+			it.ProductIds, err = ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "quantity":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantity"))
+			it.Quantity, err = ec.unmarshalNInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "couponId":
 			var err error
 
@@ -9963,33 +10210,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "addShipmentType":
-			out.Values[i] = ec._Mutation_addShipmentType(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "addShipment":
-			out.Values[i] = ec._Mutation_addShipment(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "createUpdateCart":
-			out.Values[i] = ec._Mutation_createUpdateCart(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updateCart":
-			out.Values[i] = ec._Mutation_updateCart(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "toggleCheckCart":
-			out.Values[i] = ec._Mutation_toggleCheckCart(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "deleteCart":
-			out.Values[i] = ec._Mutation_deleteCart(ctx, field)
+		case "addTransaction":
+			out.Values[i] = ec._Mutation_addTransaction(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -10013,6 +10235,26 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createUpdateCart":
+			out.Values[i] = ec._Mutation_createUpdateCart(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateCart":
+			out.Values[i] = ec._Mutation_updateCart(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "toggleCheckCart":
+			out.Values[i] = ec._Mutation_toggleCheckCart(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteCart":
+			out.Values[i] = ec._Mutation_deleteCart(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createCategory":
 			out.Values[i] = ec._Mutation_createCategory(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -10020,6 +10262,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "addProduct":
 			out.Values[i] = ec._Mutation_addProduct(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addShipmentType":
+			out.Values[i] = ec._Mutation_addShipmentType(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addShipment":
+			out.Values[i] = ec._Mutation_addShipment(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -10248,6 +10500,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "getUserTransactions":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUserTransactions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getAddress":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAddress(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getCartProduct":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -10271,34 +10551,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getUserCheckedCart(ctx, field)
-				return res
-			})
-		case "shipmentTypes":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_shipmentTypes(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "getAddress":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getAddress(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "categories":
@@ -10352,6 +10604,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_topProductDiscount(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "shipmentTypes":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_shipmentTypes(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getShipments":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getShipments(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -10722,6 +11002,20 @@ func (ec *executionContext) _Transaction(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._Transaction_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "shop":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Transaction_shop(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -11664,6 +11958,42 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2ᚕintᚄ(ctx context.Context, v interface{}) ([]int, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]int, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNInt2ᚕintᚄ(ctx context.Context, sel ast.SelectionSet, v []int) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNNewAddress2tohopediaᚋgraphᚋmodelᚐNewAddress(ctx context.Context, v interface{}) (model.NewAddress, error) {
 	res, err := ec.unmarshalInputNewAddress(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -11681,6 +12011,11 @@ func (ec *executionContext) unmarshalNNewShipment2tohopediaᚋgraphᚋmodelᚐNe
 
 func (ec *executionContext) unmarshalNNewShop2tohopediaᚋgraphᚋmodelᚐNewShop(ctx context.Context, v interface{}) (model.NewShop, error) {
 	res, err := ec.unmarshalInputNewShop(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewTransaction2tohopediaᚋgraphᚋmodelᚐNewTransaction(ctx context.Context, v interface{}) (model.NewTransaction, error) {
+	res, err := ec.unmarshalInputNewTransaction(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -12020,6 +12355,50 @@ func (ec *executionContext) marshalNTime2ᚖtimeᚐTime(ctx context.Context, sel
 
 func (ec *executionContext) marshalNTransaction2tohopediaᚋgraphᚋmodelᚐTransaction(ctx context.Context, sel ast.SelectionSet, v model.Transaction) graphql.Marshaler {
 	return ec._Transaction(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTransaction2ᚕᚖtohopediaᚋgraphᚋmodelᚐTransactionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Transaction) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTransaction2ᚖtohopediaᚋgraphᚋmodelᚐTransaction(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNTransaction2ᚖtohopediaᚋgraphᚋmodelᚐTransaction(ctx context.Context, sel ast.SelectionSet, v *model.Transaction) graphql.Marshaler {

@@ -56,9 +56,12 @@ type NewShop struct {
 }
 
 type NewTransaction struct {
-	AddressID  string  `json:"addressId"`
-	ShipmentID string  `json:"shipmentId"`
-	CouponID   *string `json:"couponId"`
+	AddressID  string   `json:"addressId"`
+	ShipmentID string   `json:"shipmentId"`
+	ShopID     string   `json:"shopId"`
+	ProductIds []string `json:"productIds"`
+	Quantity   []int    `json:"quantity"`
+	CouponID   *string  `json:"couponId"`
 }
 
 type NewTransactionDetail struct {
