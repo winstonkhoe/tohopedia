@@ -1,0 +1,478 @@
+.container {
+  display: block;
+  z-index: 1110;
+  opacity: 1;
+  min-width: 700px;
+  background-color: var(--color-card, #ffffff);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  text-align: center;
+  transition: opacity 0.2s ease 0s;
+  box-shadow: 0px 1px 6px var(--color-shadow, rgba(49, 53, 59, 0.12));
+  font-size: 1.14286rem;
+  padding: 32px 0px 0px;
+
+  h2 {
+    margin-bottom: 32px;
+  }
+}
+
+.transaction_container_flex {
+  border-top: thin solid var(--N75, #e5e7e9);
+  max-height: 65vh;
+  min-height: 65vh;
+  width: 788px;
+  height: 100%;
+  position: relative;
+  display: flex;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+
+  .transaction_container_left {
+    overflow: hidden auto;
+    position: relative;
+    width: calc(100% - 250px);
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        background-color: var(--N0,#FFFFFF);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: var(--N50,#F3F4F5);
+    }
+
+    &::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background-color: var(--N0,#FFFFFF);
+    }
+
+    .transaction_container_item {
+      border-bottom: 8px solid var(--N50, #f3f4f5);
+      padding: 24px 32px;
+      text-align: left;
+    }
+
+    .transaction_container_status {
+      border-bottom: thin dashed var(--N75, #e5e7e9);
+      padding: 0px 0px 13px;
+      margin: 0px 0px 12px;
+
+      div {
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        h5 {
+          display: block;
+          position: relative;
+          font-weight: 400;
+          font-family: "Nunito Sans", -apple-system, sans-serif;
+          font-size: 1rem;
+          line-height: 20px;
+          color: var(--N700, rgba(49, 53, 59, 0.96));
+          text-decoration: initial;
+          margin: 0px;
+        }
+      }
+    }
+
+    .transaction_container_invoice_date_row {
+      display: flex;
+      align-items: flex-start;
+      -webkit-box-pack: justify;
+      justify-content: space-between;
+      margin: 0px 0px 8px;
+      p {
+        display: block;
+        position: relative;
+        font-weight: 400;
+        font-size: 0.857143rem;
+        line-height: 18px;
+        color: var(--color-text-low, rgba(49, 53, 59, 0.68));
+        text-decoration: initial;
+        margin: 0px;
+      }
+      div {
+        a {
+          font-size: 0.8rem;
+          display: inline-block;
+          position: relative;
+          font-weight: 700;
+          line-height: 20px;
+          color: var(--G500, #03ac0e);
+          text-decoration: none;
+          cursor: pointer;
+          span {
+            font-weight: 700;
+            line-height: 20px;
+            color: var(--G500, #03ac0e);
+            cursor: pointer;
+          }
+        }
+
+        p {
+          display: block;
+          position: relative;
+          font-weight: 400;
+          font-size: 0.8rem;
+          line-height: 18px;
+          text-decoration: initial;
+          margin: 0px;
+        }
+      }
+    }
+
+    .product_detail_section {
+      display: block;
+      position: relative;
+      border-radius: 8px;
+      border-width: 1px;
+      border-style: solid;
+      border-color: var(--color-border, #e5e7e9);
+      background-color: var(--color-card, #ffffff);
+      cursor: default;
+      margin: 0px 0px 8px;
+      padding: 16px;
+
+      .product_section_flex {
+        display: flex;
+        -webkit-box-align: stretch;
+        align-items: stretch;
+
+        .product_wrapper {
+          padding: 0px 16px 0px 0px;
+          width: calc(100% - 152px);
+
+          .product_info_flex {
+            display: flex;
+            align-items: flex-start;
+            margin: 0px 0px 12px;
+
+            .product_image_wrapper {
+              margin: 0px 13px 0px 0px;
+
+              .product_image_relative {
+                width: 46px;
+                height: 46px;
+                border-radius: 6px;
+                position: relative;
+                overflow: hidden;
+              }
+            }
+
+            .product_detail_wrapper {
+              a {
+                color: var(--N700, rgba(49, 53, 59, 0.96));
+                font-size: 0.857143rem;
+                font-weight: bold;
+                line-height: 18px;
+                margin: 0px 0px 2px;
+                display: inline-block;
+                position: relative;
+                text-decoration: none;
+                cursor: pointer;
+
+                span {
+                  color: var(--N700, rgba(49, 53, 59, 0.96));
+                  font-size: 0.8rem;
+                  font-weight: bold;
+                  line-height: 18px;
+                }
+              }
+
+              p {
+                display: block;
+                position: relative;
+                font-weight: 400;
+                font-size: 0.8rem;
+                line-height: 18px;
+                color: var(--color-text-low, rgba(49, 53, 59, 0.68));
+                text-decoration: initial;
+                margin: 0px;
+              }
+            }
+          }
+        }
+
+        .price_action {
+          width: 152px;
+          padding: 0px 0px 0px 16px;
+          position: relative;
+          display: flex;
+          align-content: space-between;
+          flex-wrap: wrap;
+          border-left: thin dashed var(--N75, #e5e7e9);
+
+          div {
+            width: 100%;
+            text-align: right;
+            margin: 0px 0px 12px;
+
+            p {
+              color: var(--N700, rgba(49, 53, 59, 0.96));
+              margin: 0px 0px 2px;
+              display: block;
+              position: relative;
+              font-weight: 400;
+              font-size: 1rem;
+              line-height: 20px;
+              text-decoration: initial;
+            }
+          }
+
+          button {
+            width: 100%;
+            height: 32px;
+            color: var(--G500, #03ac0e);
+            font-family: "Nunito Sans", sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            line-height: 18px;
+            text-indent: initial;
+            background-color: transparent;
+            border: 1px solid var(--G500, #03ac0e);
+            border-radius: 8px;
+            display: block;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            padding: 0px 16px;
+            transition: background-color 300ms ease 0s;
+
+            span {
+              font-size: inherit;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              opacity: 1;
+              display: block;
+              overflow: hidden;
+              position: relative;
+              top: 0px;
+              transition: opacity 300ms linear 0s, top 300ms linear 0s;
+            }
+          }
+        }
+      }
+    }
+
+    .shipping_wrapper {
+      margin: 12px 0px 0px;
+
+      .item_shipment {
+        margin: 0px 0px 13px;
+        display: flex;
+        align-items: flex-start;
+
+        p {
+          width: 80px;
+          display: block;
+          position: relative;
+          font-weight: 400;
+          font-size: 0.8rem;
+          line-height: 18px;
+          color: var(--color-text-low, rgba(49, 53, 59, 0.68));
+          text-decoration: initial;
+          margin: 0px;
+        }
+
+        span {
+          margin: 0px 14px 0px 0px;
+          text-align: left;
+        }
+
+        .shipment_content {
+            margin-top: 5px;
+          width: calc(100% - 90px);
+          p {
+            color: var(--N700, rgba(49, 53, 59, 0.96));
+            display: block;
+            position: relative;
+            font-weight: 400;
+            font-size: 0.8rem;
+            line-height: 18px;
+            text-decoration: initial;
+            margin: 0px;
+            width: 100%;
+          }
+
+          h6 {
+            color: var(--N700, rgba(49, 53, 59, 0.96));
+            display: block;
+            position: relative;
+            font-weight: 400;
+            font-family: "Nunito Sans", -apple-system, sans-serif;
+            font-size: 0.8rem;
+            line-height: 18px;
+            margin: 0px;
+          }
+        }
+      }
+    }
+  }
+
+  .transaction_container_right {
+    width: 250px;
+    padding: 24px 25px 25px;
+    background: url("/assets/transaction_detail_bg.svg") right bottom / 100%
+      no-repeat;
+    border-bottom-right-radius: 8px;
+    border-left: thin solid var(--N75, #e5e7e9);
+
+    .button_green {
+        margin-bottom: 8px;
+        width: 100%;
+    height: 40px;
+    color: rgb(255, 255, 255);
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 20px;
+    text-indent: initial;
+    background-color: var(--G500,#03AC0E);
+    border: none;
+    border-radius: 8px;
+    display: block;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    padding: 0px 16px;
+    transition: background-color 300ms ease 0s;
+    }
+  }
+}
+
+.wrapper_title {
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  margin: 0px 0px 13px;
+
+  h5 {
+    color: var(--N700, rgba(49, 53, 59, 0.96));
+    display: block;
+    position: relative;
+    font-weight: 400;
+    font-family: "Nunito Sans", -apple-system, sans-serif;
+    font-size: 1rem;
+    line-height: 20px;
+    text-decoration: initial;
+    margin: 0px;
+  }
+
+  .shop_wrapper {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    text-align: right;
+    .shop_icon_wrapper {
+      margin-right: 4px;
+      .shop_icon_relative {
+        width: 14px;
+        height: 14px;
+        position: relative;
+      }
+    }
+    h6 {
+      color: var(--N700, rgba(49, 53, 59, 0.96));
+      display: block;
+      position: relative;
+      font-weight: 400;
+      font-family: "Nunito Sans", -apple-system, sans-serif;
+      font-size: 0.8rem;
+      line-height: 18px;
+      text-decoration: initial;
+      margin: 0px;
+    }
+  }
+}
+
+.with_border {
+  padding: 0px 0px 12px;
+  border-bottom: thin dashed var(--N75, #e5e7e9);
+}
+
+.rincian_pembayaran_item {
+  display: flex;
+  align-items: flex-start;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  margin: 0px 0px 8px;
+
+  p {
+    display: block;
+    position: relative;
+    font-weight: 400;
+    font-size: 0.8rem;
+    line-height: 18px;
+    color: var(--color-text-low, rgba(49, 53, 59, 0.68));
+    text-decoration: initial;
+    margin: 0px;
+  }
+
+  div {
+    max-width: 150px;
+    text-align: right;
+
+    p {
+      color: var(--N700, rgba(49, 53, 59, 0.96));
+      display: block;
+      position: relative;
+      font-weight: 400;
+      font-size: 0.8rem;
+      line-height: 18px;
+      text-decoration: initial;
+      margin: 0px;
+
+      span {
+        text-decoration: initial;
+        margin: 0px;
+        font-weight: 400;
+        font-size: 0.8rem;
+        line-height: 18px;
+      }
+    }
+  }
+}
+
+.total {
+  padding: 12px 0px 0px;
+  margin: 12px 0px 0px;
+  border-top: thin dashed var(--N75, #e5e7e9);
+
+  p {
+    font-size: 1rem;
+    color: var(--N700,rgba(49,53,59,0.96));
+    font-weight: bold;
+    display: block;
+    position: relative;
+    line-height: 18px;
+    text-decoration: initial;
+    margin: 0px;
+  }
+
+  div {
+      p {
+        font-size: 1rem;
+    color: var(--N700,rgba(49,53,59,0.96));
+    font-weight: bold;
+    display: block;
+    position: relative;
+    line-height: 18px;
+    text-decoration: initial;
+    margin: 0px;
+        span {
+            font-size: 1rem;
+            color: var(--N700,rgba(49,53,59,0.96));
+            font-weight: bold;
+        }
+    }
+  }
+}

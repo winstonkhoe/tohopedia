@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Footer } from "../../components/Footer/Powered";
+import Footer from "../../components/Footer/Footer";
 import HeadIcon from "../../components/head_icon";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";

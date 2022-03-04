@@ -11,6 +11,7 @@ import { redirect } from "next/dist/server/api-utils";
 import Router, { useRouter } from "next/router";
 import { checkCookies, setCookies } from 'cookies-next';
 import InitFont from "../components/initialize_font";
+import Footer from "../components/Footer/Footer";
 
 const Login: NextPage = () => {
   const { register, handleSubmit } = useForm();
@@ -133,7 +134,8 @@ const Login: NextPage = () => {
         </div>
         {/* End Login Body */}
       </div>
-    </div>
+      <Footer/>
+    </div> 
   );
 };
 

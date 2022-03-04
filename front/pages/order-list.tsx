@@ -1,10 +1,12 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { Footer } from "../components/Footer/Powered";
+import Footer from "../components/Footer/Footer";
 import InitFont from "../components/initialize_font";
 import Navbar from "../components/navbar";
 import styles from "../styles/Order_List.module.scss";
+import detailStyle from "../styles/components/detail_transaction_overlay.module.scss";
+import common from "../styles/components/common.module.scss";
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
 import { gql, useQuery } from "@apollo/client";
@@ -12,23 +14,54 @@ import React, { Children, useState } from "react";
 import { UserNavbar } from "../components/user/user_navbar";
 import Router, { useRouter } from "next/router";
 import TransactionCard from "../components/transaction/TransactionCard";
+import tCardStyle from "../components/transaction/TransactionCard.module.scss";
+import Overlay from "../components/overlay/overlay";
+import { SelesaiOtomatis, TibaDiTujuan } from "../components/transaction/TransactionStatus";
+import RupiahFormat from "../misc/currency";
+import { toIndonesianDateShort } from "../misc/date";
 
 const OrderList = (props: { children: any }) => {
   const router = useRouter();
-  //   const [kotak, setKotak] = useState(true);
-  //   const [pembelian, setPembelian] = useState(true);
-  //   const [profil, setProfil] = useState(true);
-  // console.log(router.pathname)
-  // console.log(router.pathname.split('/'))
 
-  function checkPathExists(array: any, path: string) {
-    return array.indexOf(path) >= 0;
-  }
+  const [seeDetailTransaction, setSeeDetailTransaction] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const paths = router.pathname.split("/");
-  const [activeTab, setActiveTab] = useState(
-    checkPathExists(paths, "address") ? "address" : "index"
-  );
+  const USER_DATA_QUERY = gql`
+    query GetUser {
+      getCurrentUser {
+        transactions {
+          id
+          date
+          shop {
+            name
+            type
+          }
+          details {
+            id
+            quantity
+            product {
+              id
+              name
+              price
+              discount
+              images {
+                image
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const {
+    loading: userLoad,
+    error: userErr,
+    data: userData,
+  } = useQuery(USER_DATA_QUERY, {
+    pollInterval: 3600000,
+  });
+
   const indicatorStyle = {
     index: { width: "131px", left: "0px" },
     address: { width: "148px", left: "131px" },
@@ -48,9 +81,6 @@ const OrderList = (props: { children: any }) => {
         <div className={styles.main_container}>
           <div className={styles.main_inner_container}>
             <UserNavbar />
-            {/* Summary User Nav
-
-              {/* END Summary User Nav */}
 
             {/* Menu Settings */}
             <div className={styles.main_right_container}>
@@ -88,7 +118,9 @@ const OrderList = (props: { children: any }) => {
                         className={styles.filter_options_container_flex_wrapper}
                       >
                         <div className={styles.filter_options_container_flex}>
-                          <div className={`${styles.filter_options_item} ${styles.filter_selected}`}>
+                          <div
+                            className={`${styles.filter_options_item} ${styles.filter_selected}`}
+                          >
                             Semua
                           </div>
                           <div className={styles.filter_options_item}>
@@ -102,55 +134,362 @@ const OrderList = (props: { children: any }) => {
                           </div>
                         </div>
                       </div>
-                                          <div className={styles.filter_reset_container}>
-                                              <p>Reset Filter</p>
+                      <div className={styles.filter_reset_container}>
+                        <p>Reset Filter</p>
                       </div>
                     </div>
                   </div>
                 </div>
-                              <div className={styles.transaction_container}>
-                                  <div className={styles.transaction_card_container}>
+                <div className={styles.transaction_container}>
+                  {/* {} */}
+                    {userData?.getCurrentUser?.transactions.map(
+                      (transaction: any, index: number) => {
+                        return (
+                          <div key={index} className={styles.transaction_card_container}>
+                          <section  className={tCardStyle.order_card_container}>
+                            <div className={tCardStyle.order_detail_top}>
+                              <div className={tCardStyle.order_detail_top_left}>
+                                <div className={tCardStyle.order_detail_icon}></div>
+                                <div className={tCardStyle.order_detail_header}>
+                                  <p>Belanja</p>
+                                </div>
+                                <div className={tCardStyle.order_detail_date}>
+                                  <p>{toIndonesianDateShort(transaction?.date)}</p>
+                                  {/* <p>{transaction?.date}</p> */}
 
-                        <TransactionCard/>
+                                  {/* 28 Feb 2022 */}
+                                </div>
+                                <div className={tCardStyle.order_status}>
+                                  <p>
+                                    <TibaDiTujuan />
+                                  </p>
+                                </div>
+                                <div className={tCardStyle.order_invoice}>
+                                  <p>{transaction?.id}</p>
+                                </div>
+                              </div>
+                              <div className={tCardStyle.order_detail_top_right}>
+                                <p>Selesai Otomatis</p>
+                                <SelesaiOtomatis hour={"1 Hari 8 Jam"} />
+                              </div>
+                            </div>
+                            <div className={tCardStyle.order_detail_shop}>
+                              {transaction?.shop?.type > 0 ? (
+                                <div className={tCardStyle.icon_image_relative}>
+                                  <Image
+                                    src={`/logo/${
+                                      transaction?.shop?.type == 1
+                                        ? "badge_pm.png"
+                                        : transaction?.shop?.type == 2
+                                        ? "badge_pmp.svg"
+                                        : transaction?.shop?.type == 3
+                                        ? "badge_os.png"
+                                        : null
+                                    }`}
+                                    alt=""
+                                    layout="fill"
+                                  />
+                                </div>
+                              ) : null}
+
+                              <p>{transaction?.shop?.name}</p>
+                            </div>
+                            <div className={tCardStyle.order_detail_product}>
+                              <div className={tCardStyle.order_detail_product_item}>
+                                <div
+                                  className={
+                                    tCardStyle.order_detail_product_item_flex
+                                  }
+                                >
+                                  <div
+                                    className={
+                                      tCardStyle.order_detail_product_image_wrapper
+                                    }
+                                  >
+                                    <div
+                                      className={
+                                        tCardStyle.order_detail_product_image_relative
+                                      }
+                                    >
+                                      <Image
+                                        src={`/uploads/${transaction?.details[0]?.product?.images[0]?.image}`}
+                                        alt=""
+                                        layout="fill"
+                                        objectFit="cover"
+                                      />
+                                    </div>
                                   </div>
+                                  <div className={tCardStyle.product_detail_flex}>
+                                    <div className={tCardStyle.product_detail_name}>
+                                      <h6>{transaction?.details[0]?.product?.name}</h6>
+                                    </div>
+                                    <div
+                                      className={
+                                        tCardStyle.product_detail_price_quantity
+                                      }
+                                    >
+                                      {transaction?.details[0]?.quantity} barang x{" "}
+                                      {RupiahFormat(transaction?.details[0]?.product?.price)}
+                                    </div>
+                                    <div
+                                      className={tCardStyle.product_detail_extras}
+                                    >
+                                      +1 produk lainnya
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div
+                                className={tCardStyle.order_detail_total_purchase}
+                              >
+                                <div>
+                                  <p className={tCardStyle.order_total_header}>
+                                    Total Belanja
+                                  </p>
+                                  <p className={tCardStyle.order_total_value}>
+                                    Rp 200.000
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className={tCardStyle.order_detail_buttons}>
+                              <div
+                                className={tCardStyle.order_detail_button_detail}
+                              >
+                                <p
+                                  onClick={() => {
+                                    setSeeDetailTransaction(true);
+                                  }}
+                                >
+                                  Lihat Detail Transaksi
+                                </p>
+                              </div>
+                              <div
+                                className={tCardStyle.order_detail_button_action}
+                              >
+                                <button>
+                                  <span>Selesai</span>
+                                </button>
+                              </div>
+                            </div>
+                          </section>
+                                </div>
+                          // <TransactionCard
+                          //   key={transaction?.id}
+                          //   date={transaction?.date}
+                          //   productName={transaction?.details[0]?.product?.name}
+                          //   productPrice={
+                          //     transaction?.details[0]?.product?.price
+                          //   }
+                          //   productQuantity={transaction?.details[0]?.quantity}
+                          //   productImage={
+                          //     transaction?.details[0]?.product?.images[0]?.image
+                          //   }
+                          //   shopName={transaction?.shop?.name}
+                          //   shopType={transaction?.shop?.type}
+                          //   transactionId={transaction?.id}
+                          // />
+                          );
+                        }
+                        )}
                 </div>
                 <div className={styles.pagination_container}></div>
-
-                {/* <div className={styles.settings_tab_navigator_container}>
-                    <div
-                      className={styles.settings_tab_navigator_container_flex}
-                    >
-                      <div
-                        className={activeTab == "index" ? styles.settings_tab_navigator_item_active : styles.settings_tab_navigator_item_inactive}
-                        onClick={() => { setActiveTab("index");  Router.replace('/user/settings')}}
-                                          >
-                        Biodata Diri
-                        
-                      </div>
-                      <div
-                                              className={activeTab == "address" ? styles.settings_tab_navigator_item_active : styles.settings_tab_navigator_item_inactive}
-                        onClick={() => { setActiveTab("address"); Router.replace('/user/settings/address')}}
-                      >
-                        Daftar Alamat
-                      </div>
-                      <div
-                        className={
-                          styles.settings_tab_navigator_active_indicator
-                        }
-                        style={indicatorStyle[activeTab]}
-                        // style={{width: "131px", left: "0px"}}
-                      ></div>
-                    </div>
-                  </div> */}
               </div>
             </div>
             {/* END Menu Settings */}
           </div>
         </div>
+        <div>{seeDetailTransaction && DetailTransactionOverlay()}</div>
       </main>
       <Footer />
     </div>
   );
+
+  function DetailTransactionOverlay() {
+    return (
+      <Overlay>
+        <div className={detailStyle.container}>
+          <button
+            className={common.close_button}
+            onClick={() => {
+              setSeeDetailTransaction(false);
+            }}
+          ></button>
+          <h2 className={common.overlay_header}>Detail Transaksi</h2>
+          <div className={detailStyle.transaction_container_flex}>
+            <div className={detailStyle.transaction_container_left}>
+              <div className={detailStyle.transaction_container_item}>
+                <div className={detailStyle.transaction_container_status}>
+                  <div>
+                    <h5>Selesai</h5>
+                  </div>
+                </div>
+                <div className={detailStyle.transaction_container_invoice_date}>
+                  <div
+                    className={
+                      detailStyle.transaction_container_invoice_date_row
+                    }
+                  >
+                    <p>No. Invoice</p>
+                    <div>
+                      <a>
+                        <span>INV/21903810923809</span>
+                      </a>
+                    </div>
+                  </div>
+                  <div
+                    className={
+                      detailStyle.transaction_container_invoice_date_row
+                    }
+                  >
+                    <p>Tanggal Pembelian</p>
+                    <div>
+                      <p>
+                        <span>25 Januari 2022, 13:10 WIB</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className={detailStyle.transaction_container_item}>
+                <div>
+                  <div className={detailStyle.wrapper_title}>
+                    <h5>Detail Produk</h5>
+                    {/* Shop Detail */}
+                    <div className={detailStyle.shop_wrapper}>
+                      <div className={detailStyle.shop_icon_wrapper}>
+                        <div className={detailStyle.shop_icon_relative}>
+                          <Image
+                            src={"/logo/badge_os.png"}
+                            layout="fill"
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                      <h6>Detail Guy</h6>
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="var(--N700, rgba(49, 53, 59, 0.96))"
+                      >
+                        <path d="M9.5 18a.999.999 0 01-.71-1.71l4.3-4.29-4.3-4.29a1.004 1.004 0 011.42-1.42l5 5a.998.998 0 010 1.42l-5 5a1 1 0 01-.71.29z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Product Card */}
+                  <section className={detailStyle.product_detail_section}>
+                    <div className={detailStyle.product_section_flex}>
+                      <div className={detailStyle.product_wrapper}>
+                        <div className={detailStyle.product_info_flex}>
+                          <div className={detailStyle.product_image_wrapper}>
+                            <div className={detailStyle.product_image_relative}>
+                              <Image
+                                src={"/uploads/1645294996854_0.jpg"}
+                                layout="fill"
+                                alt=""
+                                objectFit="cover"
+                              />
+                            </div>
+                          </div>
+                          <div className={detailStyle.product_detail_wrapper}>
+                            <Link href={""}>
+                              <a href="">
+                                <span>
+                                  Sarung Tangan Detailing Kuat Nitrile Hitam
+                                  NEC+ Powder Free Asli
+                                </span>
+                              </a>
+                            </Link>
+                            <p>1 x Rp5.000</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={detailStyle.price_action}>
+                        <div>
+                          <p>Total Harga</p>
+                          <p>Rp23.000</p>
+                        </div>
+                        <button>
+                          <span>Beli Lagi</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                  {/* End Product Card */}
+                </div>
+              </div>
+              <div className={detailStyle.transaction_container_item}>
+                <div className={detailStyle.wrapper_title}>
+                  <h5>Info Pengiriman</h5>
+                </div>
+                <div className={detailStyle.shipping_wrapper}>
+                  <div className={detailStyle.item_shipment}>
+                    <p>Kurir</p>
+                    <span>:</span>
+                    <div className={detailStyle.shipment_content}>
+                      <p>SiCepat - Regular Package</p>
+                    </div>
+                  </div>
+                  <div className={detailStyle.item_shipment}>
+                    <p>Alamat</p>
+                    <span>:</span>
+                    <div className={detailStyle.shipment_content}>
+                      <h6>Winston</h6>
+                      <p>
+                        0823981273
+                        <br />
+                        Jalan Janur Ungu
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className={detailStyle.transaction_container_item}>
+                <div className={detailStyle.wrapper_title}>
+                  <h5>Rincian Pembayaran</h5>
+                </div>
+                <div>
+                  <div
+                    className={`${detailStyle.rincian_pembayaran_item} ${detailStyle.with_border}`}
+                  >
+                    <p>Metode Pembayaran</p>
+                    <div>
+                      <p>
+                        <span>GoPay</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className={`${detailStyle.rincian_pembayaran_item}`}>
+                    <p>Total Harga (2 barang)</p>
+                    <div>
+                      <p>
+                        <span>Rp60.000</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`${detailStyle.rincian_pembayaran_item} ${detailStyle.total}`}
+                  >
+                    <p>Total Belanja</p>
+                    <div>
+                      <p>
+                        <span>Rp60.000</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={detailStyle.transaction_container_right}>
+              <button className={detailStyle.button_green}>Beri Ulasan</button>
+            </div>
+          </div>
+        </div>
+      </Overlay>
+    );
+  }
   // }
 };
 

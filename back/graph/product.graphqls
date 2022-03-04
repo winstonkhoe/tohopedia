@@ -44,6 +44,7 @@ extend type Query {
   products: [Product!]! @goField(forceResolver: true)
   getShopProductsPaginate(slug: String! limit: Int! offset: Int!): [Product!]! @goField(forceResolver: true)
   topProductDiscount: [Product!]! @goField(forceResolver: true)
+  infiniteScrolling(limit: Int!): [Product!]! @goField(forceResolver: true)
 }
 
 extend type Mutation {

@@ -28,7 +28,7 @@ func JwtGenerate(ctx context.Context, userID string) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, &JwtCustomClaim{
 		ID: userID,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 9999).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 	})

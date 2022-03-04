@@ -4,7 +4,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Footer } from "../../components/Footer/Powered";
+import Footer from "../../components/Footer/Footer";
 import HeadIcon from "../../components/head_icon";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";
@@ -290,19 +290,6 @@ const Shipment: NextPage = () => {
       return address?.id === addressId;
     });
   }
-
-  // function handleSetValue(addressId: string) {
-  //   let addressObj = getAddress(addressId)[0]
-  //   setUpdateAddress({
-  //     id: addressId,
-  //     label: addressObj?.label,
-  //     receiver: addressObj?.receiver,
-  //     phone: addressObj?.phone,
-  //     city: addressObj?.city,
-  //     postalCode: addressObj?.postalCode,
-  //     address: addressObj?.address,
-  //   })
-  // }
 
   function handleUpdateProcess(addressId: string) {
     let addressObj = getAddress(addressId)[0];

@@ -172,6 +172,7 @@ type ComplexityRoot struct {
 		GetTopayToken           func(childComplexity int, code string) int
 		GetUserCheckedCart      func(childComplexity int) int
 		GetUserTransactions     func(childComplexity int) int
+		InfiniteScrolling       func(childComplexity int, limit int) int
 		Product                 func(childComplexity int, id string) int
 		Products                func(childComplexity int) int
 		ShipmentTypes           func(childComplexity int) int
@@ -359,6 +360,7 @@ type QueryResolver interface {
 	Products(ctx context.Context) ([]*model.Product, error)
 	GetShopProductsPaginate(ctx context.Context, slug string, limit int, offset int) ([]*model.Product, error)
 	TopProductDiscount(ctx context.Context) ([]*model.Product, error)
+	InfiniteScrolling(ctx context.Context, limit int) ([]*model.Product, error)
 	ShipmentTypes(ctx context.Context) ([]*model.ShipmentType, error)
 	GetShipments(ctx context.Context) ([]*model.Shipment, error)
 	GetCurrentShop(ctx context.Context) (*model.Shop, error)
@@ -390,7 +392,6 @@ type TransactionResolver interface {
 	User(ctx context.Context, obj *model.Transaction) (*model.User, error)
 	Shop(ctx context.Context, obj *model.Transaction) (*model.Shop, error)
 	TransactionCoupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error)
-	Date(ctx context.Context, obj *model.Transaction) (*time.Time, error)
 }
 type TransactionCouponResolver interface {
 	Transaction(ctx context.Context, obj *model.TransactionCoupon) (*model.Transaction, error)
@@ -1182,6 +1183,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUserTransactions(childComplexity), true
 
+	case "Query.infiniteScrolling":
+		if e.complexity.Query.InfiniteScrolling == nil {
+			break
+		}
+
+		args, err := ec.field_Query_infiniteScrolling_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.InfiniteScrolling(childComplexity, args["limit"].(int)), true
+
 	case "Query.product":
 		if e.complexity.Query.Product == nil {
 			break
@@ -1952,6 +1965,7 @@ extend type Query {
   products: [Product!]! @goField(forceResolver: true)
   getShopProductsPaginate(slug: String! limit: Int! offset: Int!): [Product!]! @goField(forceResolver: true)
   topProductDiscount: [Product!]! @goField(forceResolver: true)
+  infiniteScrolling(limit: Int!): [Product!]! @goField(forceResolver: true)
 }
 
 extend type Mutation {
@@ -2135,7 +2149,7 @@ extend type Mutation {
   user: User!  @goField(forceResolver: true)
   shop: Shop! @goField(forceResolver: true)
   transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
-  date: Time! @goField(forceResolver: true)
+  date: Time!
   status: Int!
   method: String!
 }
@@ -2907,6 +2921,21 @@ func (ec *executionContext) field_Query_getTopayToken_args(ctx context.Context, 
 		}
 	}
 	args["code"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_infiniteScrolling_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg0
 	return args, nil
 }
 
@@ -6641,6 +6670,48 @@ func (ec *executionContext) _Query_topProductDiscount(ctx context.Context, field
 	return ec.marshalNProduct2ᚕᚖtohopediaᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_infiniteScrolling(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_infiniteScrolling_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().InfiniteScrolling(rctx, args["limit"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚕᚖtohopediaᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_shipmentTypes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8505,14 +8576,14 @@ func (ec *executionContext) _Transaction_date(ctx context.Context, field graphql
 		Object:     "Transaction",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Transaction().Date(rctx, obj)
+		return obj.Date, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8524,9 +8595,9 @@ func (ec *executionContext) _Transaction_date(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*time.Time)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Transaction_status(ctx context.Context, field graphql.CollectedField, obj *model.Transaction) (ret graphql.Marshaler) {
@@ -12225,6 +12296,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "infiniteScrolling":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_infiniteScrolling(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "shipmentTypes":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -12778,19 +12863,10 @@ func (ec *executionContext) _Transaction(ctx context.Context, sel ast.SelectionS
 				return res
 			})
 		case "date":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Transaction_date(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Transaction_date(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "status":
 			out.Values[i] = ec._Transaction_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -14107,27 +14183,6 @@ func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v in
 
 func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	res := graphql.MarshalTime(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	res, err := graphql.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := graphql.MarshalTime(*v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

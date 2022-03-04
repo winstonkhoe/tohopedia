@@ -210,7 +210,30 @@ func (r *userResolver) Addresses(ctx context.Context, obj *model.User) ([]*model
 }
 
 func (r *userResolver) Transactions(ctx context.Context, obj *model.User) ([]*model.Transaction, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	var transactions []*model.Transaction
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("user_id = ?", id).Order("date DESC").Find(&transactions).Error; err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(transactions); i++ {
+		fmt.Println("initial: ")
+		fmt.Println(transactions[i].Date)
+		helpers.ParseTime(&transactions[i].Date)
+		fmt.Println("after: ")
+		fmt.Println(transactions[i].Date)
+	}
+
+	return transactions, nil
 }
 
 func (r *userResolver) Topay(ctx context.Context, obj *model.User) (*model.Topay, error) {

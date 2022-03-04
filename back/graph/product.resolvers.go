@@ -197,6 +197,17 @@ func (r *queryResolver) TopProductDiscount(ctx context.Context) ([]*model.Produc
 	return models, err
 }
 
+func (r *queryResolver) InfiniteScrolling(ctx context.Context, limit int) ([]*model.Product, error) {
+	db := config.GetDB()
+	var products []*model.Product
+
+	if err := db.Where("valid_to = ? AND stock > 0 ", "0000-00-00 00:00:00.000").Limit(limit).Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}
+
 // Category returns generated.CategoryResolver implementation.
 func (r *Resolver) Category() generated.CategoryResolver { return &categoryResolver{r} }
 

@@ -2,6 +2,8 @@ import { gql, useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import RupiahFormat from "../../misc/currency";
+import NumberFormat from "../../misc/number";
 import styles from "./user_navbar.module.scss";
 
 export function UserNavbar() {
@@ -14,6 +16,10 @@ export function UserNavbar() {
       getCurrentUser {
         name
         image
+        topay {
+          balance
+          coin
+        }
       }
     }
   `;
@@ -83,7 +89,7 @@ export function UserNavbar() {
                     ToPay
                   </p>
                   <p className={styles.settings_user_summary_wallet_value}>
-                    Rp200.000
+                    {RupiahFormat(userData?.getCurrentUser?.topay?.balance)}
                   </p>
                 </div>
               </a>
@@ -109,7 +115,7 @@ export function UserNavbar() {
                     ToPay Coins
                   </p>
                   <p className={styles.settings_user_summary_wallet_value}>
-                    Rp10.000
+                    {NumberFormat(userData?.getCurrentUser?.topay?.coin)}
                   </p>
                 </div>
               </a>

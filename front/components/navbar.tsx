@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/nav.module.scss";
-
+import cartStyle from "../styles/components/cart_overlay.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -11,6 +11,7 @@ import { checkCookies, removeCookies } from "cookies-next";
 import Router from "next/router";
 import { Url } from "url";
 import RupiahFormat from "../misc/currency";
+import Overlay from "./overlay/overlay";
 
 export function Navbar() {
   // const opencage = require("opencage-api-client");
@@ -19,7 +20,6 @@ export function Navbar() {
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
   const [currentLocation, setCurrentLocation] = useState(null);
 
-  console.log(loggedIn);
   var userName, shopName;
   var shop = null;
   const NAVBAR_QUERY = gql`
@@ -129,6 +129,34 @@ export function Navbar() {
       totalSum += cart.quantity;
     });
     return totalSum;
+  }
+
+  function CartOverlay() {
+    return (
+      <Overlay>
+        <div className={cartStyle.container}>
+          <div className={cartStyle.header}>
+            <div className={cartStyle.header_count}>
+              Keranjang ({getCartTotalQuantity(data?.getCurrentUser?.carts)})
+            </div>
+          </div>
+
+          <div className={cartStyle.carts_container}>
+          <div className={cartStyle.cart_item_wrapper}>
+          <div className={cartStyle.cart_item_image}>
+          
+          </div>
+          <div className={cartStyle.cart_item_name}>
+
+          </div>
+          <div className={cartStyle.cart_item_price}>
+
+          </div>
+          </div>
+          </div>
+        </div>
+      </Overlay>
+    );
   }
 
   return (
@@ -433,7 +461,9 @@ export function Navbar() {
                                 </div>
                                 <div>
                                   <div className={styles.dropdown_gopay_value}>
-                                    {RupiahFormat(data?.getCurrentUser?.topay?.balance)}
+                                    {RupiahFormat(
+                                      data?.getCurrentUser?.topay?.balance
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -456,7 +486,9 @@ export function Navbar() {
                                 </div>
                                 <div>
                                   <div className={styles.dropdown_gopay_value}>
-                                  {RupiahFormat(data?.getCurrentUser?.topay?.coin)}
+                                    {RupiahFormat(
+                                      data?.getCurrentUser?.topay?.coin
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -479,7 +511,7 @@ export function Navbar() {
                         </Link>
                       </div>
                       <div className={styles.dropdown_user_settings_container}>
-                        <Link href={"/transactions"}>
+                        <Link href={"/order-list"}>
                           <a
                             className={styles.dropdown_user_setting_button_link}
                             href=""

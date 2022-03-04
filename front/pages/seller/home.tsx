@@ -10,16 +10,15 @@ import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";
 import styles from "../../styles/seller.module.scss";
 import Switch from "react-switch";
-// import TimePicker from 'react-time-picker/dist/entry.nostyle'
-import TimePicker from "react-time-picker";
-import Shop from "../../models/Shop";
+
 import { ErrorNotFound } from "../../components/error";
-import { Footer } from "../../components/Footer/Powered";
+import Footer from "../../components/Footer/Footer";
 
 const Home: NextPage = () => {
   const { addToast } = useToasts();
   const { register: productForm, handleSubmit: handleProduct } = useForm();
-  const { register: updateStoreForm, handleSubmit: handleUpdateStore } = useForm();
+  const { register: updateStoreForm, handleSubmit: handleUpdateStore } =
+    useForm();
 
   // const [currentShop?, setCurrentShop] = useState(new Shop);
   const DEFAULT_PROFILE_IMAGE = `/logo/user_profile.jpg`;
@@ -60,11 +59,14 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     setCurrentShop(storeData?.getCurrentShop);
-    setProfileImage(storeData?.getCurrentShop?.image ? `/uploads/${storeData?.getCurrentShop?.image}` : DEFAULT_PROFILE_IMAGE)
-    setStatusToko(storeData?.getCurrentShop?.isOpen)
+    setProfileImage(
+      storeData?.getCurrentShop?.image
+        ? `/uploads/${storeData?.getCurrentShop?.image}`
+        : DEFAULT_PROFILE_IMAGE
+    );
+    setStatusToko(storeData?.getCurrentShop?.isOpen);
   }, [DEFAULT_PROFILE_IMAGE, storeData]);
 
-  
   const CATEGORY_QUERY = gql`
     query GetAllCategories {
       categories {
@@ -247,8 +249,8 @@ const Home: NextPage = () => {
       setDescriptionLength(event.target.value.length);
       console.log(event.target.value);
     }
-    
-    return ( 
+
+    return (
       <div className={styles.add_product_container}>
         <div className={styles.add_product_header}>
           <h3>Tambah Produk</h3>
@@ -361,7 +363,7 @@ const Home: NextPage = () => {
                     <h4>Stok Produk</h4>
                   </div>
                   <div className={styles.input_box}>
-                    <input type="number" {...productForm("stock")} min="1"/>
+                    <input type="number" {...productForm("stock")} min="1" />
                   </div>
                 </div>
               </div>
@@ -411,7 +413,9 @@ const Home: NextPage = () => {
                 </div>
               </div>
               <div className={styles.metadata_button_container}>
-                <button type="button" onClick={addFields}>Tambah</button>
+                <button type="button" onClick={addFields}>
+                  Tambah
+                </button>
               </div>
             </div>
           </section>
@@ -429,7 +433,7 @@ const Home: NextPage = () => {
     const onImageChange = (event: any) => {
       if (event.target.files && event.target.files[0]) {
         setProfileImage(URL.createObjectURL(event.target.files[0]));
-        setProfileImageChosen(event.target.files[0])
+        setProfileImageChosen(event.target.files[0]);
       }
     };
 
@@ -491,9 +495,7 @@ const Home: NextPage = () => {
           });
           return;
         } else {
-          if (
-            profileImageChosen
-          ) {
+          if (profileImageChosen) {
             const body = new FormData();
 
             body.append(`file0`, profileImageChosen);
@@ -515,7 +517,7 @@ const Home: NextPage = () => {
             image = currentShop?.image;
           }
 
-          console.log(image)
+          console.log(image);
           try {
             await mutationEditShop({
               variables: {
@@ -542,8 +544,8 @@ const Home: NextPage = () => {
     console.log(currentShop?.isOpen);
 
     if (currentShop != null) {
-      console.log(currentShop)
-      console.log(storeData)
+      console.log(currentShop);
+      console.log(storeData);
       return (
         <div className={styles.add_product_container}>
           <div className={styles.add_product_header}>
@@ -567,7 +569,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
               </span>
-  
+
               <span className={styles.input_row_container}>
                 <div className={styles.input_info_container}>
                   <div className={styles.input_container}>
@@ -599,7 +601,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
               </span>
-  
+
               <span className={styles.input_row_container}>
                 <div className={styles.input_info_container}>
                   <div className={styles.input_container}>
@@ -616,7 +618,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
               </span>
-  
+
               <span className={styles.input_row_container}>
                 <div className={styles.input_info_container}>
                   <div className={styles.input_container}>
@@ -633,7 +635,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
               </span>
-  
+
               <span className={styles.input_row_container}>
                 <div className={styles.input_info_container}>
                   <div className={styles.input_container}>
@@ -653,20 +655,20 @@ const Home: NextPage = () => {
                   <p>{descriptionLength}/2000</p>
                 </div>
               </span>
-  
+
               <span className={styles.input_row_container}>
                 <div className={styles.input_info_container}>
                   <div className={styles.input_container}>
                     <div className={styles.input_label}>
                       <h4>Jam Operasional Toko</h4>
                     </div>
-  
+
                     <div className={styles.input_box_label_container}>
                       <label htmlFor="">Buka Toko</label>
                       <div className={styles.input_box}>
                         {/* <TimePicker onChange={setOpenTime} value={openTime} /> */}
                         {/* <TimePicker onChange={setCloseTime} value={closeTime} /> */}
-  
+
                         <input
                           type="time"
                           {...updateStoreForm("openTime")}
@@ -689,7 +691,9 @@ const Home: NextPage = () => {
                           onChange={(e) => setCloseTime(e.target.value)}
                           // onChange={handleCloseTime}
                           // value={closeTime}
-                          defaultValue={TimeToHourMinute(currentShop?.closeTime)}
+                          defaultValue={TimeToHourMinute(
+                            currentShop?.closeTime
+                          )}
                           step={600}
                         />
                       </div>
@@ -697,7 +701,7 @@ const Home: NextPage = () => {
                   </div>
                 </div>
               </span>
-  
+
               <span className={styles.input_row_container}>
                 <div className={styles.input_info_container}>
                   <div className={styles.input_container}>
@@ -724,24 +728,24 @@ const Home: NextPage = () => {
   }
 
   if (storeError) {
-    console.log(storeError)
-    console.log("Store Data undefine")
+    console.log(storeError);
+    console.log("Store Data undefine");
     return (
       <div className={styles.container}>
         <Head>
-        <title>Seller Dashboard</title>
-        <meta name="description" content="Generated by create next app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <InitFont />
-      <Navbar />
+          <title>Seller Dashboard</title>
+          <meta name="description" content="Generated by create next app" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <InitFont />
+        <Navbar />
         <ErrorNotFound />
-        <Footer/>
+        <Footer />
       </div>
-    )
+    );
   }
-  console.log(currentShop)
-  console.log(storeData)
+  console.log(currentShop);
+  console.log(storeData);
   return (
     <div className={styles.container}>
       <Head>
@@ -776,7 +780,7 @@ const Home: NextPage = () => {
                   </div>
                 </li>
                 <li>Merchant Type</li>
-                <li>{currentShop?.isOpen ? 'Toko Buka' : 'Toko Tutup'}</li>
+                <li>{currentShop?.isOpen ? "Toko Buka" : "Toko Tutup"}</li>
               </ul>
               {/* End Header */}
 
@@ -860,25 +864,7 @@ const Home: NextPage = () => {
         </div>
       </div>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{" "}
-          <span className={styles.logo}>
-            {/* <Image src="/logo/tohopedia_logo.png" alt='Tohopedia Logo' width={800} height={200}/> */}
-            <Image
-              src="/logo/tohopedia_logo.png"
-              alt="Vercel Logo"
-              width={72}
-              height={16}
-            />
-            {/* <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} /> */}
-          </span>
-        </a>
-      </footer>
+      <Footer/>
     </div>
   );
 };

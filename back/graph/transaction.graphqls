@@ -6,7 +6,7 @@ type Transaction {
   user: User!  @goField(forceResolver: true)
   shop: Shop! @goField(forceResolver: true)
   transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
-  date: Time! @goField(forceResolver: true)
+  date: Time!
   status: Int!
   method: String!
 }

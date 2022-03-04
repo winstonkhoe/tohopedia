@@ -10,6 +10,7 @@ import (
 	"tohopedia/config"
 	"tohopedia/graph/generated"
 	"tohopedia/graph/model"
+	"tohopedia/helpers"
 	"tohopedia/service"
 
 	"github.com/google/uuid"
@@ -105,30 +106,64 @@ func (r *queryResolver) GetUserTransactions(ctx context.Context) ([]*model.Trans
 }
 
 func (r *transactionResolver) Details(ctx context.Context, obj *model.Transaction) ([]*model.TransactionDetail, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	var transactionDetails []*model.TransactionDetail
+
+	if err := db.Where("transaction_id = ?", obj.ID).Find(&transactionDetails).Error; err != nil {
+		return nil, err
+	}
+
+	return transactionDetails, nil
 }
 
 func (r *transactionResolver) Address(ctx context.Context, obj *model.Transaction) (*model.Address, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	address := new(model.Address)
+
+	if err := db.Where("id = ?", obj.AddressId).Find(&address).Error; err != nil {
+		return nil, err
+	}
+
+	return address, nil
 }
 
 func (r *transactionResolver) Shipment(ctx context.Context, obj *model.Transaction) (*model.Shipment, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	shipment := new(model.Shipment)
+
+	if err := db.Where("id = ?", obj.ShipmentId).Find(&shipment).Error; err != nil {
+		return nil, err
+	}
+
+	return shipment, nil
 }
 
 func (r *transactionResolver) User(ctx context.Context, obj *model.Transaction) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.Where("id = ?", obj.UserId).Find(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (r *transactionResolver) Shop(ctx context.Context, obj *model.Transaction) (*model.Shop, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	shop := new(model.Shop)
+
+	if err := db.Where("id = ?", obj.ShopId).Find(&shop).Error; err != nil {
+		return nil, err
+	}
+
+	helpers.ParseTime(&shop.OpenTime)
+	helpers.ParseTime(&shop.CloseTime)
+
+	return shop, nil
 }
 
 func (r *transactionResolver) TransactionCoupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionResolver) Date(ctx context.Context, obj *model.Transaction) (*time.Time, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -141,11 +176,27 @@ func (r *transactionCouponResolver) Coupon(ctx context.Context, obj *model.Trans
 }
 
 func (r *transactionDetailResolver) Transaction(ctx context.Context, obj *model.TransactionDetail) (*model.Transaction, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	transaction := new(model.Transaction)
+
+	if err := db.Where("id = ?", obj.TransactionId).Find(&transaction).Error; err != nil {
+		return nil, err
+	}
+
+	helpers.ParseTime(&transaction.Date)
+
+	return transaction, nil
 }
 
 func (r *transactionDetailResolver) Product(ctx context.Context, obj *model.TransactionDetail) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	product := new(model.Product)
+
+	if err := db.Where("id = ?", obj.ProductId).Find(&product).Error; err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
 
 // Transaction returns generated.TransactionResolver implementation.
@@ -171,6 +222,9 @@ type transactionDetailResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *transactionResolver) Date(ctx context.Context, obj *model.Transaction) (*time.Time, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 func (r *transactionDetailResolver) Note(ctx context.Context, obj *model.TransactionDetail) (*string, error) {
 	panic(fmt.Errorf("not implemented"))
 }

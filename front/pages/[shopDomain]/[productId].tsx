@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ErrorNotFound } from "../../components/error";
-import { Footer } from "../../components/Footer/Powered";
+import Footer from "../../components/Footer/Footer";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";
@@ -242,56 +242,6 @@ const ProductDetail: NextPage = () => {
                             </div>
                           );
                         })}
-                        {/* <div className={styles.product_image_item_container}>
-                              <div className={styles.product_image_item_relative}>
-                                <Image
-                                  src={"/uploads/1645294996854_0.jpg"}
-                                  alt="product image"
-                                  layout="fill"
-                                  objectFit="contain"
-                                />
-                              </div>
-                            </div>
-                            <div className={styles.product_image_item_container}>
-                              <div className={styles.product_image_item_relative}>
-                                <Image
-                                  src={"/uploads/1645294996854_0.jpg"}
-                                  alt="product image"
-                                  layout="fill"
-                                  objectFit="contain"
-                                />
-                              </div>
-                            </div>
-                            <div className={styles.product_image_item_container}>
-                              <div className={styles.product_image_item_relative}>
-                                <Image
-                                  src={"/uploads/1645294996854_0.jpg"}
-                                  alt="product image"
-                                  layout="fill"
-                                  objectFit="contain"
-                                />
-                              </div>
-                            </div>
-                            <div className={styles.product_image_item_container}>
-                              <div className={styles.product_image_item_relative}>
-                                <Image
-                                  src={"/uploads/1645294996854_0.jpg"}
-                                  alt="product image"
-                                  layout="fill"
-                                  objectFit="contain"
-                                />
-                              </div>
-                            </div>
-                            <div className={styles.product_image_item_container}>
-                              <div className={styles.product_image_item_relative}>
-                                <Image
-                                  src={"/uploads/1645294996854_0.jpg"}
-                                  alt="product image"
-                                  layout="fill"
-                                  objectFit="contain"
-                                />
-                              </div>
-                            </div> */}
                       </div>
                     </div>
                   </div>
