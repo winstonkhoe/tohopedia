@@ -19,6 +19,7 @@ export function Navbar() {
   const loggedIn = checkCookies("tokenid");
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [seeCartOverlay, setSeeCartOverlay] = useState(false);
 
   var userName, shopName;
   var shop = null;
@@ -141,6 +142,8 @@ export function Navbar() {
   function CartOverlay() {
     return (
       <Overlay>
+        <div className={cartStyle.wrapper} onMouseEnter={()=>{setSeeCartOverlay(true)}}>
+        <div className={cartStyle.container_wrapper} onMouseEnter={()=>{setSeeCartOverlay(true)}} onMouseLeave={()=>{setSeeCartOverlay(false)}}>
         <div className={cartStyle.container}>
           <div className={cartStyle.header}>
             <div className={cartStyle.header_count}>
@@ -166,11 +169,14 @@ export function Navbar() {
             })}
           </div>
         </div>
+        </div>
+        </div>
       </Overlay>
     );
   }
 
   return (
+    <>
     <div className={styles.nav_container}>
       <div>
         <div className={styles.nav_header}>
@@ -207,7 +213,7 @@ export function Navbar() {
               <div>
                 <Link href={"/cart"}>
                   <a href="">
-                    <div>
+                      <div onMouseEnter={() => { setSeeCartOverlay(true) }} onMouseLeave={()=>{setSeeCartOverlay(false)}}>
                       <i className={styles.logo_cart}></i>
                       <span className={styles.num_info}>
                         {getCartTotalQuantity(data?.getCurrentUser?.carts)}
@@ -600,6 +606,10 @@ export function Navbar() {
         </div>
       </div>
     </div>
+    <div>
+    {seeCartOverlay && CartOverlay()}
+  </div>
+    </>
   );
 }
 

@@ -1,3 +1,27 @@
+.wrapper {
+    top: 70px;
+    right: 100px;
+    padding: 50px 0 0 0;
+    width: 400px;
+    z-index: 496;
+    height: auto;
+    position: fixed;
+.container_wrapper {
+    position: fixed;
+    top: 80px;
+    right: 100px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 0px 0px 10px 10px;
+    box-shadow: rgb(0 0 0 / 12%) 0px 2px 8px 0px;
+    transform: translate3d(0px, 0px, 0px);
+    width: 400px;
+    z-index: 495;
+    overflow: hidden;
+    padding: 0;
+    animation-name: animation-1bic2n7;
+    animation-duration: 0.4s;
+    height: auto;
+
 .container {
   display: flex;
   flex-direction: column;
@@ -68,4 +92,6 @@
       }
     }
   }
+}
+}
 }
