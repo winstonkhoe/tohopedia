@@ -115,7 +115,7 @@ func (r *queryResolver) GetCurrentShop(ctx context.Context) (*model.Shop, error)
 func (r *shopResolver) User(ctx context.Context, obj *model.Shop) (*model.User, error) {
 	db := config.GetDB()
 	user := new(model.User)
-	if err := db.Find(&user).Where(user, "id = ?", obj.UserId).Error; err != nil {
+	if err := db.Where("id = ?", obj.UserId).Find(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -125,7 +125,7 @@ func (r *shopResolver) User(ctx context.Context, obj *model.Shop) (*model.User, 
 func (r *shopResolver) Products(ctx context.Context, obj *model.Shop) ([]*model.Product, error) {
 	db := config.GetDB()
 	var products []*model.Product
-	if err := db.Find(&products).Where(products, "shop_id = ?", obj.ID).Error; err != nil {
+	if err := db.Where("shop_id = ?", obj.ID).Find(&products).Error; err != nil {
 		return nil, err
 	}
 

@@ -16,13 +16,13 @@ import { useToasts } from "react-toast-notifications";
 const ProductDetail: NextPage = () => {
   const { addToast } = useToasts();
   const router = useRouter();
-  const { shopName, productId } = router.query;
+  const { shopDomain, productId } = router.query;
   const [productAtCartQty, setProductAtCartQty] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
   const [onHoverImage, setOnHoverImage] = useState("");
 
-  console.log(shopName)
+  console.log(shopDomain)
   console.log(productId)
   const PRODUCT_STORE_QUERY = gql`
     query GetProductDetail($id: ID!) {

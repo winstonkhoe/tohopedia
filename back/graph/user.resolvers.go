@@ -209,6 +209,28 @@ func (r *userResolver) Addresses(ctx context.Context, obj *model.User) ([]*model
 	panic(fmt.Errorf("not implemented"))
 }
 
+func (r *userResolver) Transactions(ctx context.Context, obj *model.User) ([]*model.Transaction, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *userResolver) Topay(ctx context.Context, obj *model.User) (*model.Topay, error) {
+	db := config.GetDB()
+	topay := new(model.Topay)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.First(topay, "user_id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return topay, nil
+}
+
 // AuthOps returns generated.AuthOpsResolver implementation.
 func (r *Resolver) AuthOps() generated.AuthOpsResolver { return &authOpsResolver{r} }
 

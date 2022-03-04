@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"time"
 	"tohopedia/config"
 	"tohopedia/graph/generated"
@@ -41,7 +42,7 @@ func (r *cartResolver) User(ctx context.Context, obj *model.Cart) (*model.User, 
 	return user, nil
 }
 
-func (r *mutationResolver) CreateUpdateCart(ctx context.Context, productID string, quantity int) (*model.Cart, error) {
+func (r *mutationResolver) CreateUpdateCart(ctx context.Context, productID string, quantity int, note *string) (*model.Cart, error) {
 	db := config.GetDB()
 	cart := new(model.Cart)
 	product := new(model.Product)
@@ -187,3 +188,13 @@ func (r *queryResolver) GetUserCheckedCart(ctx context.Context) ([]*model.Cart, 
 func (r *Resolver) Cart() generated.CartResolver { return &cartResolver{r} }
 
 type cartResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *cartResolver) Note(ctx context.Context, obj *model.Cart) (*string, error) {
+	panic(fmt.Errorf("not implemented"))
+}

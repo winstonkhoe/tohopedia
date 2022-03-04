@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { checkCookies, removeCookies } from "cookies-next";
 import Router from "next/router";
 import { Url } from "url";
+import RupiahFormat from "../misc/currency";
 
 export function Navbar() {
   // const opencage = require("opencage-api-client");
@@ -33,6 +34,10 @@ export function Navbar() {
         }
         carts {
           quantity
+        }
+        topay {
+          balance
+          coin
         }
       }
     }
@@ -220,7 +225,7 @@ export function Navbar() {
                           }
                         >
                           <div className={styles.dropdown_seller_shop_name}>
-                            <Link href={"homeToko"}>
+                            <Link href={`/${data?.getCurrentUser?.shop?.slug}`}>
                               <a href="">{data?.getCurrentUser?.shop?.name}</a>
                             </Link>
                           </div>
@@ -398,7 +403,7 @@ export function Navbar() {
                     <div className={styles.dropdown_user_options_container}>
                       <div className={styles.dropdown_user_summary_container}>
                         <div className={styles.dropdown_user_gopay_container}>
-                          <Link href={"/user/gopay"}>
+                          <Link href={"/topay"}>
                             <a
                               className={
                                 styles.dropdown_user_gopay_inner_container
@@ -428,7 +433,7 @@ export function Navbar() {
                                 </div>
                                 <div>
                                   <div className={styles.dropdown_gopay_value}>
-                                    Rp200.000
+                                    {RupiahFormat(data?.getCurrentUser?.topay?.balance)}
                                   </div>
                                 </div>
                               </div>
@@ -451,7 +456,7 @@ export function Navbar() {
                                 </div>
                                 <div>
                                   <div className={styles.dropdown_gopay_value}>
-                                    Rp10.000
+                                  {RupiahFormat(data?.getCurrentUser?.topay?.coin)}
                                   </div>
                                 </div>
                               </div>

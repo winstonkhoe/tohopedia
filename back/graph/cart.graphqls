@@ -5,11 +5,13 @@ type Cart {
   quantity: Int!
   checked: Boolean!
   createdAt: Time!
+  note: String
 }
 
 input NewCart {
   productId: String!
   quantity: Int!
+  note: String
 }
 
 extend type Query {
@@ -19,7 +21,7 @@ extend type Query {
 
 extend type Mutation {
   # addCart(input: NewCart!): Cart! @auth
-  createUpdateCart(productId: ID! quantity: Int!): Cart! @auth
+  createUpdateCart(productId: ID! quantity: Int! note: String): Cart! @auth
   updateCart(id: ID! quantity: Int!): Cart! @auth
   toggleCheckCart(id: ID! checked: Boolean!): Cart! @auth
   deleteCart(id: ID!): Cart! @auth

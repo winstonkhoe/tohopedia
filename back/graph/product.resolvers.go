@@ -22,7 +22,7 @@ func (r *categoryResolver) Products(ctx context.Context, obj *model.Category) ([
 
 	var products []*model.Product
 
-	if err := db.Where("category_id = ?", obj.ID).Find(&products).Error; err != nil {
+	if err := db.Where("category_id = ? AND stock > 0", obj.ID).Find(&products).Error; err != nil {
 		return nil, err
 	}
 
@@ -139,7 +139,7 @@ func (r *productImageResolver) Product(ctx context.Context, obj *model.ProductIm
 func (r *queryResolver) Categories(ctx context.Context) ([]*model.Category, error) {
 	db := config.GetDB()
 	var models []*model.Category
-	return models, db.Find(&models).Error
+	return models, db.Order("name").Find(&models).Error
 }
 
 func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product, error) {
@@ -158,7 +158,7 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 	db := config.GetDB()
 	var models []*model.Product
 
-	err := db.Where("valid_to = ?", "0000-00-00 00:00:00.000").Order("created_at DESC").Find(&models).Error
+	err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Order("created_at DESC").Find(&models).Error
 
 	for i := 0; i < len(models); i++ {
 		helpers.ParseTime(&models[i].CreatedAt)
@@ -166,11 +166,31 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 	return models, err
 }
 
+func (r *queryResolver) GetShopProductsPaginate(ctx context.Context, slug string, limit int, offset int) ([]*model.Product, error) {
+	db := config.GetDB()
+	var products []*model.Product
+
+	shop := new(model.Shop)
+
+	if err := db.First(shop, "slug = ?", slug).Error; err != nil {
+		return nil, err
+	}
+
+	if err := db.Where("shop_id = ? AND valid_to = ? AND stock > 0 ", shop.ID, "0000-00-00 00:00:00.000").Limit(limit).Offset(offset).Find(&products).Error; err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(products); i++ {
+		helpers.ParseTime(&products[i].CreatedAt)
+	}
+
+	return products, nil
+}
+
 func (r *queryResolver) TopProductDiscount(ctx context.Context) ([]*model.Product, error) {
 	db := config.GetDB()
 	var models []*model.Product
 
-	err := db.Where("valid_to = ? AND discount > ?", "0000-00-00 00:00:00.000", 0).Order("discount DESC").Find(&models).Limit(15).Error
+	err := db.Where("valid_to = ? AND discount > ? AND stock > 0", "0000-00-00 00:00:00.000", 0).Order("discount DESC").Find(&models).Limit(15).Error
 	for i := 0; i < len(models); i++ {
 		helpers.ParseTime(&models[i].CreatedAt)
 	}
@@ -189,3 +209,13 @@ func (r *Resolver) ProductImage() generated.ProductImageResolver { return &produ
 type categoryResolver struct{ *Resolver }
 type productResolver struct{ *Resolver }
 type productImageResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) GetShopProducts(ctx context.Context, slug string) ([]*model.Product, error) {
+	panic(fmt.Errorf("not implemented"))
+}

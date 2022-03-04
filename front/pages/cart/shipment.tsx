@@ -19,8 +19,12 @@ import PlacesAutocomplete, {
 } from "react-places-autocomplete";
 import LocationSearchInput from "./test";
 import Overlay from "../../components/overlay/overlay";
+import { useToasts } from "react-toast-notifications";
+import { useRouter } from "next/router";
 
 const Shipment: NextPage = () => {
+  const { addToast } = useToasts();
+  const router = useRouter();
   const [updateAddress, setUpdateAddress] = useState({
     label: "",
     receiver: "",
@@ -47,6 +51,8 @@ const Shipment: NextPage = () => {
     postalCode: "",
     address: "",
   });
+
+  const [choosingPayment, setChoosingPayment] = useState(false);
 
   const [tambahAlamat, setTambahAlamat] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -131,6 +137,11 @@ const Shipment: NextPage = () => {
           }
           images {
             image
+          }
+        }
+        user {
+          topay {
+            balance
           }
         }
       }
@@ -245,6 +256,8 @@ const Shipment: NextPage = () => {
       $productIds: [String!]!
       $quantity: [Int!]!
       $couponId: String
+      $method: String!
+      $total: Int!
     ) {
       addTransaction(
         input: {
@@ -254,6 +267,8 @@ const Shipment: NextPage = () => {
           productIds: $productIds
           quantity: $quantity
           couponId: $couponId
+          method: $method
+          total: $total
         }
       ) {
         id
@@ -463,39 +478,54 @@ const Shipment: NextPage = () => {
   console.log(chosenShipment);
   console.log(currAddress);
 
-  function handleBayar() {
-    checkoutData?.getUserCheckedCart
-      ?.map((cart: any) => cart?.product?.shop)
-      .filter(
-        (value: any, index: any, self: string | any[]) =>
-          self.indexOf(value) === index
-      )
-      .map((shop: any) => {
-        let productList = [];
-        let quantityList = [];
-        getShopCarts(shop?.id).map((cart: any) => {
-          productList.push(cart?.product?.id);
-          quantityList.push(Number(cart?.quantity));
-        });
-        addTransaction({
-          variables: {
-            addressId: currAddress?.id,
-            shipmentId: chosenShipment[shop?.id],
-            shopId: shop?.id,
-            productIds: productList,
-            quantity: quantityList,
-            couponId: null,
-          },
-        }).then((data: any) => {
-          console.log(data)
-        });
-        console.log(productList);
-        console.log(quantityList);
-      });
+  function handleBayar(paymentMethod: string) {
+    if (paymentMethod == "topay") {
+      if (
+        checkoutData?.getUserCheckedCart[0]?.user?.topay?.balance <
+        cartSummary.original - cartSummary.discount
+      ) {
+        addToast("Saldo anda tidak cukup", { appearance: "error" });
+      } else {
+        checkoutData?.getUserCheckedCart
+          ?.map((cart: any) => cart?.product?.shop)
+          .filter(
+            (value: any, index: any, self: string | any[]) =>
+              self.indexOf(value) === index
+          )
+          .map((shop: any) => {
+            let productList = [];
+            let quantityList = [];
+            getShopCarts(shop?.id).map((cart: any) => {
+              productList.push(cart?.product?.id);
+              quantityList.push(Number(cart?.quantity));
+            });
+            addTransaction({
+              variables: {
+                addressId: currAddress?.id,
+                shipmentId: chosenShipment[shop?.id],
+                shopId: shop?.id,
+                productIds: productList,
+                quantity: quantityList,
+                couponId: null,
+                method: paymentMethod,
+                total: cartSummary.original - cartSummary.discount
+              },
+            }).then((data: any) => {
+              console.log(data);
+            });
+            // console.log(productList);
+            // console.log(quantityList);
+          });
+        addToast("Pembayaran Berhasil", { appearance: "success" });
+        router.push("/");
+      }
+    }
   }
 
-  console.log(currAddress)
-
+  console.log(currAddress);
+  console.log(
+    getAddress(currAddress?.id) ? getAddress(currAddress?.id)[0] : ""
+  );
   return (
     <div className={styles.container}>
       <Head>
@@ -534,12 +564,14 @@ const Shipment: NextPage = () => {
                             <span className={styles.checkout_address_label_tag}>
                               ({currAddress?.label})
                             </span>
-                            {currAddress?.main === true ? (
-                              <div
-                                className={styles.checkout_address_label_main}
-                              >
-                                Utama
-                              </div>
+                            {getAddress(currAddress?.id) ? (
+                              getAddress(currAddress?.id)[0]?.main == true ? (
+                                <div
+                                  className={styles.checkout_address_label_main}
+                                >
+                                  Utama
+                                </div>
+                              ) : null
                             ) : null}
                           </div>
                         </div>
@@ -987,7 +1019,7 @@ const Shipment: NextPage = () => {
                             : styles.cart_main_summary_buy_button_disable
                         }
                         onClick={() => {
-                          handleBayar();
+                          setChoosingPayment(true);
                         }}
                       >
                         <span
@@ -1007,6 +1039,7 @@ const Shipment: NextPage = () => {
             {chooseAddress && ChooseAddressOverlay()}
             {tambahAlamat && TambahOverlay()}
             {ubahAlamat && UbahOverlay()}
+            {choosingPayment && ChoosePaymentOverlay()}
           </div>
         </div>
       </main>
@@ -1058,10 +1091,10 @@ const Shipment: NextPage = () => {
                       ? addressStyle.address_item_selected
                       : ""
                   }
-                  onClick={() => {
-                    setCurrAddress(getAddress(address?.id)[0]);
-                    setChooseAddress(false);
-                  }}
+                  // onClick={() => {
+                  //   setCurrAddress(getAddress(address?.id)[0]);
+                  //   setChooseAddress(false);
+                  // }}
                 >
                   <div className={addressStyle.address_item_detail}>
                     <h5>
@@ -1121,31 +1154,63 @@ const Shipment: NextPage = () => {
                     </div>
                   </div>
                   {/* Checklist */}
-                  {
-                    address?.id === currAddress?.id ? (
-                      <div className={addressStyle.address_checklist_container}>
-                        <picture>
-                          <div>
-                            <Image
-                              src={"/logo/icon_check_green.svg"}
-                              alt=""
-                              layout="fill"
-                            />
-                          </div>
-                        </picture>
-                      </div>
-                    ) : null
-                    // <button
-                    //   onClick={() => {
-                    //     setMainAddress({ variables: { id: address?.id } });
-                    //   }}
-                    // >
-                    //   <span>Pilih</span>
-                    // </button>
-                  }
+                  {address?.id === currAddress?.id ? (
+                    <div className={addressStyle.address_checklist_container}>
+                      <picture>
+                        <div>
+                          <Image
+                            src={"/logo/icon_check_green.svg"}
+                            alt=""
+                            layout="fill"
+                          />
+                        </div>
+                      </picture>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        // setMainAddress({ variables: { id: address?.id } });
+                        setCurrAddress(getAddress(address?.id)[0]);
+                        setChooseAddress(false);
+                      }}
+                    >
+                      <span>Pilih</span>
+                    </button>
+                  )}
                 </section>
               );
             })}
+          </div>
+        </div>
+      </Overlay>
+    );
+  }
+
+  function ChoosePaymentOverlay() {
+    return (
+      <Overlay>
+        <div className={common.overlay_container}>
+          <button
+            className={common.close_button}
+            onClick={() => {
+              setChoosingPayment(false);
+            }}
+          ></button>
+          <h2 className={common.overlay_header}>Choose Payment Method</h2>
+          <div className={common.fields_overlay_container}>
+            <label className={common.fields_container_label} htmlFor=""></label>
+            <div>
+              <div className={common.container_flex_align_center}>
+                <button
+                  className={common.text_button}
+                  onClick={() => {
+                    handleBayar("topay");
+                  }}
+                >
+                  <span>ToPay</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </Overlay>

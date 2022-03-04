@@ -33,4 +33,6 @@ func MigrateTable() {
 	db.AutoMigrate(&model.TransactionCoupon{})
 	// fmt.Println(err)
 	db.AutoMigrate(&model.Ulasan{})
+	db.AutoMigrate(&model.Topay{})
+	db.AutoMigrate(&model.TopayToken{})
 }

@@ -1,0 +1,51 @@
+type Transaction {
+  id: ID!
+  details: [TransactionDetail!]! @goField(forceResolver: true)
+  address: Address! @goField(forceResolver: true)
+  shipment: Shipment! @goField(forceResolver: true)
+  user: User!  @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
+  transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
+  date: Time! @goField(forceResolver: true)
+  status: Int!
+  method: String!
+}
+
+input NewTransaction {
+  addressId: String!
+  shipmentId: String!
+  shopId: String!
+  productIds: [String!]!
+  quantity: [Int!]!
+  method: String!
+  couponId: String
+  total: Int!
+}
+
+type TransactionDetail {
+  id: ID!
+  transaction: Transaction! @goField(forceResolver: true)
+  product: Product! @goField(forceResolver: true)
+  quantity: Int!
+  note: String
+}
+
+type TransactionCoupon {
+  id: ID!
+  transaction: Transaction! @goField(forceResolver: true)
+  coupon: Coupon! @goField(forceResolver: true)
+}
+
+input NewTransactionDetail {
+  transactionHeaderId: String!
+  productId: String!
+  quantity: Int!
+}
+
+extend type Query {
+  getUserTransactions: [Transaction!]! @goField(forceResolver: true)
+}
+
+extend type Mutation {
+  addTransaction(input: NewTransaction!): Transaction! @goField(forceResolver: true)
+}

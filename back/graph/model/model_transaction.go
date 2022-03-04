@@ -2,7 +2,6 @@ package model
 
 import "time"
 
-
 // type Transaction struct {
 // 	ID       string               `json:"id"`
 // 	Details  []*TransactionDetail `json:"details"`
@@ -27,15 +26,17 @@ type Transaction struct {
 	TransactionCoupon     *TransactionCoupon   `json:"coupon"`
 	Date       time.Time            `json:"date"`
 	Status     int                  `json:"status"`
+	Method		string				`json:"method"`
 }
 
 type TransactionDetail struct {
 	ID                  string       `json:"id"`
 	TransactionId string       `json:"transactionId" gorm:"size:191"`
-	Transaction   *Transaction `json:"transaction"`
+	Transaction   *Transaction 																					`json:"transaction"`
 	ProductId           string       `json:"productId" gorm:"size:191"`
 	Product             *Product     `json:"product"`
 	Quantity            int          `json:"quantity"`
+	Note				string				`json:"note"`
 }
 
 type TransactionCoupon struct {
@@ -67,4 +68,5 @@ type Ulasan struct {
 	Rating            int                `json:"rating"`
 	Message           *string            `json:"message"`
 	Anonymous         bool               `json:"anonymous"`
+	CreatedAt       time.Time            `json:"createdAt"`
 }

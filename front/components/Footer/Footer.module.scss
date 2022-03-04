@@ -1,0 +1,35 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50vh;
+  width: 100%;
+}
+
+.footerLeft {
+  width: 50%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.footerRight {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.download {
+  padding: 0 10vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .left {
+    width: 52%;
+  }
+
+  .right {
+    width: 38%;
+  }
+}

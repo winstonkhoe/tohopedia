@@ -1,3 +1,22 @@
+.overlay_container {
+  display: block;
+  z-index: 60;
+  opacity: 1;
+  min-width: 500px;
+  background-color: var(--color-card, #ffffff);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  transition: opacity 0.2s ease 0s;
+  box-shadow: 0px 1px 6px var(--color-shadow, rgba(49, 53, 59, 0.12));
+  max-width: 460px;
+  line-height: 1.5;
+}
+
 .close_button {
   display: block;
   width: 24px;
@@ -42,6 +61,10 @@
   margin-bottom: 4px;
 }
 
+.warning_text {
+  color: red;
+}
+
 .input_container {
   height: 40px;
   border-radius: 8px;
@@ -56,7 +79,7 @@
   border: 1px solid var(--color-border, #e5e7e9);
 
   &:focus-within {
-      border-color: #57d361;
+    border-color: #57d361;
   }
 }
 
@@ -110,24 +133,40 @@
   }
 }
 
+.grid_overlay_container {
+  // margin: 20px 0;
+  // display: flex;
+  // justify-content: center;
+  margin-top: 50px;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: repeat(3, calc(100% / 3));
+  grid-auto-rows: minmax(calc(50px), max-content);
+  gap: 2px;
+  grid-auto-flow: dense;
+  overflow: hidden;
+  // min-height: 290px;
+}
+
 .button_overlay {
-    height: 48px;
-    color: rgb(255, 255, 255);
-    font-family: "Nunito Sans", sans-serif;
-    font-weight: 700;
-    font-size: 1.14286rem;
-    line-height: 22px;
-    text-indent: initial;
-    background-color: var(--G500,#03AC0E);
-    border: none;
-    border-radius: 8px;
-    display: inline-block;
-    outline: none;
-    cursor: pointer;
-    position: relative;
-    padding: 0px 16px;
-    transition: background-color 300ms ease 0s;
-    width: 160px;
+  height: 48px;
+  color: rgb(255, 255, 255);
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1.14286rem;
+  line-height: 22px;
+  text-indent: initial;
+  background-color: var(--G500, #03ac0e);
+  border: none;
+  border-radius: 8px;
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0px 16px;
+  transition: background-color 300ms ease 0s;
+  width: 160px;
 }
 
 .container_flex {
@@ -138,4 +177,50 @@
   width: 30px;
   height: 30px;
   position: relative;
+}
+
+.container_flex_align_center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+$button-color: #01911e;
+.text_button {
+  margin: 0 10px;
+  width: auto;
+  height: 40px;
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  font-size: 0.857143rem;
+  line-height: 24px;
+  text-indent: initial;
+  background-color: transparent;
+  border: 3px solid $button-color;
+  border-radius: 8px;
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0px 16px;
+  transition: background-color 300ms ease 0s;
+  color: $button-color;
+
+  &:hover {
+    color: #fff;
+    background-color: $button-color;
+  }
+
+  span {
+    font-size: inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 1;
+    display: block;
+    overflow: hidden;
+    position: relative;
+    top: 0px;
+    transition: opacity 300ms linear 0s, top 300ms linear 0s;
+  }
 }

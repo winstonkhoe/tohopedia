@@ -42,6 +42,7 @@ extend type Query {
   categories: [Category!]! @goField(forceResolver: true)
   product(id: ID!): Product! @goField(forceResolver: true)
   products: [Product!]! @goField(forceResolver: true)
+  getShopProductsPaginate(slug: String! limit: Int! offset: Int!): [Product!]! @goField(forceResolver: true)
   topProductDiscount: [Product!]! @goField(forceResolver: true)
 }
 

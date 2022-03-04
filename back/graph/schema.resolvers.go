@@ -10,6 +10,7 @@ import (
 	"tohopedia/config"
 	"tohopedia/graph/generated"
 	"tohopedia/graph/model"
+	"tohopedia/helpers"
 	"tohopedia/service"
 
 	"github.com/google/uuid"
@@ -20,7 +21,56 @@ func (r *couponResolver) Shop(ctx context.Context, obj *model.Coupon) (*model.Sh
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) AddTransaction(ctx context.Context, input model.NewTransaction) (*model.Transaction, error) {
+func (r *mutationResolver) CreateTopayWallet(ctx context.Context, userID string) (*model.Topay, error) {
+	db := config.GetDB()
+
+	// if ctx.Value("auth") == nil {
+	// 	return nil, &gqlerror.Error{
+	// 		Message: "Error, token gaada",
+	// 	}
+	// }
+
+	// userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	topay := &model.Topay{
+		ID:      uuid.NewString(),
+		UserId:  userID,
+		Balance: 0,
+		Coin:    0,
+	}
+
+	return topay, db.Create(topay).Error
+}
+
+func (r *mutationResolver) CreateTopayToken(ctx context.Context, code string, value int) (*model.TopayToken, error) {
+	db := config.GetDB()
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	now := time.Now()
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	topayToken := &model.TopayToken{
+		ID:       uuid.NewString(),
+		Code:     code,
+		UserId:   userId,
+		Value:    value,
+		ValidTo:  time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), loc).Add(time.Minute * 5),
+		Redeemed: false,
+	}
+
+	helpers.ParseTime(&topayToken.ValidTo)
+
+	return topayToken, db.Create(topayToken).Error
+}
+
+func (r *mutationResolver) AddTopayBalance(ctx context.Context, code string) (*model.Topay, error) {
 	db := config.GetDB()
 
 	if ctx.Value("auth") == nil {
@@ -31,103 +81,148 @@ func (r *mutationResolver) AddTransaction(ctx context.Context, input model.NewTr
 
 	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
 
-	loc, _ := time.LoadLocation("Asia/Jakarta")
-	now := time.Now().In(loc)
+	topayToken := new(model.TopayToken)
 
-	transaction := &model.Transaction{
-		ID:                uuid.NewString(),
-		AddressId:         input.AddressID,
-		ShipmentId:        input.ShipmentID,
-		ShopId:            input.ShopID,
-		UserId:            userId,
-		Date:              now,
-		Status:            0,
+	if err := db.First(topayToken, "code = ?", code).Error; err != nil {
+		return nil, err
 	}
 
-	err := db.Create(transaction).Error
+	topay := new(model.Topay)
 
-	if err == nil {
-		for i := 0; i < len(input.ProductIds); i++ {
-			transactionDetail := &model.TransactionDetail{
-				ID:            uuid.NewString(),
-				TransactionId: transaction.ID,
-				ProductId:     input.ProductIds[i],
-				Quantity:      input.Quantity[i],
-			}
+	if err := db.First(topay, "user_id = ?", userId).Error; err != nil {
+		return nil, err
+	}
 
-			err := db.Create(transactionDetail).Error
+	topay.Balance += topayToken.Value
 
-			if err != nil {
-				return nil, err
-			}
+	topayToken.Redeemed = true
+
+	if err := db.Save(topayToken).Error; err != nil {
+		return nil, err
+	}
+
+	return topay, db.Save(topay).Error
+}
+
+func (r *mutationResolver) AddUlasan(ctx context.Context, input model.NewUlasan) (*model.Ulasan, error) {
+	db := config.GetDB()
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
 		}
 	}
 
-	return transaction, err
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	ulasan := &model.Ulasan{
+		ID:                  uuid.NewString(),
+		TransactionDetailId: input.TransactionDetailID,
+		UserId:              userId,
+		Rating:              input.Rating,
+		Message:             input.Message,
+		Anonymous:           input.Anonymous,
+	}
+
+	return ulasan, db.Create(ulasan).Error
 }
 
-func (r *queryResolver) GetUserTransactions(ctx context.Context) ([]*model.Transaction, error) {
+func (r *mutationResolver) AddWishlist(ctx context.Context, input model.NewWishlist) (*model.Wishlist, error) {
+	db := config.GetDB()
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	wishlist := &model.Wishlist{
+		ID:        uuid.NewString(),
+		ProductID: input.ProductID,
+		UserId:    userId,
+	}
+
+	return wishlist, db.Create(wishlist).Error
+}
+
+func (r *mutationResolver) RemoveWishlist(ctx context.Context, id string) (*model.Wishlist, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *transactionResolver) Details(ctx context.Context, obj *model.Transaction) ([]*model.TransactionDetail, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) GetShop(ctx context.Context, slug string) (*model.Shop, error) {
+	db := config.GetDB()
+	shop := new(model.Shop)
+
+	if err := db.First(shop, "slug = ?", slug).Error; err != nil {
+		return nil, err
+	}
+
+	return shop, nil
 }
 
-func (r *transactionResolver) Address(ctx context.Context, obj *model.Transaction) (*model.Address, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) GetTopayToken(ctx context.Context, code string) (*model.TopayToken, error) {
+	db := config.GetDB()
+	topayToken := new(model.TopayToken)
+
+	if err := db.Where("code = ?", code).First(&topayToken).Error; err != nil {
+		return nil, err
+	}
+
+	if topayToken != nil {
+		helpers.ParseTime(&topayToken.ValidTo)
+	}
+
+	return topayToken, nil
 }
 
-func (r *transactionResolver) Shipment(ctx context.Context, obj *model.Transaction) (*model.Shipment, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *topayResolver) User(ctx context.Context, obj *model.Topay) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.First(user, "user_id = ?", obj.UserId).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
-func (r *transactionResolver) User(ctx context.Context, obj *model.Transaction) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionResolver) Shop(ctx context.Context, obj *model.Transaction) (*model.Shop, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionResolver) TransactionCoupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionResolver) Date(ctx context.Context, obj *model.Transaction) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionCouponResolver) Transaction(ctx context.Context, obj *model.TransactionCoupon) (*model.Transaction, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionCouponResolver) Coupon(ctx context.Context, obj *model.TransactionCoupon) (*model.Coupon, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionDetailResolver) Transaction(ctx context.Context, obj *model.TransactionDetail) (*model.Transaction, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionDetailResolver) Product(ctx context.Context, obj *model.TransactionDetail) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *transactionDetailResolver) Quantity(ctx context.Context, obj *model.TransactionDetail) (int, error) {
+func (r *topayTokenResolver) User(ctx context.Context, obj *model.TopayToken) (*model.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *ulasanResolver) TransactionDetail(ctx context.Context, obj *model.Ulasan) (*model.TransactionDetail, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	transactionDetail := new(model.TransactionDetail)
+
+	if err := db.First(transactionDetail, "user_id = ?", obj.UserId).Error; err != nil {
+		return nil, err
+	}
+
+	return transactionDetail, nil
 }
 
 func (r *ulasanResolver) User(ctx context.Context, obj *model.Ulasan) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.First(user, "user_id = ?", obj.UserId).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (r *wishlistResolver) Product(ctx context.Context, obj *model.Wishlist) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	product := new(model.Product)
+
+	if err := db.First(product, "user_id = ?", obj.UserId).Error; err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
 
 func (r *wishlistResolver) User(ctx context.Context, obj *model.Wishlist) (*model.User, error) {
@@ -143,18 +238,11 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
-// Transaction returns generated.TransactionResolver implementation.
-func (r *Resolver) Transaction() generated.TransactionResolver { return &transactionResolver{r} }
+// Topay returns generated.TopayResolver implementation.
+func (r *Resolver) Topay() generated.TopayResolver { return &topayResolver{r} }
 
-// TransactionCoupon returns generated.TransactionCouponResolver implementation.
-func (r *Resolver) TransactionCoupon() generated.TransactionCouponResolver {
-	return &transactionCouponResolver{r}
-}
-
-// TransactionDetail returns generated.TransactionDetailResolver implementation.
-func (r *Resolver) TransactionDetail() generated.TransactionDetailResolver {
-	return &transactionDetailResolver{r}
-}
+// TopayToken returns generated.TopayTokenResolver implementation.
+func (r *Resolver) TopayToken() generated.TopayTokenResolver { return &topayTokenResolver{r} }
 
 // Ulasan returns generated.UlasanResolver implementation.
 func (r *Resolver) Ulasan() generated.UlasanResolver { return &ulasanResolver{r} }
@@ -165,9 +253,8 @@ func (r *Resolver) Wishlist() generated.WishlistResolver { return &wishlistResol
 type couponResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type transactionResolver struct{ *Resolver }
-type transactionCouponResolver struct{ *Resolver }
-type transactionDetailResolver struct{ *Resolver }
+type topayResolver struct{ *Resolver }
+type topayTokenResolver struct{ *Resolver }
 type ulasanResolver struct{ *Resolver }
 type wishlistResolver struct{ *Resolver }
 
@@ -177,6 +264,12 @@ type wishlistResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *ulasanResolver) CreatedAt(ctx context.Context, obj *model.Ulasan) (*time.Time, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *transactionDetailResolver) Quantity(ctx context.Context, obj *model.TransactionDetail) (int, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 func (r *transactionResolver) Coupon(ctx context.Context, obj *model.Transaction) (*model.TransactionCoupon, error) {
 	panic(fmt.Errorf("not implemented"))
 }

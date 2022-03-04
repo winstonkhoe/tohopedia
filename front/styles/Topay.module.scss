@@ -1,0 +1,281 @@
+$card-color: #ffffff;
+
+.main {
+  width: 100vw;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .main_container {
+    width: 100%;
+    min-height: 100vh;
+    padding: 0px 0px 100px;
+
+    .image_background {
+      width: 100%;
+      height: 200px;
+      position: relative;
+      margin-bottom: -174px;
+      z-index: -1;
+    }
+
+    .topay_container_flex {
+      display: flex;
+      -webkit-box-align: start;
+      align-items: start;
+      -webkit-box-pack: justify;
+      justify-content: space-between;
+      max-width: 1020px;
+      margin: auto;
+
+      .topay_balance_container {
+        width: 407px;
+        padding: 0px 16px;
+
+        .topay_wrapper_container {
+          height: 174px;
+          padding: 0px;
+          margin-bottom: 32px;
+          background-size: cover;
+          background-repeat: no-repeat;
+          background-image: unset;
+
+          .topay_empty_wrapper_container {
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            padding: 16px 16px 0px;
+          }
+
+          .topay_balance_wrapper_container {
+            display: flex;
+            align-items: flex-end;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            margin-top: 0px;
+            padding: 0px;
+
+            .topay_balance_inner_container {
+              width: 100%;
+
+              .topay_balance_header_container {
+                display: flex;
+                -webkit-box-align: center;
+                align-items: center;
+                -webkit-box-pack: justify;
+                justify-content: space-between;
+                gap: 4px;
+                margin-bottom: 18px;
+
+                .topay_balance_name {
+                  display: flex;
+                  -webkit-box-align: center;
+                  align-items: center;
+                  -webkit-box-pack: justify;
+                  justify-content: space-between;
+
+                  .topay_icon {
+                    width: 68px;
+                    height: 16px;
+                    position: relative;
+                  }
+                }
+              }
+
+              .topay_balance_value_container {
+                display: flex;
+                -webkit-box-align: center;
+                align-items: center;
+                -webkit-box-pack: justify;
+                justify-content: space-between;
+                gap: 4px;
+
+                p {
+                  color: white;
+                  font-size: 24px;
+                  font-weight: bold;
+                  line-height: 20px;
+                  margin: 8px 0px 0px;
+                  text-align: unset;
+                  // z-index: 5;
+                }
+
+                button {
+                  width: auto;
+                  height: 40px;
+                  font-family: "Nunito Sans", sans-serif;
+                  font-weight: 700;
+                  font-size: 0.857143rem;
+                  line-height: 24px;
+                  text-indent: initial;
+                  background-color: transparent;
+                  border: 1px solid var(--N75, #e5e7e9);
+                  border-radius: 8px;
+                  display: inline-block;
+                  outline: none;
+                  cursor: pointer;
+                  position: relative;
+                  padding: 0px 16px;
+                  transition: background-color 300ms ease 0s;
+                  color: var(--N0, #ffffff);
+
+                  &:hover {
+                    color: #2d3a69;
+                  }
+
+                  span {
+                    font-size: inherit;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    opacity: 1;
+                    display: block;
+                    overflow: hidden;
+                    position: relative;
+                    top: 0px;
+                    transition: opacity 300ms linear 0s, top 300ms linear 0s;
+                  }
+                }
+              }
+            }
+          }
+
+          .topay_coins_wrapper_container {
+            margin-top: 42px;
+            padding-bottom: 8px;
+            padding-left: 0px;
+            padding-right: 0px;
+            overflow-x: hidden;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            gap: 12px;
+
+            .topay_coins_container {
+              width: 100%;
+              max-height: 68px;
+              min-width: 160px;
+              background: var(--N0, #ffffff);
+              padding: 16px 12px;
+              border-radius: 8px;
+              box-shadow: rgb(0 0 0 / 12%) 0px 1px 6px;
+              display: flex;
+              -webkit-box-align: center;
+              align-items: center;
+              -webkit-box-pack: justify;
+              justify-content: space-between;
+              flex-wrap: wrap;
+              // z-index: 2;
+
+              .topay_coins_logo {
+                width: 108px;
+                height: 14px;
+                position: relative;
+              }
+
+              p {
+                color: rgba(49, 53, 59, 0.96);
+                font-size: 14px;
+                font-weight: bold;
+                line-height: 20px;
+                margin: 0.25rem 0px;
+                text-align: unset;
+              }
+            }
+          }
+        }
+      }
+
+      .topay_transaction_wrapper {
+        width: 600px;
+
+        .topay_transaction_empty_container {
+          margin-bottom: 32px;
+        }
+
+        .topay_transaction_container {
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: rgb(49 53 59 / 12%) 0px 1px 6px;
+
+          .topay_transaction_header_container {
+            padding: 24px 16px 0px;
+            display: flex;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            -webkit-box-align: center;
+            align-items: center;
+            p {
+              color: rgba(49, 53, 59, 0.96);
+              font-size: 20px;
+              font-weight: bold;
+              line-height: 20px;
+              margin: 0.25rem 0px;
+              text-align: unset;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.overlay_container {
+  // margin: 20px 0;
+  // display: flex;
+  // justify-content: center;
+  margin-top: 50px;
+      display: grid;
+      width: 100%;
+      height: 100%;
+      grid-template-columns: repeat(3, calc(100% / 3 ));
+      grid-auto-rows: minmax(calc(50px), max-content);
+      gap: 2px;
+      grid-auto-flow: dense;
+      overflow: hidden;
+      // min-height: 290px;
+}
+
+$button-color: #01911e;
+.topup_value_button {
+    margin: 0 10px;
+    width: auto;
+    height: 40px;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 0.857143rem;
+    line-height: 24px;
+    text-indent: initial;
+    background-color: transparent;
+    border: 3px solid $button-color;
+    border-radius: 8px;
+    display: inline-block;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    padding: 0px 16px;
+    transition: background-color 300ms ease 0s;
+    color: $button-color;
+
+    &:hover {
+      color: #FFF;
+      background-color: $button-color;
+    }
+
+    span {
+      font-size: inherit;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 1;
+      display: block;
+      overflow: hidden;
+      position: relative;
+      top: 0px;
+      transition: opacity 300ms linear 0s, top 300ms linear 0s;
+    }
+}

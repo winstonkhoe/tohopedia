@@ -20,7 +20,7 @@ const BioData: NextPage = () => {
   const [updateEmail, setUpdateEmail] = useState(false);
   const [email, setEmail] = useState("");
 
-  const [updateDob, setUpdateDob] = useState(true);
+  const [updateDob, setUpdateDob] = useState(false);
   const [dob, setDob] = useState("");
 
   const [updateGender, setUpdateGender] = useState(false);

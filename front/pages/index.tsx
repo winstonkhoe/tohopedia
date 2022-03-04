@@ -5,12 +5,14 @@ import { Footer } from "../components/footer";
 import InitFont from "../components/initialize_font";
 import Navbar from "../components/navbar";
 import styles from "../styles/Home.module.scss";
-import Carousel from "react-multi-carousel";
+// import Carousel from "react-multi-carousel";
+
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
 import { gql, useQuery } from "@apollo/client";
 import { useState } from "react";
 import RupiahFormat from "../misc/currency";
+import {Carousel, Item } from "../components/carousel/Carousel";
 const banners = [1, 2, 3];
 // import existsSync from "fs";
 
@@ -93,13 +95,15 @@ const Home: NextPage = () => {
     let bannerItems = [];
     bannerItems = banners.map((bannerIndex: number) => {
       return (
-        <div key={bannerIndex} className={styles.carousel_image_container}>
-          <Image
-            src={`/assets/banner/${bannerIndex}.webp`}
-            alt={`Banner ${bannerIndex}`}
-            layout="fill"
-          />
-        </div>
+        // <div key={bannerIndex} className={styles.carousel_image_container}>
+        //   <Image
+        //     src={`/assets/banner/${bannerIndex}.webp`}
+        //     alt={`Banner ${bannerIndex}`}
+        //     layout="fill"
+        //   />
+        // </div>
+        `/assets/banner/${bannerIndex}.webp`
+        // <Item key={bannerIndex} src={`/assets/banner/${bannerIndex}.webp`}/>
       );
     });
 
@@ -272,7 +276,7 @@ const Home: NextPage = () => {
       <main className={styles.main}>
         <div className={styles.main_container}>
           <div className={styles.carousel_container}>
-            <Carousel
+            {/* <Carousel
               ssr={true}
               responsive={responsive}
               autoPlay={true}
@@ -291,7 +295,9 @@ const Home: NextPage = () => {
               className={styles.carousel_container}
             >
               {getAllBanner()}
-            </Carousel>
+            </Carousel> */}
+            <Carousel srcs={getAllBanner()} slideInterval={3000}/>
+            {/* </Carousel> */}
           </div>
           <Section
             data={TopDiscountProductData.topProductDiscount}

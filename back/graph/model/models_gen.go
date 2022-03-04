@@ -17,8 +17,9 @@ type NewAddress struct {
 }
 
 type NewCart struct {
-	ProductID string `json:"productId"`
-	Quantity  int    `json:"quantity"`
+	ProductID string  `json:"productId"`
+	Quantity  int     `json:"quantity"`
+	Note      *string `json:"note"`
 }
 
 type NewCoupon struct {
@@ -61,7 +62,9 @@ type NewTransaction struct {
 	ShopID     string   `json:"shopId"`
 	ProductIds []string `json:"productIds"`
 	Quantity   []int    `json:"quantity"`
+	Method     string   `json:"method"`
 	CouponID   *string  `json:"couponId"`
+	Total      int      `json:"total"`
 }
 
 type NewTransactionDetail struct {

@@ -38,46 +38,6 @@ input NewWishlist {
   productId: String!
 }
 
-type Transaction {
-  id: ID!
-  details: [TransactionDetail!]! @goField(forceResolver: true)
-  address: Address! @goField(forceResolver: true)
-  shipment: Shipment! @goField(forceResolver: true)
-  user: User!  @goField(forceResolver: true)
-  shop: Shop! @goField(forceResolver: true)
-  transactionCoupon: TransactionCoupon! @goField(forceResolver: true)
-  date: Time! @goField(forceResolver: true)
-  status: Int!
-}
-
-input NewTransaction {
-  addressId: String!
-  shipmentId: String!
-  shopId: String!
-  productIds: [String!]!
-  quantity: [Int!]!
-  couponId: String
-}
-
-type TransactionDetail {
-  id: ID!
-  transaction: Transaction! @goField(forceResolver: true)
-  product: Product! @goField(forceResolver: true)
-  quantity: Int! @goField(forceResolver: true)
-}
-
-type TransactionCoupon {
-  id: ID!
-  transaction: Transaction! @goField(forceResolver: true)
-  coupon: Coupon! @goField(forceResolver: true)
-}
-
-input NewTransactionDetail {
-  transactionHeaderId: String!
-  productId: String!
-  quantity: Int!
-}
-
 type Ulasan {
   id: ID!
   transactionDetail: TransactionDetail! @goField(forceResolver: true)
@@ -85,6 +45,7 @@ type Ulasan {
   rating: Int!
   message: String
   anonymous: Boolean!
+  createdAt: Time!
 }
 
 input NewUlasan {
@@ -94,10 +55,32 @@ input NewUlasan {
   anonymous: Boolean!
 }
 
+type Topay {
+  id: ID!
+  user: User! @goField(forceResolver: true)
+  balance: Int!
+  coin: Int!
+}
+
+type TopayToken {
+  id: ID!
+  code: String!
+  user: User! @goField(forceResolver: true)
+  value: Int!
+  validTo: Time!
+  redeemed: Boolean!
+}
+
 type Query {
-  getUserTransactions: [Transaction!]! @goField(forceResolver: true)
+  getShop(slug: String!): Shop!
+  getTopayToken(code: String!): TopayToken! @auth
 }
 
 type Mutation {
-  addTransaction(input: NewTransaction!): Transaction! @goField(forceResolver: true)
+  createTopayWallet(userId: ID!): Topay!
+  createTopayToken(code: String!, value: Int!): TopayToken! @auth
+  addTopayBalance(code: String!): Topay! @auth
+  addUlasan(input: NewUlasan!): Ulasan! @auth
+  addWishlist(input: NewWishlist!): Wishlist! @auth
+  removeWishlist(id: ID!): Wishlist! @auth
 }

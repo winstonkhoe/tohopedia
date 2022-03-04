@@ -1,0 +1,118 @@
+.relative_container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+    border-radius: 12px;
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  // flex: 1 1 0px;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+}
+
+.container:hover {
+  ~ .nav_container {
+    .nav_button {
+      opacity: 1;
+    }
+
+    .nav_right_button {
+      right: 0;
+    }
+
+    .nav_left_button {
+      left: 0;
+    }
+  }
+}
+
+.image_container {
+  flex: 0 0 auto;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: all 750ms ease-in-out 0s;
+}
+
+.nav_container {
+  //   width: 100%;
+  cursor: pointer;
+  top: 0px;
+//   height: 100%;
+  z-index: 5;
+
+  .nav_container_left {
+    cursor: pointer;
+    top: 0px;
+    // height: 100%;
+    position: absolute;
+    left: 0;
+  }
+
+  .nav_container_right {
+    cursor: pointer;
+    top: 0px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+  }
+
+  .nav_button {
+    cursor: pointer;
+    opacity: 0;
+    width: 44px;
+    height: 44px;
+    transition: all 0.5s;
+    transition-timing-function: cubic-bezier(0.2, 0.64, 0.21, 1);
+    -webkit-appearance: button;
+    top: 50%;
+    position: absolute;
+    font-size: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    border-radius: 50%;
+    box-shadow: 0 1px 6px 0 rgb(49 53 59 / 12%);
+    text-transform: none;
+    background-image: url("/logo/icon_arrow_nav.svg");
+
+    // &:hover ~ .nav_button,
+    // &:hover {
+    //     opacity: 1;
+    // }
+  }
+
+  .nav_button:hover {
+      opacity: 1;
+  }
+
+  .nav_left_button {
+    left: 30px;
+    transform: translate(-50%, -50%) rotate(-90deg);
+
+    &:hover {
+      left: 0;
+
+    }
+  }
+
+  .nav_right_button {
+    right: 30px;
+    transform: translate(50%, -50%) rotate(90deg);
+
+    &:hover {
+      right: 0;
+
+    }
+  }
+}
+

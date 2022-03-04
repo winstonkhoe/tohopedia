@@ -11,6 +11,7 @@ type Cart struct {
 	Quantity  int       `json:"quantity"`
 	CreatedAt time.Time `json:"createdAt"`
 	Checked		bool	`json:"checked"`
+	Note	  string    `json:"note"`
 }
 
 type Wishlist struct {
