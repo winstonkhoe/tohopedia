@@ -34,6 +34,13 @@ export function Navbar() {
         }
         carts {
           quantity
+          product {
+            name
+            price
+            images {
+              image
+            }
+          }
         }
         topay {
           balance
@@ -142,17 +149,21 @@ export function Navbar() {
           </div>
 
           <div className={cartStyle.carts_container}>
-          <div className={cartStyle.cart_item_wrapper}>
-          <div className={cartStyle.cart_item_image}>
-          
-          </div>
-          <div className={cartStyle.cart_item_name}>
-
-          </div>
-          <div className={cartStyle.cart_item_price}>
-
-          </div>
-          </div>
+            {data?.getCurrentUser?.carts.map((cart: any, index: number) => {
+              return (
+              <div key={index} className={cartStyle.cart_item_wrapper}>
+                <div className={cartStyle.cart_item_image}>
+                  <div className={cartStyle.cart_item_image_relative}>
+                    <Image src={`/uploads/${cart?.product?.images[0]?.image}`} layout="fill" alt="" />
+                  </div>
+                </div>
+                <div className={cartStyle.cart_item_name}>
+                    <div>{cart?.product?.name}</div>
+                </div>
+                <div className={cartStyle.cart_item_price}>{RupiahFormat(cart?.product?.price)}</div>
+              </div>
+              )
+            })}
           </div>
         </div>
       </Overlay>

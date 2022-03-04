@@ -1,9 +1,9 @@
 .container {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    .header {
-        display: flex;
+  .header {
+    display: flex;
     font-size: 14px;
     font-weight: 800;
     background-color: rgb(255, 255, 255);
@@ -14,39 +14,58 @@
     margin: 0px 16px;
 
     .header_count {
-        color: rgba(0, 0, 0, 0.7);
-    font-size: inherit;
-    line-height: 20px;
-    margin-right: auto;
+      color: rgba(0, 0, 0, 0.7);
+      font-size: inherit;
+      line-height: 20px;
+      margin-right: auto;
     }
-    }
+  }
 
-    .carts_container {
-        max-height: 295px;
-        overflow: auto;
-        .cart_item_wrapper {
-            font-size: 14px;
-            color: rgba(49, 53, 59, 0.96);
-            display: flex;
-            -webkit-box-align: center;
-            align-items: center;
-            text-decoration: none;
-            border-bottom: 1px solid rgb(229, 231, 233);
-            padding: 8px 0px;
-            margin: 0px 16px;
-            transition: color 280ms ease 0s;
+  .carts_container {
+    max-height: 295px;
+    overflow: auto;
+    .cart_item_wrapper {
+      font-size: 14px;
+      color: rgba(49, 53, 59, 0.96);
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      text-decoration: none;
+      border-bottom: 1px solid rgb(229, 231, 233);
+      padding: 8px 0px;
+      margin: 0px 16px;
+      transition: color 280ms ease 0s;
 
-            .cart_item_image {
-
-            }
-
-            .cart_item_name {
-
-            }
-
-            .cart_item_price {
-                
-            }
+      .cart_item_image {
+        margin: 4px 12px 4px 4px;
+        .cart_item_image_relative {
+          width: 40px;
+          height: 40px;
+          border-radius: 4px;
+          position: relative;
+          overflow: hidden;
         }
+      }
+
+      .cart_item_name {
+        min-width: 0px;
+        flex: 1 1 0%;
+        div {
+            font-weight: 700;
+    line-height: 20px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: block;
+    overflow: hidden;
+        }
+      }
+
+      .cart_item_price {
+        color: rgb(250, 89, 29);
+        font-weight: 700;
+        line-height: 20px;
+        margin-left: 8px;
+      }
     }
+  }
 }
