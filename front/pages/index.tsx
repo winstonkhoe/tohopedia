@@ -1,7 +1,8 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { Footer } from "../components/footer";
+// import { Footer } from "../components/footer";
+
 import InitFont from "../components/initialize_font";
 import Navbar from "../components/navbar";
 import styles from "../styles/Home.module.scss";
@@ -13,6 +14,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useState } from "react";
 import RupiahFormat from "../misc/currency";
 import {Carousel, Item } from "../components/carousel/Carousel";
+import Footer from "../components/Footer/Footer";
 const banners = [1, 2, 3];
 // import existsSync from "fs";
 
@@ -339,7 +341,8 @@ const Home: NextPage = () => {
         </div>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
+      <Footer/>
     </div>
   );
   // }

@@ -1,0 +1,92 @@
+.selesai {
+  position: relative;
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 3px;
+  line-height: 16px;
+  padding: 0px 8px;
+  height: 20px;
+  font-size: 0.714286rem;
+  background-color: rgb(214, 255, 222);
+  color: rgb(3, 172, 14);
+  margin: 0px;
+  overflow: initial;
+  -webkit-box-pack: center;
+  justify-content: center;
+  transition: all 280ms ease-out 0s;
+}
+
+.tiba_di_tujuan {
+  position: relative;
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 3px;
+  line-height: 16px;
+  padding: 0px 8px;
+  height: 20px;
+  font-size: 0.714286rem;
+  background-color: rgb(255, 240, 179);
+  color: rgb(250, 89, 29);
+  margin: 0px;
+  overflow: initial;
+  -webkit-box-pack: center;
+  justify-content: center;
+  transition: all 280ms ease-out 0s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dibatalkan {
+  position: relative;
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 3px;
+  line-height: 16px;
+  padding: 0px 8px;
+  height: 20px;
+  font-size: 0.714286rem;
+  background-color: rgb(255, 234, 239);
+  color: rgb(239, 20, 74);
+  margin: 0px;
+  overflow: initial;
+  -webkit-box-pack: center;
+  justify-content: center;
+  transition: all 280ms ease-out 0s;
+}
+
+.selesai_otomatis {
+  position: relative;
+  display: inline-flex;
+  -webkit-box-align: center;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 3px;
+  line-height: 16px;
+  padding: 0px 8px;
+  height: 20px;
+  font-size: 0.714286rem;
+  background-color: var(--Y500, #fa591d);
+  color: var(--N0, #ffffff);
+  margin: 0px;
+  overflow: initial;
+  -webkit-box-pack: center;
+  justify-content: center;
+  transition: all 280ms ease-out 0s;
+
+  span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    background-image: url("/logo/icon_clock.svg");
+    margin-right: 5px;
+  }
+}

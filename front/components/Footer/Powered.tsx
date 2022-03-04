@@ -1,9 +1,9 @@
 import Image from "next/image";
-import footer from "../styles/footer.module.scss";
+import footer from "./powered.module.scss";
 
-export function Footer() {
+export function Powered() {
   return (
-    <footer className={footer.footer}>
+    <div className={footer.footer}>
       <a
         href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
         target="_blank"
@@ -21,6 +21,6 @@ export function Footer() {
           {/* <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} /> */}
         </span>
       </a>
-    </footer>
+    </div>
   );
 }

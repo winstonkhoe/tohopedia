@@ -14,7 +14,7 @@ import Switch from "react-switch";
 import TimePicker from "react-time-picker";
 import Shop from "../../models/Shop";
 import { ErrorNotFound } from "../../components/error";
-import { Footer } from "../../components/footer";
+import { Footer } from "../../components/Footer/Powered";
 
 const Home: NextPage = () => {
   const { addToast } = useToasts();

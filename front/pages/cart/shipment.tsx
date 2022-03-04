@@ -4,7 +4,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Footer } from "../../components/footer";
+import { Footer } from "../../components/Footer/Powered";
 import HeadIcon from "../../components/head_icon";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";

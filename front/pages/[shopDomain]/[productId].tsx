@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ErrorNotFound } from "../../components/error";
-import { Footer } from "../../components/footer";
+import { Footer } from "../../components/Footer/Powered";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";

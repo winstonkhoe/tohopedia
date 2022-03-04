@@ -2,7 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import styles from "../../styles/Settings_Home.module.scss";
+import styles from "./user_navbar.module.scss";
 
 export function UserNavbar() {
   const [kotak, setKotak] = useState(true);

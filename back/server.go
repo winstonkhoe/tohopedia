@@ -16,12 +16,14 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
+	"github.com/joho/godotenv"
 
 	// "github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
 )
 
+// const defaultPort = "50"
 const defaultPort = "8080"
 
 func main() {
@@ -29,18 +31,23 @@ func main() {
 	// Database Migration
 	migration.MigrateTable()
 
+	godotenv.Load()
+
 	port := os.Getenv("PORT")
+	// port := process.env.PORT || 80
 	if port == "" {
 		port = defaultPort
 	}
-	
+
+	// log.Printf("PORT: %s",port)
+
 	db:= config.GetDB()
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
 	
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:8080"},
+		AllowedOrigins:   []string{"*"},
         AllowOriginFunc:  func(origin string) bool { return true },
         AllowedMethods:   []string{},
         AllowedHeaders:   []string{"*"},
@@ -58,7 +65,10 @@ func main() {
         Upgrader: websocket.Upgrader{
             CheckOrigin: func(r *http.Request) bool {
                 // Check against your desired domains here
-                return r.Host == "localhost:8080"
+                return r.Host == "0.0.0.0:"+port
+                // return r.Host == "https://tohopedia-app.herokuapp.com:8080"
+                // return r.Host == "https://tohopedia-app.herokuapp.com:"+port
+                // return r.Host == "localhost:8080"
             },
             ReadBufferSize:  1024,
             WriteBufferSize: 1024,
@@ -71,9 +81,11 @@ func main() {
 	// http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	// http.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Printf("connect to https://tohopedia-app.herokuapp.com:%s/ for GraphQL playground", port)
+	// log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	// log.Fatal(http.ListenAndServe(":"+port, router))
-	err := http.ListenAndServe(":8080", router)
+	err := http.ListenAndServe(":"+port, router)
+	// err := http.ListenAndServe(":"+port, router)
 	if err != nil {
         panic(err)
     }

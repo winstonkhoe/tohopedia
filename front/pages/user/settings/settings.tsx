@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { Footer } from "../../../components/footer";
+import { Footer } from "../../../components/Footer/Powered";
 import InitFont from "../../../components/initialize_font";
 import Navbar from "../../../components/navbar";
 import styles from "../../styles/Settings_Home.module.scss";
