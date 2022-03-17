@@ -1,5 +1,7 @@
 $card-color: #ffffff;
-
+$phone: 550px;
+$tablet: 850px;
+// $mobile: 400px;
 .container {
   // padding: 0 2rem;
 }
@@ -12,6 +14,10 @@ $card-color: #ffffff;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  
+  @media screen and (max-width: $phone) {
+    padding: 0 0;
+  }
 
   .main_container {
     display: flex;
@@ -19,6 +25,10 @@ $card-color: #ffffff;
     position: relative;
     width: 1200px;
     min-height: 100vh;
+
+    @media screen and (max-width: 1200px) {
+      width: 100%;
+    }
 
     .seller_detail_wrapper {
       position: relative;
@@ -48,6 +58,10 @@ $card-color: #ffffff;
             margin-left: 0px;
             border-left: none;
 
+            @media screen and (max-width: $phone) {
+              width: 70%;
+            }
+
             .seller_detail_info_container {
               display: flex;
               flex-wrap: nowrap;
@@ -59,6 +73,10 @@ $card-color: #ffffff;
                 min-width: 0px;
                 margin-left: 0px;
                 border-left: none;
+
+                @media screen and (max-width: $phone) {
+                  width: 40px;
+                }
                 .seller_profile_image_inner {
                   width: 86px;
                   height: 86px;
@@ -66,6 +84,11 @@ $card-color: #ffffff;
                   border-radius: 50%;
                   background-color: var(--N0, #ffffff);
                   overflow: hidden;
+                  
+                  @media screen and (max-width: $phone) {
+                    width: 40px;
+                    height: 40px;
+                  }
                   picture {
                     width: 100%;
                     border-radius: 4px;
@@ -86,7 +109,8 @@ $card-color: #ffffff;
 
                 .seller_name_badge_container {
                   display: flex;
-                  min-height: 31px;
+                  min-height: 35px;
+                  align-items: center;
 
                   // Seller Type
                   i {
@@ -103,26 +127,37 @@ $card-color: #ffffff;
                   // Seller Name
                   h1 {
                     font-weight: 800;
-                    font-size: 1.42857rem;
+                    font-size: 1.4rem;
                     line-height: 1.5em;
                     color: rgba(49, 53, 59, 0.96);
                     text-decoration: initial;
                     margin: 0px 4px 0px 0px;
                     white-space: normal;
                     word-break: break-word;
+
+                    @media screen and (max-width: $phone) {
+                      // margin-top: 10px;
+                      font-size: 0.8rem;
+                      line-height: 0.8em;
+                    }
                   }
 
                   .seller_badge_container {
                     // margin-top: 5px;
                     position: relative;
                     display: flex;
-                    align-self: flex-start;
+                    // align-self: flex-start;
 
                     .seller_badge_relative {
                       cursor: pointer;
                       width: 56px;
                       height: 17px;
                       position: relative;
+
+                      @media screen and (max-width: $phone) {
+                        width: 33px;
+                        height: 10px;
+                      }
 
                       &:hover ~ .badge_onhover_info {
                         opacity: 1;
@@ -192,6 +227,10 @@ $card-color: #ffffff;
                       border-left: 1px solid var(--N50, #f3f4f5);
                       line-height: normal;
 
+                      @media screen and (max-width: $phone) {
+                        
+                      }
+
                       &:first-of-type {
                         padding-left: 0;
                         border-left: none;
@@ -207,7 +246,7 @@ $card-color: #ffffff;
                         line-height: 16px;
                         padding: 0px 8px;
                         height: 20px;
-                        font-size: 0.714286rem;
+                        font-size: 0.7rem;
                         background-color: var(--G200, #d6ffde);
                         color: var(--G500, #03ac0e);
                         margin: 0px;
@@ -215,18 +254,28 @@ $card-color: #ffffff;
                         -webkit-box-pack: center;
                         justify-content: center;
                         transition: all 280ms ease-out 0s;
+
+                        @media screen and (max-width: $phone) {
+                          font-size: 0.5rem;
+                          line-height: 10px;
+                        }
                       }
 
                       p {
                         display: block;
                         position: relative;
                         font-weight: 400;
-                        font-size: 0.8571428571428571rem;
+                        font-size: 0.8rem;
                         line-height: 18px;
                         color: var(--color-text-high, rgba(49, 53, 59, 0.96));
                         -webkit-text-decoration: initial;
                         text-decoration: initial;
                         margin: 4px 0 0 0;
+
+                        @media screen and (max-width: $phone) {
+                          font-size: 0.6rem;
+                          line-height: 10px;
+                        }
 
                         svg {
                           display: inline-block;
@@ -249,6 +298,10 @@ $card-color: #ffffff;
             min-width: 0px;
             margin-left: auto;
             border-left: none;
+
+            @media screen and (max-width: $phone) {
+              width: 30%;
+            }
 
             .seller_detail_right_inner_container {
               border-left: 1px solid var(--N75, #e5e7e9);
@@ -273,6 +326,10 @@ $card-color: #ffffff;
                   margin-left: 0px;
                   border-left: none;
 
+                  @media screen and (max-width: $phone) {
+                    padding: 0 0 0 10px;
+                  }
+
                   p {
                     display: block;
                     position: relative;
@@ -283,6 +340,11 @@ $card-color: #ffffff;
                     -webkit-text-decoration: initial;
                     text-decoration: initial;
                     margin: 0 0 8px;
+
+                    @media screen and (max-width: $phone) {
+                      font-size: 0.8rem;
+                      // line-height: 20px;
+                    }
                   }
 
                   h2 {
@@ -290,25 +352,34 @@ $card-color: #ffffff;
                     position: relative;
                     font-weight: 400;
                     font-family: "Nunito Sans", -apple-system, sans-serif;
-                    font-size: 1.7142857142857142rem;
+                    font-size: 1.7rem;
                     line-height: 30px;
                     color: var(--color-text-high, rgba(49, 53, 59, 0.96));
                     -webkit-text-decoration: initial;
                     text-decoration: initial;
                     margin: 0 8px 0 0;
                     display: inline-block;
-                    vertical-align: middle;
+
+                    @media screen and (max-width: $phone) {
+                      line-height: 0px;
+                      font-size: 1rem;
+                      // line-height: 20px;
+                    }
                   }
 
                   div {
                     display: inline-block;
                     vertical-align: middle;
-                    width: 136px;
+                    width: calc(24px * 5);
                     height: 24px;
 
+                    @media screen and (max-width: $phone) {
+                      width: calc(18px * 5);
+                      height: 18px;
+                    }
                     div {
-                      width: 24px;
-                      height: 24px;
+                      width: 18px;
+                      height: 18px;
                       position: relative;
                     }
                   }
@@ -324,7 +395,7 @@ $card-color: #ffffff;
     }
 
     .banner_product_container {
-      min-height: 600px;
+      // min-height: 600px;
 
       .banner_home_container {
         .shop_widget_container {
@@ -335,6 +406,12 @@ $card-color: #ffffff;
           gap: 16px;
           grid-auto-flow: row dense;
           overflow: hidden;
+
+          @media screen and (max-width: $phone) {
+            grid-template-columns: repeat(6, 1fr);
+            grid-auto-rows: minmax(calc((100vw - (5 * 16px)) / 6), max-content);
+            gap: 16px;
+          }
 
           .shop_widget_item_container {
             overflow: hidden;
@@ -381,9 +458,9 @@ $card-color: #ffffff;
       }
     }
 
-    .carousel_item {
-      width: 100%;
-    }
+    // .carousel_item {
+    //   width: 100%;
+    // }
     .carousel_container {
       margin-top: 15px;
       // position: absolute;
@@ -393,6 +470,12 @@ $card-color: #ffffff;
       border-radius: 15px;
       // overflow: hidden;
       position: relative;
+
+      @media screen and (max-width: 1200px) {
+        // margin: 0 20px;
+        width: 100vw;
+        height: calc(100vw / 4);
+      }
 
       .carousel_image_container {
         width: 1200px;

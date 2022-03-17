@@ -8,9 +8,36 @@
 }
 
 .footerLeft {
+  height: 100%;
   width: 50%;
   display: flex;
   justify-content: space-around;
+  margin: 10px;
+  align-items: center;
+
+  .right {
+    margin-left: 10px;
+  }
+
+  .mid {
+    // border: 1px green;
+    width: 1px;
+    background-color: rgba(128, 127, 127, 0.384);
+    height: 50%;
+  }
+  a {
+    text-decoration: none;
+    font-size: 1.2rem;
+
+    @media screen and (max-width: 400px) {
+      font-size: 0.8rem;
+      
+    }
+
+    &:hover {
+      color: #5bac63;
+    }
+  }
 }
 
 .footerRight {

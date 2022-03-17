@@ -1,0 +1,31 @@
+.button {
+  height: 48px;
+  color: rgb(255, 255, 255);
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 22px;
+  text-indent: initial;
+  background-color: #03ac0e;
+  border: none;
+  border-radius: 8px;
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  padding: 0px 16px;
+  transition: background-color 300ms ease 0s;
+//   width: 160px;
+
+  &:hover {
+    background-color: #05790d;
+  }
+}
+
+.warning {
+    background-color: #ac2007;
+
+    &:hover {
+        background-color: #be3b23;
+    }
+}

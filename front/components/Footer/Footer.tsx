@@ -12,13 +12,6 @@ const Footer = () => {
           <div className={styles.left}>
             {/* <p className={styles.title}>Tokopedia</p> */}
             <p>
-              {/* <Link href=""> */}
-              <a href="https://www.tokopedia.com">
-                Sensasi berbelanja Online beneran
-              </a>
-              {/* </Link> */}
-            </p>
-            <p>
               <Link href="/topay">
                 <a>Topay</a>
               </Link>
@@ -35,7 +28,7 @@ const Footer = () => {
             </p>
             <p>
               <Link href="/settings/address">
-                <a>Modifikasi Alamat</a>
+                <a>Address</a>
               </Link>
             </p>
             <p>
@@ -50,23 +43,8 @@ const Footer = () => {
             </p>
           </div>
           <div className={styles.mid}>
-            {/* <p className={styles.title}>Buy</p> */}
-            {/* <p>
-            <Link href="">
-              <a>Bill &#38; Top up</a>
-            </Link>
-          </p> */}
-            {/* <p>
-            <Link href="">
-              <a>Trade in Handphone</a>
-            </Link>
-          </p> */}
-            {/* <p>
-            <Link href="">
-              <a>Tokopedia COD</a>
-            </Link>
-          </p> */}
-            {/* <p className={styles.title}>Sell</p> */}
+          </div>
+          <div className={styles.right}>
             <p>
               {/* <Link href=""> */}
               <a href="https://www.facebook.com/tokopedia/">
@@ -85,30 +63,10 @@ const Footer = () => {
               </Link>
             </p>
             <p>
-              <Link href="">
-                <a>Register Official Store</a>
+              <Link href="/user/settings">
+                <a>Settings</a>
               </Link>
             </p>
-          </div>
-          <div className={styles.right}>
-            <p className={styles.title}>Guide and Help</p>
-            <p>
-              <Link href="">
-                <a>Tokopedia Care</a>
-              </Link>
-            </p>
-            <p>
-              <Link href="">
-                <a>Terms and Condition</a>
-              </Link>
-            </p>
-            <p>
-              <Link href="">
-                <a>Privacy</a>
-              </Link>
-            </p>
-            <p className={styles.title}>Follow Us</p>
-            <div className={styles.socmed}></div>
           </div>
         </div>
         <div className={styles.footerRight}>

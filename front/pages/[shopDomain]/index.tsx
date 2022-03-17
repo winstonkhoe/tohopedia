@@ -16,6 +16,7 @@ import { Carousel, Item } from "../../components/carousel/Carousel";
 import { useRouter } from "next/router";
 import { useToasts } from "react-toast-notifications";
 import { SectionProduct } from "../../components/Product/ProductSection";
+import { ErrorNotFound } from "../../components/error";
 const banners = [1, 2, 3];
 // import existsSync from "fs";
 
@@ -115,9 +116,6 @@ const Shop: NextPage = () => {
     }
   `;
 
-  // const [products, setProducts] = useState(null);
-
-  console.log("offset :" + offset);
   const {
     loading: TopDiscountProductLoading,
     error: TopDiscountProductError,
@@ -143,162 +141,17 @@ const Shop: NextPage = () => {
     return bannerItems;
   }
 
-  // function Product(props: {
-  //   productId: string;
-  //   productName: string;
-  //   productDiscount: number;
-  //   productPrice: number;
-  //   shopName?: string;
-  //   shopCity?: string;
-  //   shopType?: number;
-  //   imageSrc: string;
-  // }) {
-  //   return (
-  //     <div className={styles.product_outer_card}>
-  //       <div className={styles.product_card}>
-  //         <div className={styles.product_inner_card}>
-  //           <Link href={`/${props.shopName}/${props.productId}`}>
-  //             <a href="">
-  //               <div className={styles.product_card_outline}>
-  //                 <div className={styles.product_outer_image_container}>
-  //                   <div className={styles.product_image_container}>
-  //                     <Image
-  //                       src={`/uploads/${props.imageSrc}`}
-  //                       alt="Product Image"
-  //                       layout="fill"
-  //                       objectFit="cover"
-  //                     />
-  //                   </div>
-  //                 </div>
-
-  //                 <div className={styles.product_detail_container}>
-  //                   <a href="">
-  //                     <div className={styles.product_detail_name}>
-  //                       {props.productName}
-  //                     </div>
-  //                     <div className={styles.product_detail_price}>
-  //                       {RupiahFormat(
-  //                         (props.productPrice * (100 - props.productDiscount)) /
-  //                           100
-  //                       )}
-  //                     </div>
-  //                     {props.productDiscount > 0 ? (
-  //                       <div
-  //                         className={styles.product_detail_discount_container}
-  //                       >
-  //                         <div
-  //                           className={styles.product_detail_discount_percent}
-  //                         >
-  //                           {props.productDiscount}%
-  //                         </div>
-  //                         <div
-  //                           className={
-  //                             styles.product_detail_discounted_original_price
-  //                           }
-  //                         >
-  //                           {RupiahFormat(props.productPrice)}
-  //                         </div>
-  //                       </div>
-  //                     ) : null}
-
-  //                     <div
-  //                       className={styles.product_detail_location_ratings_sells}
-  //                     >
-  //                       {props?.shopName ? (
-  //                         <div className={styles.product_detail_location}>
-  //                           {props?.shopType > 0 ? (
-  //                             <div className={styles.product_store_badge}>
-  //                               <div
-  //                                 className={
-  //                                   styles.product_store_badge_container
-  //                                 }
-  //                               >
-  //                                 <Image
-  //                                   src={`/logo/${
-  //                                     props.shopType == 1
-  //                                       ? "badge_pm.png"
-  //                                       : props.shopType == 2
-  //                                       ? "badge_pmp.svg"
-  //                                       : props?.shopType == 3
-  //                                       ? "badge_os.png"
-  //                                       : null
-  //                                   }`}
-  //                                   alt=""
-  //                                   layout="fill"
-  //                                 />
-  //                               </div>
-  //                             </div>
-  //                           ) : null}
-
-  //                           <div className={styles.product_store_location}>
-  //                             <span className={styles.store_location}>
-  //                               {props.shopCity}
-  //                             </span>
-  //                             <span className={styles.store_name}>
-  //                               {props.shopName}
-  //                             </span>
-  //                           </div>
-  //                         </div>
-  //                       ) : null}
-
-  //                       <div
-  //                         className={styles.product_detail_ratings_sells}
-  //                       ></div>
-  //                     </div>
-  //                   </a>
-  //                 </div>
-  //               </div>
-  //             </a>
-  //           </Link>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // function SectionProduct(props: { data: any; name: string; href?: any }) {
-  //   return (
-  //     <section className={styles.product_section}>
-  //       {props?.data?.map((product: any) => {
-  //         return (
-  //           <>
-  //             <Product
-  //               key={product.id}
-  //               productId={product.id}
-  //               imageSrc={product.images[0].image}
-  //               productName={product.name}
-  //               productPrice={product.price}
-  //               productDiscount={product.discount}
-  //               shopType={product?.shop?.type ? product?.shop?.type : null}
-  //               shopCity={product?.shop?.city ? product?.shop?.city : null}
-  //               shopName={product?.shop?.name ? product?.shop?.name : null}
-  //             ></Product>
-  //           </>
-  //         );
-  //         // <Product imageSrc="" productName="" productPrice={1} shopBadge="" shopCity="" shopName="" key={0}></Product>
-  //       })}
-  //     </section>
-  //   );
-  // }
   if (shopLoading || TopDiscountProductLoading) {
     return <h2>Loading...</h2>;
   }
 
-  console.log("page: " + page);
-  console.log("pages: " + pages);
-  console.log(shopData);
-  console.log(shopData?.getShop?.products);
-  console.log(productPaginateData);
-  // if (productData) {
+  if (shopError) {
+    return (
+      <ErrorNotFound/>
+    )
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Home | Tohopedia</title>
-        <meta name="description" content="Generated by create next app" />
-        <link rel="icon" href="/favicon.ico" />
-        <InitFont />
-      </Head>
-      <Navbar />
 
       <main className={styles.main}>
         <div className={styles.main_container}>
@@ -347,7 +200,7 @@ const Shop: NextPage = () => {
                             />
                           </div>
                           <div className={styles.badge_onhover_info}>
-                          {shopData?.getShop?.reputationPoint} points
+                            {shopData?.getShop?.reputationPoint} points
                             <div></div>
                           </div>
                         </div>
@@ -363,7 +216,13 @@ const Shop: NextPage = () => {
                           <li className={styles.seller_info_item}>
                             <p>
                               <svg viewBox="0 0 16 16" height="16" width="16">
-                                <use href="#shop-location"></use>
+                                <g fill="none">
+                                  <path d="M0 0h16v16H0z"></path>
+                                  <path
+                                    fill="#9FA6B0"
+                                    d="M8 8.14a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0-6.807c-2.619 0-4.667 1.978-4.667 4.523 0 3.224 2.964 6.77 4.168 8.066a.673.673 0 0 0 .994-.003c1.202-1.309 4.172-4.839 4.172-8.157 0-2.323-1.894-4.429-4.668-4.429"
+                                  ></path>
+                                </g>
                               </svg>
                               Kabupaten Tangerang
                             </p>
@@ -507,9 +366,6 @@ const Shop: NextPage = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
-    </div>
   );
   // }
 };

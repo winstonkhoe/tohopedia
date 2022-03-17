@@ -21,4 +21,7 @@ type Shop struct {
 	PostalCode		string     `json:"postalCode"`
 	Address         string     `json:"address"`
 	Type            int		   `json:"type"`	
+	// Chats		 []*Chat		`json:"chats"`
 }
+
+func (Shop) IsChatSenderReceiver() {}

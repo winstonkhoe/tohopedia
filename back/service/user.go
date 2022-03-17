@@ -16,13 +16,27 @@ func UserCreate(ctx context.Context, input model.NewUser) (*model.User, error) {
 	input.Password = helpers.HashPassword(input.Password)
 
 	user := model.User{
-		ID:       uuid.New().String(),
-		Name:     input.Name,
-		Email:    strings.ToLower(input.Email),
-		Password: input.Password,
+		ID:           uuid.New().String(),
+		Name:         input.Name,
+		Email:        strings.ToLower(input.Email),
+		Password:     input.Password,
+		IsAdmin:      false,
+		IsSuspended:  false,
+		
 	}
 
 	if err := db.Model(user).Create(&user).Error; err != nil {
+		return nil, err
+	}
+
+	topay := &model.Topay{
+		ID:      uuid.NewString(),
+		UserId:  user.ID,
+		Balance: 0,
+		Coin:    0,
+	}
+
+	if err := db.Create(&topay).Error; err != nil {
 		return nil, err
 	}
 

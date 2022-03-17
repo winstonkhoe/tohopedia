@@ -7,6 +7,12 @@ $color-shadow: rgba(49, 53, 59, 0.12);
 .container {
   width: 100%;
 
+  .link_text {
+    color: $main-color;
+    font-size: 0.85rem;
+    font-weight: 300;
+    cursor: pointer;
+  }
   .header {
     display: flex;
     justify-content: center;
@@ -223,5 +229,19 @@ $color-shadow: rgba(49, 53, 59, 0.12);
         }
       }
     }
+  }
+}
+
+.suspend_container {
+  display: flex;
+  width: 100%;
+  min-height: 30vh;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
   }
 }

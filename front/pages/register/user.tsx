@@ -41,34 +41,35 @@ const Register: NextPage = () => {
 
   function First() {
     async function sendMail(formData: any) {
-      console.log("SendMailFunction")
-      console.log(formData.email)
-      console.log("email: " + email)
-      var temp = OTPGenerator();
-      setGeneratedOTP(temp);
-      let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      
-      if (re.test(formData.email)) {
-        setEmail(formData.email);
-        console.log("1 Original: " + generatedOTP)
-        var templateParams = {
-          email_reply: "winstonkcoding@gmail.com",
-          email_destination: formData.email,
-          otp_code: temp,
-        };
-        send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
-          function (response) {
-            console.log("SUCCESS!", response.status, response.text);
-            console.log("2 Original: " + generatedOTP)
-            setSecond(true);
-            setFirst(false);
-          },
-          function (error) {
-            console.log("FAILED...", error);
-          }
-        );
+      if (formData.email == "") {
+        addToast("Field harus diisi semua", { appearance: "error" });
       } else {
-        addToast("Format email salah", { appearance: "error" });
+        var temp = OTPGenerator();
+        setGeneratedOTP(temp);
+        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        
+        if (re.test(formData.email)) {
+          setEmail(formData.email);
+          console.log("1 Original: " + generatedOTP)
+          var templateParams = {
+            email_reply: "winstonkcoding@gmail.com",
+            email_destination: formData.email,
+            otp_code: temp,
+          };
+          send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
+            function (response) {
+              console.log("SUCCESS!", response.status, response.text);
+              console.log("2 Original: " + generatedOTP)
+              setSecond(true);
+              setFirst(false);
+            },
+            function (error) {
+              console.log("FAILED...", error);
+            }
+          );
+        } else {
+          addToast("Format email salah", { appearance: "error" });
+        }
       }
     }
 

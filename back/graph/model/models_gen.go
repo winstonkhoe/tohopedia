@@ -2,6 +2,13 @@
 
 package model
 
+import (
+)
+
+type ChatSenderReceiver interface {
+	IsChatSenderReceiver()
+}
+
 type AuthOps struct {
 	Login    interface{} `json:"login"`
 	Register interface{} `json:"register"`
@@ -89,3 +96,5 @@ type NewUser struct {
 type NewWishlist struct {
 	ProductID string `json:"productId"`
 }
+
+

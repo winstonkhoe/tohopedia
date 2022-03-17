@@ -35,4 +35,12 @@ func MigrateTable() {
 	db.AutoMigrate(&model.Ulasan{})
 	db.AutoMigrate(&model.Topay{})
 	db.AutoMigrate(&model.TopayToken{})
+	db.AutoMigrate(&model.UserPreferences{})
+	// db.AutoMigrate(&model.Chat{})
+	
+	db.AutoMigrate(&model.ChatHeader{})
+	db.AutoMigrate(&model.ChatDetails{})
+	db.AutoMigrate(&model.EmailToken{})
+	db.AutoMigrate(&model.PasswordToken{})
+	
 }

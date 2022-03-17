@@ -5,14 +5,17 @@ import Image from "next/image";
 import Overlay from "../../../components/overlay/overlay";
 import address from "../../../styles/components/address_overlay.module.scss";
 import common from "../../../styles/components/common.module.scss";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { userDetailsContext } from "../../../services/UserDataProvider";
+import { stateContext } from "../../../services/StateProvider";
+import Router from "next/router";
 
-const Address: NextPage = () => {
+export default function Address() {
   const [tambahAlamat, setTambahAlamat] = useState(false);
   const [ubahAlamat, setUbahAlamat] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const {addressQuery, setAddressQuery} = useContext(stateContext)
   const [newAddress, setNewAddress] = useState({
     label: "",
     receiver: "",
@@ -40,33 +43,11 @@ const Address: NextPage = () => {
     address: "",
   });
 
-  const GET_ADDRESS_QUERY = gql`
-    query getAddress($query: String!) {
-      getAddress(query: $query) {
-        id
-        label
-        receiver
-        phone
-        city
-        postalCode
-        address
-        main
-      }
-    }
-  `;
-
-  const {
-    loading: addressLoading,
-    error: addressErr,
-    data: addressData,
-  } = useQuery(GET_ADDRESS_QUERY, {
-    variables: {
-      query: searchQuery,
-    },
-    pollInterval: 1000,
-  });
-
-  useEffect(() => {}, []);
+  const addressData = useContext(userDetailsContext)?.addresses
+  const { setPollInterval } = useContext(stateContext);
+  useEffect(() => {
+    setPollInterval(3000)
+  }, []);
 
   const ADD_ADDRESS_MUTATION = gql`
     mutation addAddress(
@@ -155,7 +136,7 @@ const Address: NextPage = () => {
   ] = useMutation(SET_MAIN_ADDRESS_MUTATION);
 
   function getAddress(addressId: string) {
-    return addressData?.getAddress?.filter((address: any) => {
+    return addressData?.filter((address: any) => {
       return address?.id === addressId;
     });
   }
@@ -197,7 +178,6 @@ const Address: NextPage = () => {
 
   function handleSubmitNewAddress() {
     let currStyle = inputStyle;
-    console.log("masuk");
     let allow = true;
     setSubmitted(true);
     console.log(submitted && checkEmptyField(newAddress, "label"));
@@ -231,7 +211,6 @@ const Address: NextPage = () => {
 
   function handleSubmitUpdateAddress() {
     let currStyle = inputStyle;
-    console.log("masuk");
     let allow = true;
     setSubmitted(true);
     console.log(submitted && checkEmptyField(updateAddress, "label"));
@@ -264,14 +243,12 @@ const Address: NextPage = () => {
     }
   }
 
-  console.log(addressData);
-
   function checkEmptyField(addressObj: any, key: string) {
     return addressObj[key].trim().length == 0;
   }
 
   return (
-    <Layout>
+    <>
       <div className={styles.address_container}>
         <div className={styles.address_search_add_address_container}>
           <div>
@@ -281,7 +258,7 @@ const Address: NextPage = () => {
                 type="text"
                 placeholder="Cari alamat atau nama penerima"
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
+                  setAddressQuery(e.target.value);
                 }}
               />
             </div>
@@ -294,7 +271,7 @@ const Address: NextPage = () => {
             <span>Tambah Alamat Baru</span>
           </button>
         </div>
-        {addressData?.getAddress.map((address: any) => {
+        {addressData?.map((address: any) => {
           return (
             <section
               key={address?.id}
@@ -364,7 +341,7 @@ const Address: NextPage = () => {
               ) : (
                 <button
                   onClick={() => {
-                    setMainAddress({ variables: { id: address?.id } });
+                      setMainAddress({ variables: { id: address?.id } });
                   }}
                 >
                   <span>Pilih</span>
@@ -378,7 +355,7 @@ const Address: NextPage = () => {
         {tambahAlamat && TambahOverlay()}
         {ubahAlamat && UbahOverlay()}
       </div>
-    </Layout>
+    </>
   );
 
   function TambahOverlay() {
@@ -680,4 +657,12 @@ const Address: NextPage = () => {
     );
   }
 };
-export default Address;
+
+
+Address.getLayout = function getLayout(page: any) {
+  return (
+    <Layout>
+      {page}
+    </Layout>
+  )
+}

@@ -5,7 +5,7 @@
 directive @goField(
   forceResolver: Boolean
   name: String
-) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | UNION
 directive @auth on FIELD_DEFINITION
 
 scalar Any
@@ -71,14 +71,73 @@ type TopayToken {
   redeemed: Boolean!
 }
 
+type EmailToken {
+  id: ID!
+  user: User! @goField(forceResolver: true)
+  email: String!
+  validTo: Time!
+  redeemed: Boolean!
+}
+
+type PasswordToken {
+  id: ID!
+  email: String!
+  validTo: Time!
+  redeemed: Boolean!
+}
+
+type UserPreferences {
+  id: ID!
+  user: User! @goField(forceResolver: true)
+  category: Category! @goField(forceResolver: true)
+  score: Int!
+}
+
+union ChatSenderReceiver = User | Shop
+
+type Chat {
+  id: ID!
+  # senderModel: ChatSenderReceiver @goField(forceResolver: true) @auth
+  sender: String!
+  # receiverModel: ChatSenderReceiver @goField(forceResolver: true) @auth
+  receiver: String!
+  content: String!
+  createdAt: Time!
+}
+
+type ChatHeader {
+  id: ID!
+  details: [ChatDetails] @goField(forceResolver: true)
+  customer: User! @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
+  # receiverIsShop: Boolean!
+}
+
+type ChatDetails {
+  id: ID!
+  chatHeader: ChatHeader! @goField(forceResolver: true)
+  content: String!
+  sender: String!
+  receiver: String!
+  createdAt: Time!
+}
+
 type Query {
   getShop(slug: String!): Shop!
+  getShopById(id: String!): Shop!
   getTopayToken(code: String!): TopayToken! @auth
+  getPasswordToken(email: String!): PasswordToken! 
+  getRecommendation: [Product!]! @goField(forceResolver: true) @auth
+  getChats(id: String!): [Chat!]! @goField(forceResolver: true) @auth
 }
 
 type Mutation {
+  addChat(senderId: String! receiverId: String! content: String!): Chat! @auth
   createTopayWallet(userId: ID!): Topay!
   createTopayToken(code: String!, value: Int!): TopayToken! @auth
+  createEmailToken(email: String!): EmailToken! @auth
+  createPasswordToken(email: String!): PasswordToken!
+  verifyEmailAddress(id: ID!): Boolean! @auth
   addTopayBalance(code: String!): Topay! @auth
   addUlasan(input: NewUlasan!): Ulasan! @auth
   addWishlist(input: NewWishlist!): Wishlist! @auth

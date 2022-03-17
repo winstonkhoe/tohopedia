@@ -52,3 +52,19 @@ a {
   box-sizing: border-box;
   
 }
+
+::-webkit-scrollbar {
+  margin-top: 5px;
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--N200,#9FA6B0);
+  /* outline: slategrey solid 1px; */
+  border-radius: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--N75,#E5E7E9);
+}

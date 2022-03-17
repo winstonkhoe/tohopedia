@@ -137,6 +137,17 @@ func (r *shopResolver) Products(ctx context.Context, obj *model.Shop) ([]*model.
 	return products, nil
 }
 
+func (r *shopResolver) Chats(ctx context.Context, obj *model.Shop) ([]*model.ChatHeader, error) {
+	db := config.GetDB()
+	var chats []*model.ChatHeader
+
+	if err := db.Where("shop_id = ?", obj.ID).Find(&chats).Error; err != nil {
+		return nil, err
+	}
+
+	return chats, nil
+}
+
 // Shop returns generated.ShopResolver implementation.
 func (r *Resolver) Shop() generated.ShopResolver { return &shopResolver{r} }
 

@@ -1,3 +1,5 @@
+$tablet: 850px;
+$mobile: 550px;
 $card-color: #ffffff;
 .product_section {
   margin-top: 50px;
@@ -10,6 +12,22 @@ $card-color: #ffffff;
   grid-auto-flow: dense;
   overflow: hidden;
   min-height: 290px;
+
+  @media screen and (max-width: 1100px) {
+    grid-template-columns: repeat(4, calc(calc(100% - 3 * 5px) / 4));
+    grid-auto-rows: minmax(calc(153.333px), max-content);
+    gap: 5px;
+  }
+  @media screen and (max-width: 850px) {
+    grid-template-columns: repeat(3, calc(calc(100% - 2 * 5px) / 3));
+    grid-auto-rows: minmax(calc(153.333px), max-content);
+    gap: 5px;
+  }
+  @media screen and (max-width: $mobile) {
+    grid-template-columns: repeat(2, calc(calc(100% - 1 * 5px) / 2));
+    grid-auto-rows: minmax(calc(153.333px), max-content);
+    gap: 5px;
+  }
 
   .product_outer_card {
     height: 100%;
@@ -45,6 +63,8 @@ $card-color: #ffffff;
           margin: 0px;
 
           .product_outer_image_container {
+            display: flex;
+            justify-content: center;
             position: relative;
             margin: 0px;
             width: 100%;
@@ -263,10 +283,27 @@ $card-color: #ffffff;
   .product_section_card {
     white-space: nowrap;
     line-height: 0;
-    overflow: hidden;
+    overflow: scroll hidden;
     padding-left: 0px;
     padding-right: 83.3333%;
     flex-flow: row wrap;
+    padding-bottom: 5px;
+
+    &::-webkit-scrollbar {
+      margin-top: 5px;
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--N200,#9FA6B0);
+      outline: slategrey solid 1px;
+      border-radius: 15px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: var(--N75,#E5E7E9);
+    }
     // display: flex;
 
     .product_section_card_inner {
@@ -278,12 +315,15 @@ $card-color: #ffffff;
         // flex: 1 1 16.667%;
         // transform: translateX(0%);
         // display: inline-block;
-        width: 100%;
+        // width: 100%;
+        width: 40vw;
         padding: 0px;
         line-height: normal;
         // flex-shrink: 0;
         // height: 100%;
         // transform: scale(1);
+
+        
 
         .product_card {
           position: relative;
@@ -314,6 +354,9 @@ $card-color: #ffffff;
               margin: 0px;
 
               .product_outer_image_container {
+                display: flex;
+                // align-items: center;
+                justify-content: center;
                 position: relative;
                 margin: 0px;
                 width: 100%;
@@ -393,14 +436,14 @@ $card-color: #ffffff;
                       height: 20px;
                       color: var(--RN500, #f94d63);
                       background-color: var(--RN100, #ffdbe2);
-                      font-size: 0.714286rem;
+                      font-size: 0.7rem;
                       font-weight: bold;
                       border-radius: 3px;
                       margin: 0px 4px 0px 0px;
                     }
 
                     .product_detail_discounted_original_price {
-                      font-size: 0.714286rem;
+                      font-size: 0.7rem;
                       color: var(--NN600, #6d7588);
                       text-decoration: line-through;
                       max-width: 100px;

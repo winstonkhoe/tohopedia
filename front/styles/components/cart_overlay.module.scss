@@ -6,6 +6,10 @@
     z-index: 496;
     height: auto;
     position: fixed;
+    
+    @media screen and (max-width: 700px) {
+      right: 0px;
+    }
 .container_wrapper {
     position: fixed;
     top: 80px;
@@ -21,6 +25,10 @@
     animation-name: animation-1bic2n7;
     animation-duration: 0.4s;
     height: auto;
+
+    @media screen and (max-width: 700px) {
+      right: 0px;
+    }
 
 .container {
   display: flex;

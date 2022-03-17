@@ -48,4 +48,5 @@ extend type Query {
 
 extend type Mutation {
   addTransaction(input: NewTransaction!): Transaction! @goField(forceResolver: true)
+  updateStatus(id: ID!, status: Int!): Transaction! @goField(forceResolver: true) @auth
 }

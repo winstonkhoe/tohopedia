@@ -5,11 +5,19 @@ import nameStyle from "../../../styles/components/user_name_overlay.module.scss"
 import genderStyle from "../../../styles/components/user_gender_overlay.module.scss";
 import common from "../../../styles/components/common.module.scss";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import Overlay from "../../../components/overlay/overlay";
+import { toIndonesianDate } from "../../../misc/date";
+import { userDetailsContext } from "../../../services/UserDataProvider";
+import { init, send } from "@emailjs/browser";
+import { useToasts } from "react-toast-notifications";
 
-const BioData: NextPage = () => {
+const SERVICE_ID = "service_egdaufp";
+const TEMPLATE_ID = "template_fg0ncxa";
+
+export default function BioData() {
+  const { addToast } = useToasts();
   const DEFAULT_PROFILE_IMAGE = `/logo/user_profile.jpg`;
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
   const [profileImageChosen, setProfileImageChosen] = useState();
@@ -29,6 +37,8 @@ const BioData: NextPage = () => {
   const [updatePhone, setUpdatePhone] = useState(false);
   const [phone, setPhone] = useState("");
 
+  init("user_3FcFw9m04bwuTvX6TklJs");
+
   const [overlayStatus, setOverlayStatus] = useState({
     name: false,
     dob: false,
@@ -37,26 +47,9 @@ const BioData: NextPage = () => {
     phone: false,
   });
 
-  const USER_DATA_QUERY = gql`
-    query GetUser {
-      getCurrentUser {
-        name
-        dob
-        gender
-        email
-        phone
-        image
-      }
-    }
-  `;
+  
 
-  const {
-    loading: userLoad,
-    error: userErr,
-    data: userData,
-  } = useQuery(USER_DATA_QUERY, {
-    pollInterval: 2000,
-  });
+  const userData = useContext(userDetailsContext)
 
   const UPDATE_USER_IMAGE_MUTATION = gql`
     mutation updateUserImage($image: String!) {
@@ -66,6 +59,7 @@ const BioData: NextPage = () => {
       }
     }
   `;
+
   const [
     updateUserImage,
     {
@@ -126,6 +120,23 @@ const BioData: NextPage = () => {
     },
   ] = useMutation(UPDATE_USER_EMAIL_MUTATION);
 
+  const CREATE_VERIFY_EMAIL_MUTATION = gql`
+    mutation createVerifyEmailToken($email: String!){
+      createEmailToken(email: $email) {
+        id
+      }
+    }
+  `;
+
+  const [
+    createTokenEmail,
+    {
+      loading: createTokenEmailLoad,
+      error: createTokenEmailErr,
+      data: createTokenEmailData,
+    },
+  ] = useMutation(CREATE_VERIFY_EMAIL_MUTATION);
+
   const UPDATE_USER_GENDER_MUTATION = gql`
     mutation updateUserGender($gender: String!) {
       updateUserGender(gender: $gender) {
@@ -161,12 +172,12 @@ const BioData: NextPage = () => {
 
   useEffect(() => {
     setProfileImage(
-      userData?.getCurrentUser?.image
-        ? `/uploads/${userData?.getCurrentUser?.image}`
+      userData?.image
+        ? `/uploads/${userData?.image}`
         : DEFAULT_PROFILE_IMAGE
     );
 
-    setName(userData?.getCurrentUser?.name);
+    setName(userData?.name);
   }, [DEFAULT_PROFILE_IMAGE, userData]);
 
   async function onImageChange(event: any) {
@@ -199,30 +210,13 @@ const BioData: NextPage = () => {
     }
   }
 
-  function toIndonesianDate(date: string) {
-    let bulans = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-    let newDate = new Date(date)
-    let day = newDate.getDate()
-    let month = newDate.getMonth()
-    let year = newDate.getFullYear()
-
-    return day + " " + bulans[month] + " " + year
-  }
-
   function handleOverlay(key: string, value: boolean) {
     let currStatus = overlayStatus;
     currStatus[key] = value;
     setOverlayStatus(currStatus);
-    console.log("masuk");
   }
 
-  // console.log(overlayStatus);
-  console.log(gender);
-  console.log(new Date(dob))
-
-  // console.log(NameOverlay() && overlayStatus.name);
   return (
-    <Layout>
       <div className={styles.container}>
         <div className={styles.biodata_container}>
           <div className={styles.profile_image_container}>
@@ -259,7 +253,7 @@ const BioData: NextPage = () => {
             <div className={styles.biodata_item_container}>
               <span className={styles.biodata_item_label}>Nama</span>
               <span className={styles.biodata_item_value}>
-                {userData?.getCurrentUser?.name}
+                {userData?.name}
               </span>
               <span
                 className={styles.biodata_item_change}
@@ -273,8 +267,8 @@ const BioData: NextPage = () => {
             <div className={styles.biodata_item_container}>
               <span className={styles.biodata_item_label}>Tanggal Lahir</span>
               <span className={styles.biodata_item_value}>
-                {userData?.getCurrentUser?.dob
-                  ? toIndonesianDate(userData?.getCurrentUser?.dob)
+                {userData?.dob
+                  ? toIndonesianDate(userData?.dob)
                   : "Not Specified Yet"}
               </span>
               <span
@@ -287,8 +281,8 @@ const BioData: NextPage = () => {
             <div className={styles.biodata_item_container}>
               <span className={styles.biodata_item_label}>Jenis Kelamin</span>
               <span className={styles.biodata_item_value}>
-                {userData?.getCurrentUser?.gender
-                  ? (userData?.getCurrentUser?.gender == 0 ? "Female" : "Male")
+                {userData?.gender
+                  ? (userData?.gender == 0 ? "Female" : "Male")
                   : "Not Specified Yet"}
               </span>
               <span
@@ -302,7 +296,7 @@ const BioData: NextPage = () => {
             <div className={styles.biodata_item_container}>
               <span className={styles.biodata_item_label}>Email</span>
               <span className={styles.biodata_item_value}>
-                {userData?.getCurrentUser?.email}
+                {userData?.email}
               </span>
               <span
                 className={styles.biodata_item_change}
@@ -314,8 +308,8 @@ const BioData: NextPage = () => {
             <div className={styles.biodata_item_container}>
               <span className={styles.biodata_item_label}>Nomor HP</span>
               <span className={styles.biodata_item_value}>
-                {userData?.getCurrentUser?.phone
-                  ? userData?.getCurrentUser?.phone
+                {userData?.phone
+                  ? userData?.phone
                   : "Not Specified Yet"}
               </span>
               <span
@@ -335,7 +329,6 @@ const BioData: NextPage = () => {
           {updateDob && DOBOverlay()}
         </div>
       </div>
-    </Layout>
   );
 
   function NameOverlay() {
@@ -358,7 +351,7 @@ const BioData: NextPage = () => {
                 <input
                   className={common.input_fields}
                   type="text"
-                  defaultValue={userData?.getCurrentUser?.name}
+                  defaultValue={userData?.name}
                   onChange={(e) => {
                     setName(e.target.value);
                   }}
@@ -368,7 +361,7 @@ const BioData: NextPage = () => {
           </div>
           <button
             className={
-              name == userData?.getCurrentUser?.name && name == ""
+              name == userData?.name && name == ""
                 ? common.button_overlay_disable
                 : common.button_overlay
             }
@@ -408,7 +401,7 @@ const BioData: NextPage = () => {
                 <input
                   className={common.input_fields}
                   type="text"
-                  defaultValue={userData?.getCurrentUser?.phone}
+                  defaultValue={userData?.phone}
                   onChange={(e) => {
                     setPhone(e.target.value);
                   }}
@@ -418,7 +411,7 @@ const BioData: NextPage = () => {
           </div>
           <button
             className={
-              phone == userData?.getCurrentUser?.phone && phone == ""
+              phone == userData?.phone && phone == ""
                 ? common.button_overlay_disable
                 : phone.length > 11 && !isNaN(Number(phone))
                 ? common.button_overlay
@@ -462,7 +455,7 @@ const BioData: NextPage = () => {
                 <input
                   className={common.input_fields}
                   type="text"
-                  defaultValue={userData?.getCurrentUser?.email}
+                  defaultValue={userData?.email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
@@ -472,16 +465,35 @@ const BioData: NextPage = () => {
           </div>
           <button
             className={
-              email == userData?.getCurrentUser?.email && email == ""
+              email == userData?.email && email == ""
                 ? common.button_overlay_disable
                 : re.test(email)
                 ? common.button_overlay
                 : common.button_overlay_disable
             }
             onClick={() => {
-              updateUserEmail({ variables: { email: email } }).then((data) => {
-                setUpdateEmail(false);
-              });
+              createTokenEmail({
+                variables: {
+                email: email
+                }
+              }).then((d: any) => {
+                var templateParams = {
+                  email_reply: "winstonkcoding@gmail.com",
+                  email_destination: email,
+                  otp_code: `http://localhost:3000/verification/email/${d?.data?.createEmailToken?.id}`,
+                };
+                send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
+                  function (response) {
+                    addToast("Check your email to verify email change", {appearance:"success"})
+                    setUpdateEmail(false);
+                  },
+                  function (error) {
+                    addToast("Error Sending Email", {appearance:"error"})
+                  }
+                );
+              })
+              // updateUserEmail({ variables: { email: email } }).then((data) => {
+              // });
             }}
             // className={
             //   common.button_overlay
@@ -581,7 +593,7 @@ const BioData: NextPage = () => {
               {/* <input
                   className={common.input_fields}
                   type="text"
-                  defaultValue={userData?.getCurrentUser?.email}
+                  defaultValue={userData?.email}
                   onChange={(e) => {
                     setGender(e.target.value);
                   }}
@@ -611,4 +623,11 @@ const BioData: NextPage = () => {
     );
   }
 };
-export default BioData;
+
+BioData.getLayout = function getLayout(page: any) {
+  return (
+    <Layout>
+      {page}
+    </Layout>
+  )
+}

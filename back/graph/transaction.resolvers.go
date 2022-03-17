@@ -101,6 +101,19 @@ func (r *mutationResolver) AddTransaction(ctx context.Context, input model.NewTr
 	return transaction, err
 }
 
+func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status int) (*model.Transaction, error) {
+	db := config.GetDB()
+	transaction := new(model.Transaction)
+
+	if err := db.Where("id = ?", id).Find(&transaction).Error; err != nil {
+		return nil, err
+	}
+
+	transaction.Status = status
+
+	return transaction, db.Save(transaction).Error
+}
+
 func (r *queryResolver) GetUserTransactions(ctx context.Context) ([]*model.Transaction, error) {
 	panic(fmt.Errorf("not implemented"))
 }

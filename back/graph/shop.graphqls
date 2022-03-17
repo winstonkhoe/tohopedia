@@ -16,8 +16,8 @@ type Shop {
   slogan: String!
   description: String!
   image: String!
-  openTime: Time!
-  closeTime: Time!
+  openTime: Time
+  closeTime: Time
   isOpen: Boolean!
   reputationPoint: Int!
   user: User! @goField(forceResolver: true)
@@ -26,6 +26,7 @@ type Shop {
   postalCode: String!
   address: String!
   type: Int!
+  chats: [ChatHeader] @goField(forceResolver: true)
 }
 
 extend type Query {

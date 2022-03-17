@@ -1,5 +1,5 @@
 $price-margin: 0 4px 0 0;
-
+$mobile: 550px;
 .main {
   width: 100vw;
   flex: 1;
@@ -22,12 +22,17 @@ $price-margin: 0 4px 0 0;
     margin: auto;
     align-items: flex-start;
 
+    @media screen and (max-width: $mobile) {
+      max-width: 100vw;
+      min-width: 100vw;
+    }
+
     .cart_header_text {
       display: block;
       position: relative;
       font-weight: 700;
       font-family: "Nunito Sans", -apple-system, sans-serif;
-      font-size: 1.42857rem;
+      font-size: 1.4rem;
       line-height: 26px;
       color: var(--color-text-high, rgba(49, 53, 59, 0.96));
       text-decoration: initial;

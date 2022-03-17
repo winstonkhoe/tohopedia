@@ -59,5 +59,7 @@ func UserLogin(ctx context.Context, email string, password string) (interface{},
 
 	return map[string]interface{}{
 		"token": token,
+		"userId": getUser.ID,
+		"isSuspended": getUser.IsSuspended,
 	}, nil
 }

@@ -6,6 +6,8 @@ package graph
 import (
 	"context"
 	"fmt"
+	"math"
+	"sort"
 	"time"
 	"tohopedia/config"
 	"tohopedia/graph/generated"
@@ -149,21 +151,316 @@ func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product,
 		return nil, err
 	}
 
+	if ctx.Value("auth") != nil {
+		userPreferences := new(model.UserPreferences)
+		userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+		db.First(userPreferences, "user_id = ? AND category_id = ?", userId, product.CategoryID)
+
+		if len(userPreferences.ID) == 0 {
+			userPreferences := &model.UserPreferences{
+				ID:         uuid.NewString(),
+				UserId:     userId,
+				CategoryId: product.CategoryID,
+				Score:      1,
+			}
+
+			if err := db.Create(&userPreferences).Error; err != nil {
+				return nil, err
+			}
+		} else {
+			if err := db.First(userPreferences, "user_id = ? AND category_id = ?", userId, product.CategoryID).Error; err != nil {
+				return nil, err
+			}
+
+			userPreferences.Score += 1
+
+			if err := db.Save(&userPreferences).Error; err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	helpers.ParseTime(&product.CreatedAt)
 
 	return product, nil
 }
 
-func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) {
+func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, categoryID *string, keyword *string, limit *int, offset *int, order *string, recommendation *bool, shopTypes []*int) ([]*model.Product, error) {
 	db := config.GetDB()
-	var models []*model.Product
+	var products []*model.Product
+	defaultOffset := 0
+	defaultLimit := 9999999999
 
-	err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Order("created_at DESC").Find(&models).Error
-
-	for i := 0; i < len(models); i++ {
-		helpers.ParseTime(&models[i].CreatedAt)
+	if offset != nil {
+		defaultOffset = *offset
 	}
-	return models, err
+
+	// fmt.Printf("Default Limit Value: %d\n", defaultLimit)
+	if limit != nil {
+		// fmt.Printf("Limit Value: %d\n", *limit)
+		defaultLimit = *limit
+	}
+	// fmt.Printf("Default Limit Value: %d\n", defaultLimit)
+
+	if id != nil && *id != "" {
+		if err := db.Where("id = ?", *id).Find(&products).Error; err != nil {
+			return nil, err
+		}
+
+		// return products, nil
+	} else if slug != nil && *slug != "" {
+		shop := new(model.Shop)
+
+		if err := db.First(shop, "slug = ?", slug).Error; err != nil {
+			return nil, err
+		}
+		if limit != nil {
+			query := db.Where("shop_id = ? AND valid_to = ? AND stock > 0 ", shop.ID, "0000-00-00 00:00:00.000").Limit(defaultLimit).Offset(defaultOffset)
+
+			if order != nil {
+				query = query.Order(*order)
+			}
+			if err := query.Find(&products).Error; err != nil {
+				return nil, err
+			}
+			// return products, nil
+		}
+		// else {
+		// 	if err := db.Where("shop_id = ? AND valid_to = ? AND stock > 0 ", shop.ID, "0000-00-00 00:00:00.000").Offset(defaultOffset).Find(&products).Error; err != nil {
+		// 		return nil, err
+		// 	}
+		// }
+
+	} else if keyword != nil && *keyword != "" {
+		if categoryID != nil && *categoryID != "" {
+			fmt.Println(*categoryID)
+			if err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Where("name LIKE ? AND category_id = ?", "%"+*keyword+"%", *categoryID).Limit(defaultLimit).Offset(defaultOffset).Find(&products).Error; err != nil {
+				return nil, err
+			}
+			fmt.Println(len(products))
+			for i := 0; i < len(products); i++ {
+				fmt.Println(products[i].Name)
+			}
+		} else {
+			if err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Where("name LIKE ?", "%"+*keyword+"%").Limit(defaultLimit).Offset(defaultOffset).Find(&products).Error; err != nil {
+				return nil, err
+			}
+		}
+	} else if categoryID != nil && *categoryID != "" {
+		if err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Where("category_id = ?", *categoryID).Limit(defaultLimit).Offset(defaultOffset).Find(&products).Error; err != nil {
+			return nil, err
+		}
+	} else if order != nil && *order != "" {
+		if err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Order(*order).Find(&products).Error; err != nil {
+			return nil, err
+		}
+	} else if recommendation != nil && *recommendation {
+		fmt.Println("recommendation")
+		var categories []*model.Category
+		var userPreferences []*model.UserPreferences
+		var otherUsers []*model.User
+		totalUniqueCategories := 0
+		const displayProduct = 15
+
+		if ctx.Value("auth") == nil {
+			return nil, &gqlerror.Error{
+				Message: "Error, token gaada",
+			}
+		}
+
+		userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+		db.Find(&categories) //Cari panjang Categories
+
+		var vectorCurrUser = make([]int, len(categories))
+		for i := range vectorCurrUser {
+			vectorCurrUser[i] = 0
+		}
+
+		db.Where("user_id = ?", userId).Find(&userPreferences)
+		db.Where("id <> ?", userId).Find(&otherUsers)
+
+		//Simpenin Index Categories
+		categoriesIndex := make(map[string]int)
+		userCategories := make(map[string]int)
+
+		//Simpen User Preferences -- Isi Categoriesnya
+		userPrefCategoryScore := make(map[string]int)
+
+		for i := 0; i < len(userPreferences); i++ {
+			userPrefCategoryScore[userPreferences[i].CategoryId] = userPreferences[i].Score
+			categoriesIndex[userPreferences[i].CategoryId] = totalUniqueCategories
+			userCategories[userPreferences[i].CategoryId] = 0
+			totalUniqueCategories += 1
+		}
+
+		for k, v := range categoriesIndex {
+			vectorCurrUser[v] = userPrefCategoryScore[k]
+		}
+
+		var cosineResults = make(map[string]float64, len(otherUsers))
+		/*
+			OTHER USER SECTION CHECK
+		*/
+		for i := 0; i < len(otherUsers); i++ {
+			otherUserPrefCategoryScore := make(map[string]int)
+			var otherUserPreferences []*model.UserPreferences
+			cosineResults[otherUsers[i].ID] = 0
+			db.Where("user_id = ?", otherUsers[i].ID).Find(&otherUserPreferences) //Find Other User's Preferences
+			for i := 0; i < len(otherUserPreferences); i++ {
+				otherUserPrefCategoryScore[otherUserPreferences[i].CategoryId] = otherUserPreferences[i].Score
+				if _, ok := categoriesIndex[otherUserPreferences[i].CategoryId]; !ok {
+					categoriesIndex[otherUserPreferences[i].CategoryId] = totalUniqueCategories
+					totalUniqueCategories += 1
+					// fmt.Println(otherUserPreferences[i].CategoryId + " belom exists")
+				}
+			}
+
+			var vectorTempOtherUser = make([]int, len(categories))
+			for i := range vectorTempOtherUser {
+				vectorTempOtherUser[i] = 0
+			}
+
+			for k, v := range categoriesIndex {
+				vectorTempOtherUser[v] = otherUserPrefCategoryScore[k]
+			}
+
+			dotProduct := 0
+			for i := range vectorCurrUser {
+				dotProduct += vectorCurrUser[i] * vectorTempOtherUser[i]
+			}
+
+			totalSquareCurrUserVector := 0
+			for i := range vectorCurrUser {
+				totalSquareCurrUserVector += vectorCurrUser[i] * vectorCurrUser[i]
+			}
+
+			totalSquareOtherUserVector := 0
+			for i := range vectorTempOtherUser {
+				totalSquareOtherUserVector += vectorTempOtherUser[i] * vectorTempOtherUser[i]
+			}
+
+			magnitudeCurrUser := math.Sqrt(float64(totalSquareCurrUserVector))
+			magnitudeOtherUser := math.Sqrt(float64(totalSquareOtherUserVector))
+
+			currCosineVal := float64(float64(dotProduct) / (magnitudeCurrUser * magnitudeOtherUser))
+			if !math.IsNaN(currCosineVal) {
+				cosineResults[otherUsers[i].ID] = currCosineVal
+			}
+
+			// fmt.Printf("Cosine Value: %f\n", currCosineVal)
+		}
+		sortedUsersCosine := make(PairList, len(cosineResults))
+
+		i := 0
+		for k, v := range cosineResults {
+			sortedUsersCosine[i] = Pair{k, v}
+			i++
+		}
+
+		sort.Sort(sortedUsersCosine)
+
+		uniqueNewCategories := make(map[string]int) //Selain UserCategories
+		// extraCategories := make([]string, 0, len(categories))
+		for i := 0; i < 3 && i < len(sortedUsersCosine); i++ {
+			if sortedUsersCosine[i].Value > 0 {
+				var tempPref []*model.UserPreferences
+				db.Where("user_id = ?", sortedUsersCosine[i].UserID).Find(&tempPref)
+
+				for j := 0; j < len(tempPref); j++ {
+					if _, exists := userCategories[tempPref[j].CategoryId]; !exists {
+						if _, exists := uniqueNewCategories[tempPref[j].CategoryId]; !exists {
+							uniqueNewCategories[tempPref[j].CategoryId] = 0
+							// fmt.Println(otherUserPreferences[j].CategoryId + " belom exists")
+						}
+					}
+				}
+
+			}
+		}
+
+		stringNewCategories := ""
+		iterator := 0
+		for k, _ := range uniqueNewCategories {
+			// if(iterator > 0) {
+			stringNewCategories += "'"
+			// }
+			stringNewCategories += k
+			if iterator < len(uniqueNewCategories)-1 {
+				stringNewCategories += "',"
+			}
+			iterator += 1
+		}
+		stringNewCategories += "'"
+
+		var extraProduct []*model.Product
+		productBaseQuery := "SELECT id, name, description, price, discount, stock, metadata, created_at, category_id, shop_id, original_id, valid_to FROM products WHERE category_id IN"
+		query := fmt.Sprintf("%s (%s) LIMIT %d", productBaseQuery, stringNewCategories, 5)
+		// query := fmt.Sprintf("%s (%s)", "SELECT id, name FROM categories WHERE id IN", stringNewCategories)
+		db.Raw(query).Scan(&extraProduct)
+		// db.Raw("SELECT id, name FROM categories WHERE id IN (?)", stringNewCategories).Scan(&extraCategories)
+		// db.Where("id IN (?)", stringNewCategories).Limit(5).Find(&extraCategories)
+
+		remaining := displayProduct - len(extraProduct)
+
+		stringUserCategories := ""
+		iterator = 0
+		for k, _ := range userCategories {
+			// if(iterator > 0) {
+			stringUserCategories += "'"
+			// }
+			stringUserCategories += k
+			if iterator < len(userCategories)-1 {
+				stringUserCategories += "',"
+			}
+			iterator += 1
+		}
+		stringUserCategories += "'"
+
+		// fmt.Printf("Length Extra Product: %d\n", len(extraProduct))
+
+		for i := range extraProduct {
+			fmt.Println(extraProduct[i].Name)
+		}
+
+		var userProduct []*model.Product
+		query = fmt.Sprintf("%s (%s) LIMIT %d", productBaseQuery, stringUserCategories, remaining)
+		db.Raw(query).Scan(&userProduct)
+
+		userProduct = append(userProduct, extraProduct...)
+		products = userProduct
+	} else {
+		if err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Limit(defaultLimit).Find(&products).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	var filteredProduct []*model.Product
+	fmt.Println(len(shopTypes))
+	if len(shopTypes) > 0 {
+		shopTypeDict := make(map[int]int)
+		for i := range shopTypes {
+			shopTypeDict[*shopTypes[i]] = 0
+		}
+
+		for i := range products {
+			tempShop := new(model.Shop)
+			if err := db.Where("id = ?", products[i].ShopID).Find(&tempShop).Error; err != nil {
+				return nil, err
+			}
+			if _, exists := shopTypeDict[tempShop.Type]; exists {
+				filteredProduct = append(filteredProduct, products[i])
+			}
+		}
+	} else {
+		filteredProduct = products
+	}
+
+	for i := 0; i < len(filteredProduct); i++ {
+		helpers.ParseTime(&filteredProduct[i].CreatedAt)
+	}
+	return filteredProduct, nil
 }
 
 func (r *queryResolver) GetShopProductsPaginate(ctx context.Context, slug string, limit int, offset int) ([]*model.Product, error) {

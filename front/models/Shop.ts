@@ -1,4 +1,4 @@
-export default class Shop {
+class Shop {
     constructor(
       public id: string = "",
       public name: string = "",
@@ -17,3 +17,5 @@ export default class Shop {
     ) {}
   }
   
+
+export { Shop }

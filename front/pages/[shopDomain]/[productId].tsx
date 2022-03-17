@@ -22,8 +22,6 @@ const ProductDetail: NextPage = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [onHoverImage, setOnHoverImage] = useState("");
 
-  console.log(shopDomain)
-  console.log(productId)
   const PRODUCT_STORE_QUERY = gql`
     query GetProductDetail($id: ID!) {
       product(id: $id) {

@@ -2,9 +2,9 @@ import { ApolloClient, from, HttpLink, InMemoryCache } from '@apollo/client'
 import { getCookie } from 'cookies-next'
 import  Router  from 'next/router'
 import { onError } from '@apollo/client/link/error'
+import { useToasts } from 'react-toast-notifications'
 
 const token = getCookie('tokenid')
-
 // const client = new ApolloClient({
 //   uri: 'http://localhost:8080/query',
 //   cache: new InMemoryCache(),

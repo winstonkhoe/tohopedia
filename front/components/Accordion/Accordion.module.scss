@@ -1,0 +1,178 @@
+.settings_user_utilities_accordion_container {
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-align-items: flex-start;
+    -webkit-box-align: flex-start;
+    -ms-flex-align: flex-start;
+    align-items: flex-start;
+    border-top: 1px solid var(--N75, #e5e7e9);
+    cursor: pointer;
+
+    .settings_user_utilities_accordion_button {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: justify;
+      -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+      -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+      flex-direction: row;
+      -webkit-align-items: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      width: 100%;
+      padding: 10px 8px 9px 12px;
+      border: none;
+      background-color: var(--color-page-background, #ffffff);
+      cursor: pointer;
+      -webkit-appearance: none;
+      font-family: sans-serif;
+      font-size: 100%;
+      line-height: 1.15;
+      margin: 0;
+      overflow: visible;
+
+      .settings_user_utilities_accordion_header {
+        font-size: 0.9285714285714286rem;
+        position: relative;
+        font-weight: 400;
+        font-family: "Nunito Sans", -apple-system, sans-serif;
+        font-size: 0.8571428571428571rem;
+        line-height: 18px;
+        color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+        -webkit-text-decoration: initial;
+        text-decoration: initial;
+        margin: 0;
+      }
+
+      .settings_user_utilities_accordion_icon {
+        border-radius: 12px;
+
+        &:hover {
+          background-color: #f3f4f5;
+        }
+
+        svg {
+          transition: transform 300ms cubic-bezier(0.2, 0.64, 0.21, 1);
+        }
+      }
+    }
+
+    .settings_user_utilities_accordion_items_open {
+      display: block;
+      list-style: none;
+      width: 100%;
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-left: 0;
+      // height: 100px;
+      padding-bottom: 20px;
+      overflow: hidden;
+      opacity: 1;
+      -webkit-transition-property: height, opacity;
+      transition-property: height, opacity;
+      -webkit-transition-duration: 300ms;
+      transition-duration: 300ms;
+      -webkit-transition-timing-function: cubic-bezier(
+        0.2,
+        0.64,
+        0.21,
+        1
+      );
+      transition-timing-function: cubic-bezier(0.2, 0.64, 0.21, 1);
+      will-change: height, opacity;
+    }
+
+    .settings_user_utilities_accordion_items_close {
+      display: block;
+      list-style: none;
+      width: 100%;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      padding-left: 0px;
+      height: 0px;
+      overflow: hidden;
+      opacity: 0;
+      transition-property: height, opacity;
+      transition-duration: 300ms;
+      transition-timing-function: cubic-bezier(0.2, 0.64, 0.21, 1);
+      will-change: height, opacity;
+    }
+
+    .settings_user_utilities_accordion_item_container {
+      .settings_user_utilities_accordion_item {
+        display: block;
+        position: relative;
+        padding: 4px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        border-left: 3px solid transparent;
+        background-color: var(--color-page-background, #ffffff);
+        -webkit-appearance: none;
+
+        .settings_user_utilities_accordion_item_inner_container {
+          line-height: 26px;
+          border-radius: 4px;
+          padding-left: 16px;
+          display: block;
+          position: relative;
+          font-weight: 400;
+          font-size: 0.7rem;
+          color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+          -webkit-text-decoration: initial;
+          text-decoration: initial;
+          margin: 0px;
+          &:hover {
+            background-color: #f3f4f5;
+          }
+
+          .settings_user_utilities_accordion_item_label {
+            display: block;
+            margin-left: -16px;
+            padding-left: 16px;
+            -webkit-text-decoration: none;
+            text-decoration: none;
+            color: inherit;
+            font-size: 0.8rem;
+            width: 100%;
+            position: relative;
+
+            .settings_user_utilities_accordion_item_value {
+              min-width: 20px;
+              height: 20px;
+              color: rgb(255, 255, 255);
+              font-size: 10px;
+              font-weight: 700;
+              line-height: 1.6;
+              text-align: center;
+              background-color: rgb(239, 20, 74);
+              border: 2px solid rgb(255, 255, 255);
+              border-radius: 18px;
+              position: absolute;
+              top: 0px;
+              right: 12px;
+              bottom: 0px;
+              padding: 0px 4px;
+              margin: auto;
+              transform: translate(30%);
+            }
+          }
+        }
+      }
+    }
+  }

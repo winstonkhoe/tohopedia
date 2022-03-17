@@ -1,27 +1,36 @@
 import styles from "./TransactionStatus.module.scss"
-function Selesai() {
+function GreenLabel(props: {text: string}) {
     return (
         <div className={styles.selesai}>
-            Selesai
+            {props.text}
         </div>
     )
 }
 
-function TibaDiTujuan() {
+function YellowLabel(props: {text: string}) {
     return (
         <div className={styles.tiba_di_tujuan}>
-            Tiba di Tujuan
+            {props.text}
         </div>
     )
 }
 
-function Dibatalkan() {
+function RedLabel(props: {text: string}) {
     return (
         <div className={styles.dibatalkan}>
-            Dibatalkan
+            {props.text}
         </div>
     )
 }
+
+function GreyLabel(props: {text: string}) {
+    return (
+        <div className={styles.greyLabel}>
+            {props.text}
+        </div>
+    )
+}
+
 
 function SelesaiOtomatis(props: { hour: string }) {
     return (
@@ -33,8 +42,9 @@ function SelesaiOtomatis(props: { hour: string }) {
 }
 
 export {
-    Selesai,
-    TibaDiTujuan,
-    Dibatalkan,
+    GreenLabel,
+    YellowLabel,
+    RedLabel,
+    GreyLabel,
     SelesaiOtomatis
 }

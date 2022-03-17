@@ -160,14 +160,44 @@ func (r *mutationResolver) UpdateUserImage(ctx context.Context, image string) (*
 	return user, db.Save(user).Error
 }
 
+func (r *mutationResolver) SuspendUser(ctx context.Context, id string, bool bool) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	if !bool && user.RequestUnsuspend {
+		user.RequestUnsuspend = false
+	}
+
+	user.IsSuspended = bool
+
+	return user, db.Save(&user).Error
+}
+
+func (r *mutationResolver) RequestUnsuspend(ctx context.Context, id string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.RequestUnsuspend = true
+
+	return user, db.Save(&user).Error
+}
+
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	return service.UserGetByID(ctx, id)
 }
 
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
+func (r *queryResolver) Users(ctx context.Context, offset int, limit int) ([]*model.User, error) {
 	db := config.GetDB()
 	var models []*model.User
-	return models, db.Find(&models).Error
+	return models, db.Where("is_admin = ?", false).Limit(limit).Offset(offset).Find(&models).Error
 }
 
 func (r *queryResolver) GetCurrentUser(ctx context.Context) (*model.User, error) {
@@ -180,6 +210,10 @@ func (r *queryResolver) GetCurrentUser(ctx context.Context) (*model.User, error)
 	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
 
 	return service.UserGetByID(ctx, id)
+}
+
+func (r *userResolver) EmailToken(ctx context.Context, obj *model.User) (*model.EmailToken, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *userResolver) Shop(ctx context.Context, obj *model.User) (*model.Shop, error) {
@@ -205,8 +239,23 @@ func (r *userResolver) Carts(ctx context.Context, obj *model.User) ([]*model.Car
 	return carts, nil
 }
 
-func (r *userResolver) Addresses(ctx context.Context, obj *model.User) ([]*model.Address, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *userResolver) Addresses(ctx context.Context, obj *model.User, query *string) ([]*model.Address, error) {
+	db := config.GetDB()
+	var addresses []*model.Address
+
+	// if err := db.Where("user_id = ?", obj.ID).Find()
+
+	if query == nil || *query == "" {
+		if err := db.Where("user_id = ? AND is_deleted = ?", obj.ID, false).Order("main DESC").Order("label").Find(&addresses).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		stringQ := "%" + *query + "%"
+		if err := db.Where(`(receiver LIKE ? OR address LIKE ?) AND user_id = ? AND is_deleted = ?`, stringQ, stringQ, obj.ID, false).Order("main DESC").Order("receiver").Find(&addresses).Error; err != nil {
+			return nil, err
+		}
+	}
+	return addresses, nil
 }
 
 func (r *userResolver) Transactions(ctx context.Context, obj *model.User) ([]*model.Transaction, error) {
@@ -226,11 +275,7 @@ func (r *userResolver) Transactions(ctx context.Context, obj *model.User) ([]*mo
 	}
 
 	for i := 0; i < len(transactions); i++ {
-		fmt.Println("initial: ")
-		fmt.Println(transactions[i].Date)
 		helpers.ParseTime(&transactions[i].Date)
-		fmt.Println("after: ")
-		fmt.Println(transactions[i].Date)
 	}
 
 	return transactions, nil
@@ -254,6 +299,17 @@ func (r *userResolver) Topay(ctx context.Context, obj *model.User) (*model.Topay
 	return topay, nil
 }
 
+func (r *userResolver) Chats(ctx context.Context, obj *model.User) ([]*model.ChatHeader, error) {
+	db := config.GetDB()
+	var chats []*model.ChatHeader
+
+	if err := db.Where("customer_id = ?", obj.ID).Find(&chats).Error; err != nil {
+		return nil, err
+	}
+
+	return chats, nil
+}
+
 // AuthOps returns generated.AuthOpsResolver implementation.
 func (r *Resolver) AuthOps() generated.AuthOpsResolver { return &authOpsResolver{r} }
 
@@ -269,6 +325,12 @@ type userResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *userResolver) EmailVerified(ctx context.Context, obj *model.User) (bool, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+func (r *userResolver) RequestUnsuspend(ctx context.Context, obj *model.User) (bool, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 func (r *mutationResolver) UpdateName(ctx context.Context, name string) (*model.User, error) {
 	db := config.GetDB()
 	user := new(model.User)

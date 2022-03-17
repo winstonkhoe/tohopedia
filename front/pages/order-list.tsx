@@ -9,300 +9,433 @@ import detailStyle from "../styles/components/detail_transaction_overlay.module.
 import common from "../styles/components/common.module.scss";
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
-import { gql, useQuery } from "@apollo/client";
-import React, { Children, useState } from "react";
-import { UserNavbar } from "../components/user/user_navbar";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import React, { Children, useContext, useEffect, useState } from "react";
+import { UserNavbar } from "../components/Bars/user_navbar";
 import Router, { useRouter } from "next/router";
 import TransactionCard from "../components/transaction/TransactionCard";
 import tCardStyle from "../components/transaction/TransactionCard.module.scss";
 import Overlay from "../components/overlay/overlay";
-import { SelesaiOtomatis, TibaDiTujuan } from "../components/transaction/TransactionStatus";
+import {
+  GreenLabel,
+  SelesaiOtomatis,
+  YellowLabel,
+} from "../components/transaction/TransactionStatus";
 import RupiahFormat from "../misc/currency";
-import { toIndonesianDateShort } from "../misc/date";
+import {
+  toIndonesianDate,
+  toIndonesianDateAndTime,
+  toIndonesianDateShort,
+} from "../misc/date";
+import { userDetailsContext } from "../services/UserDataProvider";
+import { ShopIcon } from "../components/Badge/ShopBadge";
+import { FinalPriceDiscount } from "../misc/prices";
+import { stateContext } from "../services/StateProvider";
 
 const OrderList = (props: { children: any }) => {
   const router = useRouter();
 
+  const [selectedTransaction, setSelectedTransaction] = useState("");
+  const [selectedTransactionObj, setSelectedTransactionObj] = useState();
   const [seeDetailTransaction, setSeeDetailTransaction] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [transactionSummary, setTransactionSummary] = useState({});
+  const { setPageTitle } = useContext(stateContext);
 
-  const USER_DATA_QUERY = gql`
-    query GetUser {
-      getCurrentUser {
-        transactions {
-          id
-          date
-          shop {
-            name
-            type
-          }
-          details {
-            id
-            quantity
-            product {
-              id
-              name
-              price
-              discount
-              images {
-                image
-              }
-            }
-          }
-        }
+  useEffect(() => {
+    setPageTitle("Pembelian | Tohopedia");
+  }, [setPageTitle]);
+
+  const UPDATE_STATUS_MUTATION = gql`
+    mutation UpdateStatus($id: ID!, $status: Int!) {
+      updateStatus(id: $id, status: $status) {
+        id
       }
     }
   `;
 
-  const {
-    loading: userLoad,
-    error: userErr,
-    data: userData,
-  } = useQuery(USER_DATA_QUERY, {
-    pollInterval: 3600000,
-  });
+  const [
+    updateStatus,
+    { loading: statusLoad, data: statusData, error: statusErr },
+  ] = useMutation(UPDATE_STATUS_MUTATION);
+
+  const userData = useContext(userDetailsContext);
+
+  useEffect(() => {
+    let transactionSummary = {};
+    userData?.transactions.map((transaction: any) => {
+      let transactionSum = 0;
+      let transactionQuantity = 0;
+      transaction?.details.map((detail: any) => {
+        transactionQuantity += detail?.quantity;
+        transactionSum += FinalPriceDiscount(
+          detail?.product?.price,
+          detail?.quantity,
+          detail?.product?.discount
+        );
+      });
+      transactionSummary[transaction?.id] = {
+        total: transactionSum,
+        quantity: transactionQuantity,
+      };
+    });
+    setTransactionSummary(transactionSummary);
+  }, [userData?.transactions]);
 
   const indicatorStyle = {
     index: { width: "131px", left: "0px" },
     address: { width: "148px", left: "131px" },
   };
 
+  function getTransactionDetails(transactionId: string) {
+    return userData?.transactions?.filter((transaction: any) => {
+      return transaction.id === transactionId;
+    })[0];
+  }
+
+  const handleDetailTransaction = (id: string) => {
+    setSelectedTransaction(id);
+    setSelectedTransactionObj(getTransactionDetails(id));
+    setSeeDetailTransaction(true);
+  };
+
+  function SelesaiOtomatisEstimation(date: string) {
+    // let d = new Date()
+    let day = 60 * 60 * 24 * 1000;
+    let d = new Date(new Date(date).getTime() + 2 * day);
+    // d.setDate(new Date(date).getDate() + 2)
+    console.log(date);
+    console.log(d);
+    let curr = new Date();
+    console.log(curr);
+    let dayDiff = Math.abs(curr.getDay() - d.getDay());
+    // let dayDiff = curr.getTime() - d.getTime() / (1000 * 3600 * 24)
+    let hourDiff = Math.abs(curr.getHours() - d.getHours());
+    // let hourDiff = (curr.getTime() - d.getTime() / (1000 * 3600)) % 24
+    return dayDiff + " Hari " + hourDiff + " Jam";
+  }
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Settings | Tohopedia</title>
-        <meta name="description" content="Generated by create next app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <InitFont />
-      <Navbar />
+    <main className={styles.main}>
+      <div className={styles.main_container}>
+        <div className={styles.main_inner_container}>
+          <UserNavbar />
 
-      <main className={styles.main}>
-        <div className={styles.main_container}>
-          <div className={styles.main_inner_container}>
-            <UserNavbar />
-
-            {/* Menu Settings */}
-            <div className={styles.main_right_container}>
-              {/* <span className={styles.main_right_container_header}>
+          {/* Menu Settings */}
+          <div className={styles.main_right_container}>
+            {/* <span className={styles.main_right_container_header}>
                   Winston
                 </span> */}
-              <div className={styles.settings_tab_outer_container}>
-                <div className={styles.filter_wrapper}>
-                  <div className={styles.filter_top_options_container}>
-                    <div className={styles.search_field_container}>
-                      <div>
-                        <button></button>
-                        <input
-                          type="text"
-                          placeholder="Cari transaksimu di sini"
-                          onChange={(e) => {
-                            setSearchQuery(e.target.value);
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className={styles.category_dropdown_container}></div>
-                    <div className={styles.date_choose_container}>
-                      <div className={styles.date_choose_container_border}>
-                        <input type="date" name="" id="" />
-                      </div>
+            <div className={styles.settings_tab_outer_container}>
+              <div className={styles.filter_wrapper}>
+                <div className={styles.filter_top_options_container}>
+                  <div className={styles.search_field_container}>
+                    <div>
+                      <button></button>
+                      <input
+                        type="text"
+                        placeholder="Cari transaksimu di sini"
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                        }}
+                      />
                     </div>
                   </div>
-                  <div className={styles.filter_bottom_options_container}>
-                    <div className={styles.filter_bottom_options_wrapper}>
-                      <div className={styles.filter_bottom_options_header}>
-                        <p>Status</p>
-                      </div>
-                      <div
-                        className={styles.filter_options_container_flex_wrapper}
-                      >
-                        <div className={styles.filter_options_container_flex}>
-                          <div
-                            className={`${styles.filter_options_item} ${styles.filter_selected}`}
-                          >
-                            Semua
-                          </div>
-                          <div className={styles.filter_options_item}>
-                            Berlangsung
-                          </div>
-                          <div className={styles.filter_options_item}>
-                            Berhasil
-                          </div>
-                          <div className={styles.filter_options_item}>
-                            Tidak Berhasil
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.filter_reset_container}>
-                        <p>Reset Filter</p>
-                      </div>
+                  <div className={styles.category_dropdown_container}></div>
+                  <div className={styles.date_choose_container}>
+                    <div className={styles.date_choose_container_border}>
+                      <input type="date" name="" id="" />
                     </div>
                   </div>
                 </div>
-                <div className={styles.transaction_container}>
-                  {/* {} */}
-                    {userData?.getCurrentUser?.transactions.map(
-                      (transaction: any, index: number) => {
-                        return (
-                          <div key={index} className={styles.transaction_card_container}>
-                          <section  className={tCardStyle.order_card_container}>
-                            <div className={tCardStyle.order_detail_top}>
-                              <div className={tCardStyle.order_detail_top_left}>
-                                <div className={tCardStyle.order_detail_icon}></div>
-                                <div className={tCardStyle.order_detail_header}>
-                                  <p>Belanja</p>
-                                </div>
-                                <div className={tCardStyle.order_detail_date}>
-                                  <p>{toIndonesianDateShort(transaction?.date)}</p>
-                                  {/* <p>{transaction?.date}</p> */}
-
-                                  {/* 28 Feb 2022 */}
-                                </div>
-                                <div className={tCardStyle.order_status}>
-                                  <p>
-                                    <TibaDiTujuan />
-                                  </p>
-                                </div>
-                                <div className={tCardStyle.order_invoice}>
-                                  <p>{transaction?.id}</p>
-                                </div>
+                <div className={styles.filter_bottom_options_container}>
+                  <div className={styles.filter_bottom_options_wrapper}>
+                    <div className={styles.filter_bottom_options_header}>
+                      <p>Status</p>
+                    </div>
+                    <div
+                      className={styles.filter_options_container_flex_wrapper}
+                    >
+                      <div className={styles.filter_options_container_flex}>
+                        <div
+                          className={`${styles.filter_options_item} ${styles.filter_selected}`}
+                        >
+                          Semua
+                        </div>
+                        <div className={styles.filter_options_item}>
+                          Berlangsung
+                        </div>
+                        <div className={styles.filter_options_item}>
+                          Berhasil
+                        </div>
+                        <div className={styles.filter_options_item}>
+                          Tidak Berhasil
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.filter_reset_container}>
+                      <p>Reset Filter</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.transaction_container}>
+                {/* {} */}
+                {userData?.transactions.map(
+                  (transaction: any, index: number) => {
+                    return (
+                      <div
+                        key={index}
+                        className={styles.transaction_card_container}
+                      >
+                        <section className={tCardStyle.order_card_container}>
+                          <div className={tCardStyle.order_detail_top}>
+                            <div className={tCardStyle.order_detail_top_left}>
+                              <div
+                                className={tCardStyle.order_detail_icon}
+                              ></div>
+                              <div className={tCardStyle.order_detail_header}>
+                                <p>Belanja</p>
                               </div>
-                              <div className={tCardStyle.order_detail_top_right}>
+                              <div className={tCardStyle.order_detail_date}>
+                                <p>
+                                  {toIndonesianDateShort(transaction?.date)}
+                                </p>
+                                {/* <p>{transaction?.date}</p> */}
+
+                                {/* 28 Feb 2022 */}
+                              </div>
+                              <div className={tCardStyle.order_status}>
+                                <p>
+                                  {transaction?.status == 1 ? (
+                                    <GreenLabel text="Selesai" />
+                                  ) : (new Date().getTime() -
+                                      new Date(transaction?.date).getTime()) /
+                                      (1000 * 3600 * 24) >
+                                    transaction?.shipment?.duration ? (
+                                    <YellowLabel text="Tiba Di Tujuan" />
+                                  ) : (
+                                    <YellowLabel text="Sedang Dikirim" />
+                                  )}
+                                </p>
+                              </div>
+                              <div className={tCardStyle.order_invoice}>
+                                <p>{transaction?.id}</p>
+                              </div>
+                            </div>
+                            {(new Date().getTime() -
+                              new Date(transaction?.date).getTime()) /
+                              (1000 * 3600 * 24) >
+                              transaction?.shipment?.duration &&
+                            new Date().getTime() <
+                              new Date(
+                                new Date(transaction?.date).getTime() +
+                                  2 * 1000 * 3600 * 24
+                              ).getTime() ? (
+                              <div
+                                className={tCardStyle.order_detail_top_right}
+                              >
                                 <p>Selesai Otomatis</p>
-                                <SelesaiOtomatis hour={"1 Hari 8 Jam"} />
+                                <SelesaiOtomatis
+                                  hour={SelesaiOtomatisEstimation(
+                                    transaction?.date
+                                  )}
+                                />
                               </div>
-                            </div>
-                            <div className={tCardStyle.order_detail_shop}>
-                              {transaction?.shop?.type > 0 ? (
-                                <div className={tCardStyle.icon_image_relative}>
-                                  <Image
-                                    src={`/logo/${
-                                      transaction?.shop?.type == 1
-                                        ? "badge_pm.png"
-                                        : transaction?.shop?.type == 2
-                                        ? "badge_pmp.svg"
-                                        : transaction?.shop?.type == 3
-                                        ? "badge_os.png"
-                                        : null
-                                    }`}
-                                    alt=""
-                                    layout="fill"
-                                  />
-                                </div>
-                              ) : null}
+                            ) : null}
+                          </div>
+                          <div className={tCardStyle.order_detail_shop}>
+                            {transaction?.shop?.type > 0 ? (
+                              <div className={tCardStyle.icon_image_relative}>
+                                <ShopIcon type={transaction?.shop?.type} />
+                              </div>
+                            ) : null}
 
-                              <p>{transaction?.shop?.name}</p>
-                            </div>
-                            <div className={tCardStyle.order_detail_product}>
-                              <div className={tCardStyle.order_detail_product_item}>
+                            <p>{transaction?.shop?.name}</p>
+                          </div>
+                          <div className={tCardStyle.order_detail_product}>
+                            <div
+                              className={tCardStyle.order_detail_product_item}
+                            >
+                              <div
+                                className={
+                                  tCardStyle.order_detail_product_item_flex
+                                }
+                              >
                                 <div
                                   className={
-                                    tCardStyle.order_detail_product_item_flex
+                                    tCardStyle.order_detail_product_image_wrapper
                                   }
                                 >
                                   <div
                                     className={
-                                      tCardStyle.order_detail_product_image_wrapper
+                                      tCardStyle.order_detail_product_image_relative
                                     }
                                   >
-                                    <div
-                                      className={
-                                        tCardStyle.order_detail_product_image_relative
-                                      }
-                                    >
-                                      <Image
-                                        src={`/uploads/${transaction?.details[0]?.product?.images[0]?.image}`}
-                                        alt=""
-                                        layout="fill"
-                                        objectFit="cover"
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className={tCardStyle.product_detail_flex}>
-                                    <div className={tCardStyle.product_detail_name}>
-                                      <h6>{transaction?.details[0]?.product?.name}</h6>
-                                    </div>
-                                    <div
-                                      className={
-                                        tCardStyle.product_detail_price_quantity
-                                      }
-                                    >
-                                      {transaction?.details[0]?.quantity} barang x{" "}
-                                      {RupiahFormat(transaction?.details[0]?.product?.price)}
-                                    </div>
-                                    <div
-                                      className={tCardStyle.product_detail_extras}
-                                    >
-                                      +1 produk lainnya
-                                    </div>
+                                    <Image
+                                      src={`/uploads/${transaction?.details[0]?.product?.images[0]?.image}`}
+                                      alt=""
+                                      layout="fill"
+                                      objectFit="cover"
+                                    />
                                   </div>
                                 </div>
-                              </div>
-                              <div
-                                className={tCardStyle.order_detail_total_purchase}
-                              >
-                                <div>
-                                  <p className={tCardStyle.order_total_header}>
-                                    Total Belanja
-                                  </p>
-                                  <p className={tCardStyle.order_total_value}>
-                                    Rp 200.000
-                                  </p>
+                                <div className={tCardStyle.product_detail_flex}>
+                                  <div
+                                    className={tCardStyle.product_detail_name}
+                                  >
+                                    <Link
+                                      href={`${transaction?.shop?.slug}/${transaction?.details[0]?.product?.id}`}
+                                    >
+                                      <a href="">
+                                        <h6>
+                                          {
+                                            transaction?.details[0]?.product
+                                              ?.name
+                                          }
+                                        </h6>
+                                      </a>
+                                    </Link>
+                                  </div>
+                                  <div
+                                    className={
+                                      tCardStyle.product_detail_price_quantity
+                                    }
+                                  >
+                                    {transaction?.details[0]?.quantity} barang x{" "}
+                                    {RupiahFormat(
+                                      FinalPriceDiscount(
+                                        transaction?.details[0]?.product?.price,
+                                        transaction?.details[0]?.quantity,
+                                        transaction?.details[0]?.product
+                                          ?.discount
+                                      )
+                                    )}
+                                  </div>
+                                  {transaction?.details?.length > 1 ? (
+                                    <div
+                                      className={
+                                        tCardStyle.product_detail_extras
+                                      }
+                                    >
+                                      +{transaction?.details?.length - 1} produk
+                                      lainnya
+                                    </div>
+                                  ) : null}
                                 </div>
                               </div>
                             </div>
-                            <div className={tCardStyle.order_detail_buttons}>
-                              <div
-                                className={tCardStyle.order_detail_button_detail}
-                              >
-                                <p
-                                  onClick={() => {
-                                    setSeeDetailTransaction(true);
-                                  }}
-                                >
-                                  Lihat Detail Transaksi
+                            <div
+                              className={tCardStyle.order_detail_total_purchase}
+                            >
+                              <div>
+                                <p className={tCardStyle.order_total_header}>
+                                  Total Belanja
+                                </p>
+                                <p className={tCardStyle.order_total_value}>
+                                  {RupiahFormat(
+                                    transactionSummary[transaction?.id]?.total
+                                  )}
                                 </p>
                               </div>
-                              <div
-                                className={tCardStyle.order_detail_button_action}
-                              >
-                                <button>
-                                  <span>Selesai</span>
-                                </button>
-                              </div>
                             </div>
-                          </section>
-                                </div>
-                          // <TransactionCard
-                          //   key={transaction?.id}
-                          //   date={transaction?.date}
-                          //   productName={transaction?.details[0]?.product?.name}
-                          //   productPrice={
-                          //     transaction?.details[0]?.product?.price
-                          //   }
-                          //   productQuantity={transaction?.details[0]?.quantity}
-                          //   productImage={
-                          //     transaction?.details[0]?.product?.images[0]?.image
-                          //   }
-                          //   shopName={transaction?.shop?.name}
-                          //   shopType={transaction?.shop?.type}
-                          //   transactionId={transaction?.id}
-                          // />
-                          );
-                        }
-                        )}
-                </div>
-                <div className={styles.pagination_container}></div>
+                          </div>
+                          <div className={tCardStyle.order_detail_buttons}>
+                            <div
+                              className={tCardStyle.order_detail_button_detail}
+                            >
+                              <p
+                                onClick={() =>
+                                  handleDetailTransaction(transaction?.id)
+                                }
+                              >
+                                Lihat Detail Transaksi
+                              </p>
+                            </div>
+                            {(new Date().getTime() -
+                              new Date(transaction?.date).getTime()) /
+                              (1000 * 3600 * 24) >
+                            transaction?.shipment?.duration ? (
+                              <div
+                                className={
+                                  tCardStyle.order_detail_button_action
+                                }
+                              >
+                                {transaction?.status == 0 ? (
+                                  <button
+                                    onClick={() => {
+                                      updateStatus({
+                                        variables: {
+                                          id: transaction?.id,
+                                          status: 1,
+                                        },
+                                      });
+                                    }}
+                                  >
+                                    <span>Selesai</span>
+                                  </button>
+                                ) : null}
+
+                                {transaction?.status == 1 ? (
+                                  <button
+                                  // onClick={() => {
+                                  //   updateStatus({
+                                  //     variables: {
+                                  //       id: transaction?.id,
+                                  //       status: 2,
+                                  //     },
+                                  //   });
+                                  // }}
+                                  >
+                                    <span>Beri Ulasan</span>
+                                  </button>
+                                ) : null}
+
+                                {transaction?.status == 2 ? (
+                                  <button
+                                  // onClick={() => {
+                                  //   updateStatus({
+                                  //     variables: {
+                                  //       id: transaction?.id,
+                                  //       status: 2,
+                                  //     },
+                                  //   });
+                                  // }}
+                                  >
+                                    <span>Beli Lagi</span>
+                                  </button>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        </section>
+                      </div>
+                      // <TransactionCard
+                      //   key={transaction?.id}
+                      //   date={transaction?.date}
+                      //   productName={transaction?.details[0]?.product?.name}
+                      //   productPrice={
+                      //     transaction?.details[0]?.product?.price
+                      //   }
+                      //   productQuantity={transaction?.details[0]?.quantity}
+                      //   productImage={
+                      //     transaction?.details[0]?.product?.images[0]?.image
+                      //   }
+                      //   shopName={transaction?.shop?.name}
+                      //   shopType={transaction?.shop?.type}
+                      //   transactionId={transaction?.id}
+                      // />
+                    );
+                  }
+                )}
               </div>
+              <div className={styles.pagination_container}></div>
             </div>
-            {/* END Menu Settings */}
           </div>
+          {/* END Menu Settings */}
         </div>
-        <div>{seeDetailTransaction && DetailTransactionOverlay()}</div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+      <div>{seeDetailTransaction && DetailTransactionOverlay()}</div>
+    </main>
   );
 
   function DetailTransactionOverlay() {
@@ -333,7 +466,8 @@ const OrderList = (props: { children: any }) => {
                     <p>No. Invoice</p>
                     <div>
                       <a>
-                        <span>INV/21903810923809</span>
+                        {/* <span>INV/21903810923809</span> */}
+                        <span>{selectedTransactionObj?.id}</span>
                       </a>
                     </div>
                   </div>
@@ -345,7 +479,13 @@ const OrderList = (props: { children: any }) => {
                     <p>Tanggal Pembelian</p>
                     <div>
                       <p>
-                        <span>25 Januari 2022, 13:10 WIB</span>
+                        {/* <span>25 Januari 2022, 13:10 WIB</span> */}
+                        <span>
+                          {toIndonesianDateAndTime(
+                            selectedTransactionObj?.date
+                          )}
+                          {/* {toIndonesianDate(selectedTransactionObj?.date)} */}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -359,14 +499,10 @@ const OrderList = (props: { children: any }) => {
                     <div className={detailStyle.shop_wrapper}>
                       <div className={detailStyle.shop_icon_wrapper}>
                         <div className={detailStyle.shop_icon_relative}>
-                          <Image
-                            src={"/logo/badge_os.png"}
-                            layout="fill"
-                            alt=""
-                          />
+                          <ShopIcon type={selectedTransactionObj?.shop?.type} />
                         </div>
                       </div>
-                      <h6>Detail Guy</h6>
+                      <h6>{selectedTransactionObj?.shop?.name}</h6>
                       <svg
                         viewBox="0 0 24 24"
                         width="15"
@@ -378,44 +514,76 @@ const OrderList = (props: { children: any }) => {
                     </div>
                   </div>
                   {/* Product Card */}
-                  <section className={detailStyle.product_detail_section}>
-                    <div className={detailStyle.product_section_flex}>
-                      <div className={detailStyle.product_wrapper}>
-                        <div className={detailStyle.product_info_flex}>
-                          <div className={detailStyle.product_image_wrapper}>
-                            <div className={detailStyle.product_image_relative}>
-                              <Image
-                                src={"/uploads/1645294996854_0.jpg"}
-                                layout="fill"
-                                alt=""
-                                objectFit="cover"
-                              />
+                  {selectedTransactionObj?.details.map(
+                    (detail: any, index: number) => {
+                      return (
+                        <section
+                          key={index}
+                          className={detailStyle.product_detail_section}
+                        >
+                          <div className={detailStyle.product_section_flex}>
+                            <div className={detailStyle.product_wrapper}>
+                              <div className={detailStyle.product_info_flex}>
+                                <div
+                                  className={detailStyle.product_image_wrapper}
+                                >
+                                  <div
+                                    className={
+                                      detailStyle.product_image_relative
+                                    }
+                                  >
+                                    <Image
+                                      src={`/uploads/${detail?.product?.images[0]?.image}`}
+                                      layout="fill"
+                                      alt=""
+                                      objectFit="cover"
+                                    />
+                                  </div>
+                                </div>
+                                <div
+                                  className={detailStyle.product_detail_wrapper}
+                                >
+                                  <Link href={""}>
+                                    <a href="">
+                                      <span>{detail?.product?.name}</span>
+                                    </a>
+                                  </Link>
+                                  <p>
+                                    {detail?.quantity} x{" "}
+                                    {RupiahFormat(
+                                      FinalPriceDiscount(
+                                        detail?.product?.price,
+                                        1,
+                                        detail?.product?.discount
+                                      )
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className={detailStyle.price_action}>
+                              <div>
+                                <p>Total Harga</p>
+                                {/* <p>{RupiahFormat(detail?.product?.price)}</p> */}
+                                <p>
+                                  {RupiahFormat(
+                                    FinalPriceDiscount(
+                                      detail?.product?.price,
+                                      detail?.quantity,
+                                      detail?.product?.discount
+                                    )
+                                  )}
+                                </p>
+                              </div>
+                              <button>
+                                <span>Beli Lagi</span>
+                              </button>
                             </div>
                           </div>
-                          <div className={detailStyle.product_detail_wrapper}>
-                            <Link href={""}>
-                              <a href="">
-                                <span>
-                                  Sarung Tangan Detailing Kuat Nitrile Hitam
-                                  NEC+ Powder Free Asli
-                                </span>
-                              </a>
-                            </Link>
-                            <p>1 x Rp5.000</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className={detailStyle.price_action}>
-                        <div>
-                          <p>Total Harga</p>
-                          <p>Rp23.000</p>
-                        </div>
-                        <button>
-                          <span>Beli Lagi</span>
-                        </button>
-                      </div>
-                    </div>
-                  </section>
+                        </section>
+                      );
+                    }
+                  )}
                   {/* End Product Card */}
                 </div>
               </div>
@@ -428,18 +596,18 @@ const OrderList = (props: { children: any }) => {
                     <p>Kurir</p>
                     <span>:</span>
                     <div className={detailStyle.shipment_content}>
-                      <p>SiCepat - Regular Package</p>
+                      <p>{selectedTransactionObj?.shipment?.name}</p>
                     </div>
                   </div>
                   <div className={detailStyle.item_shipment}>
                     <p>Alamat</p>
                     <span>:</span>
                     <div className={detailStyle.shipment_content}>
-                      <h6>Winston</h6>
+                      <h6>{selectedTransactionObj?.address?.receiver}</h6>
                       <p>
-                        0823981273
+                        {selectedTransactionObj?.address?.phone}
                         <br />
-                        Jalan Janur Ungu
+                        {selectedTransactionObj?.address?.address}
                       </p>
                     </div>
                   </div>
@@ -461,10 +629,18 @@ const OrderList = (props: { children: any }) => {
                     </div>
                   </div>
                   <div className={`${detailStyle.rincian_pembayaran_item}`}>
-                    <p>Total Harga (2 barang)</p>
+                    <p>
+                      Total Harga (
+                      {transactionSummary[selectedTransaction]?.quantity}{" "}
+                      barang)
+                    </p>
                     <div>
                       <p>
-                        <span>Rp60.000</span>
+                        <span>
+                          {RupiahFormat(
+                            transactionSummary[selectedTransaction]?.total
+                          )}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -475,7 +651,11 @@ const OrderList = (props: { children: any }) => {
                     <p>Total Belanja</p>
                     <div>
                       <p>
-                        <span>Rp60.000</span>
+                        <span>
+                          {RupiahFormat(
+                            transactionSummary[selectedTransaction]?.total
+                          )}
+                        </span>
                       </p>
                     </div>
                   </div>

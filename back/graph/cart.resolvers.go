@@ -70,6 +70,39 @@ func (r *mutationResolver) CreateUpdateCart(ctx context.Context, productID strin
 
 		err := db.Create(cart).Error
 
+		userPreferences := new(model.UserPreferences)
+
+		product := new(model.Product)
+
+		if err := db.Where("id = ?", productID).Find(&product).Error; err != nil {
+			return nil, err
+		}
+
+		db.First(userPreferences, "user_id = ? AND category_id = ?", userId, product.CategoryID)
+
+		if len(userPreferences.ID) == 0 {
+			userPreferences := &model.UserPreferences{
+				ID:         uuid.NewString(),
+				UserId:     userId,
+				CategoryId: product.CategoryID,
+				Score:      1,
+			}
+
+			if err := db.Create(&userPreferences).Error; err != nil {
+				return nil, err
+			}
+		} else {
+			if err := db.First(userPreferences, "user_id = ? AND category_id = ?", userId, product.CategoryID).Error; err != nil {
+				return nil, err
+			}
+
+			userPreferences.Score += 3
+
+			if err := db.Save(&userPreferences).Error; err != nil {
+				return nil, err
+			}
+		}
+
 		return cart, err
 	} else if err != nil {
 		return nil, err

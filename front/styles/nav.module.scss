@@ -10,12 +10,11 @@ $color-shadow: rgba(49, 53, 59, 0.12);
   .nav_header {
     flex-direction: column;
     width: 100%;
-    min-width: 1024px;
+    // min-width: 1024px;
     display: flex;
     -webkit-box-align: center;
     align-items: center;
     background-color: rgb(255, 255, 255);
-
     z-index: 999;
     position: fixed;
     top: 0px;
@@ -38,6 +37,12 @@ $color-shadow: rgba(49, 53, 59, 0.12);
       -webkit-box-align: center;
       align-items: center;
 
+      @media screen and (max-width: 700px) {
+        width: 96%;
+        top: 0px;
+        left: 0px;
+        margin: 10px 0 0 0;
+      }
       p {
         font-size: $nav-font-size;
         color: #ababab;
@@ -179,6 +184,11 @@ $color-shadow: rgba(49, 53, 59, 0.12);
         margin: 0px 4px 0px 20px;
         z-index: 475;
         padding: 0;
+
+        @media screen and (max-width: 700px) {
+          margin: 0px 4px 0px 5px;
+        }
+
         div {
           display: flex;
           -webkit-box-pack: center;
@@ -191,6 +201,11 @@ $color-shadow: rgba(49, 53, 59, 0.12);
           margin: 0px 0px 0px 12px;
           padding: 0;
 
+          @media screen and (max-width: 1200px) {
+            height: 30px;
+            margin: 0px 0px 0px 5px;
+          }
+
           div {
             width: 36px;
             height: 30px;
@@ -201,6 +216,11 @@ $color-shadow: rgba(49, 53, 59, 0.12);
             justify-content: center;
             position: relative;
             padding: 0;
+
+            @media screen and (max-width: 700px) {
+              height: 20px;
+              width: 20px;
+            }
             &:hover {
               background: $hover-color;
             }
@@ -342,8 +362,13 @@ $color-shadow: rgba(49, 53, 59, 0.12);
         margin: 4px 0px 0px 4px;
         position: relative;
         padding: 0;
+        @media screen and (max-width: 1200px) {
+          display: none;
+        }
         div {
           height: 32px;
+
+          
         }
       }
 
@@ -384,6 +409,13 @@ $color-shadow: rgba(49, 53, 59, 0.12);
         right: 0px;
         padding: 0px 4px;
         transform: translate(30%, -8%);
+        
+        @media screen and (max-width: 700px) {
+          min-width: 15px;
+          min-height: 15px;
+          font-size: 8px;
+          padding: 0px 2px;
+        }
       }
 
       .location_container {

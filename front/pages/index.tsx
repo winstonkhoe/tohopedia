@@ -9,112 +9,28 @@ import styles from "../styles/Home.module.scss";
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
 import { gql, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import RupiahFormat from "../misc/currency";
-import productSection from "../components/Product/ProductSection.module.scss"
-import {Carousel, Item } from "../components/carousel/Carousel";
+import productSection from "../components/Product/ProductSection.module.scss";
+import common from "../styles/components/common.module.scss";
+import { Carousel, Item } from "../components/carousel/Carousel";
 import Footer from "../components/Footer/Footer";
-import { Product, Section, SectionProduct } from "../components/Product/ProductSection";
+import {
+  Product,
+  Section,
+  SectionProduct,
+} from "../components/Product/ProductSection";
+import { stateContext } from "../services/StateProvider";
 const banners = [1, 2, 3];
 // import existsSync from "fs";
 
 const Home: NextPage = () => {
   const [productLimit, setProductLimit] = useState(5);
-  const [productsState, setProductsState] = useState([])
-
-  const INFINITE_PRODUCT_QUERY = gql`
-    query infiniteScrolling($limit: Int!) {
-      infiniteScrolling(limit: $limit) {
-        id
-        name
-        price
-        discount
-        images {
-          image
-        }
-        shop {
-          name
-          city
-          type
-        }
-      }
-    }
-  `;
-
-  const {
-    loading: infiniteProductLoad,
-    error: infiniteProductErr,
-    data: infiniteProductData,
-  } = useQuery(INFINITE_PRODUCT_QUERY, {
-    variables: {
-      limit: productLimit
-    },
-    // pollInterval: 500
-  });
-
-  const ALL_PRODUCT_QUERY = gql`
-    query GetAllProduct {
-      products {
-        id
-        name
-        price
-        discount
-        images {
-          image
-        }
-        shop {
-          name
-          city
-          type
-        }
-      }
-    }
-  `;
-
-  const {
-    loading: allProductLoading,
-    error: allProductError,
-    data: allProductData,
-  } = useQuery(ALL_PRODUCT_QUERY);
-
-  const TOP_DISCOUNT_PRODUCT_QUERY = gql`
-    query GetTopDiscountProduct {
-      topProductDiscount {
-        id
-        name
-        price
-        discount
-        images {
-          image
-        }
-        shop {
-          name
-          city
-          type
-        }
-      }
-    }
-  `;
-
-  // const [products, setProducts] = useState(null);
-
-  const {
-    loading: TopDiscountProductLoading,
-    error: TopDiscountProductError,
-    data: TopDiscountProductData,
-  } = useQuery(TOP_DISCOUNT_PRODUCT_QUERY);
-
+  const { setPageTitle } = useContext(stateContext)
+  
   useEffect(() => {
-    window.onscroll = function (ev) {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        if (allProductData?.products?.length >= productLimit) {
-            setProductLimit(productLimit + 5)
-        }
-      }
-    }
-  },[allProductData?.products?.length, infiniteProductData?.infiniteScrolling, productLimit, productsState])
-
-  console.log(productsState)
+    setPageTitle("Home | Tohopedia")
+  }, [setPageTitle])
   function getAllBanner() {
     let bannerItems = [];
     bannerItems = banners.map((bannerIndex: number) => {
@@ -134,243 +50,118 @@ const Home: NextPage = () => {
     return bannerItems;
   }
 
-  // function Product(props: {
-  //   productId: string;
-  //   productName: string;
-  //   productDiscount: number;
-  //   productPrice: number;
-  //   shopName: string;
-  //   shopCity: string;
-  //   shopType: number;
-  //   imageSrc: string;
-  // }) {
-  //   return (
-  //     <div className={styles.product_outer_card}>
-  //       <div className={styles.product_card}>
-  //         <div className={styles.product_inner_card}>
-  //           <Link href={`/${props.shopName}/${props.productId}`}>
-  //             <a href="">
-  //               <div className={styles.product_card_outline}>
-  //                 <div className={styles.product_outer_image_container}>
-  //                   <div className={styles.product_image_container}>
-  //                     <Image
-  //                       src={`/uploads/${props.imageSrc}`}
-  //                       alt="Product Image"
-  //                       layout="fill"
-  //                       objectFit="cover"
-  //                     />
-  //                   </div>
-  //                 </div>
-
-  //                 <div className={styles.product_detail_container}>
-  //                   <a href="">
-  //                     <div className={styles.product_detail_name}>
-  //                       {props.productName}
-  //                     </div>
-  //                     <div className={styles.product_detail_price}>
-  //                       {RupiahFormat(
-  //                         (props.productPrice * (100 - props.productDiscount)) /
-  //                           100
-  //                       )}
-  //                     </div>
-  //                     {props.productDiscount > 0 ? (
-  //                       <div
-  //                         className={styles.product_detail_discount_container}
-  //                       >
-  //                         <div
-  //                           className={styles.product_detail_discount_percent}
-  //                         >
-  //                           {props.productDiscount}%
-  //                         </div>
-  //                         <div
-  //                           className={
-  //                             styles.product_detail_discounted_original_price
-  //                           }
-  //                         >
-  //                           {RupiahFormat(props.productPrice)}
-  //                         </div>
-  //                       </div>
-  //                     ) : null}
-
-  //                     <div
-  //                       className={styles.product_detail_location_ratings_sells}
-  //                     >
-  //                       <div className={styles.product_detail_location}>
-  //                         {props?.shopType > 0 ?
-  //                           <div className={styles.product_store_badge}>
-  //                           <div
-  //                             className={styles.product_store_badge_container}
-  //                           >
-  //                             <Image
-  //                               src={`/logo/${
-  //                                 product?.shop?.type == 1
-  //                                   ? "badge_pm.png"
-  //                                   : product?.shop?.type == 2
-  //                                   ? "badge_pmp.svg"
-  //                                   : props?.shopType == 3
-  //                                   ? "badge_os.png"
-  //                                   : null
-  //                               }`}
-  //                               alt=""
-  //                               layout="fill"
-  //                             />
-  //                           </div>
-  //                         </div> : null}
-                          
-
-  //                         <div className={styles.product_store_location}>
-  //                           <span className={styles.store_location}>
-  //                             {props.shopCity}
-  //                           </span>
-  //                           <span className={styles.store_name}>
-  //                             {props.shopName}
-  //                           </span>
-  //                         </div>
-  //                       </div>
-  //                       <div
-  //                         className={styles.product_detail_ratings_sells}
-  //                       ></div>
-  //                     </div>
-  //                   </a>
-  //                 </div>
-  //               </div>
-  //             </a>
-  //           </Link>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // function Section(props: { data: any; name: string; href?: any }) {
-  //   return (
-  //     <section className={styles.product_section}>
-  //       <div className={styles.product_section_label}>
-  //         <div>
-  //           <h2>{props?.name}</h2>
-  //         </div>
-  //         {props?.href ? (
-  //           <div>
-  //             <Link href={props?.href}>
-  //               <a href="">Lihat Semua</a>
-  //             </Link>
-  //           </div>
-  //         ) : null}
-  //       </div>
-
-  //       <div className={styles.product_section_card}>
-  //         <div className={styles.product_section_card_inner}>
-  //           {props?.data?.map((product: any) => {
-  //             return (
-  //               <Product
-  //                 key={product.id}
-  //                 productId={product.id}
-  //                 imageSrc={product.images[0].image}
-  //                 productName={product.name}
-  //                 productPrice={product.price}
-  //                 productDiscount={product.discount}
-  //                 shopType={product?.shop?.type}
-  //                 shopCity={product.shop.city}
-  //                 shopName={product.shop.name}
-  //               ></Product>
-  //             );
-  //             // <Product imageSrc="" productName="" productPrice={1} shopBadge="" shopCity="" shopName="" key={0}></Product>
-  //           })}
-  //         </div>
-  //       </div>
-  //     </section>
-  //   );
-  // }
-  if (infiniteProductLoad || TopDiscountProductLoading) {
-    return <h2>Loading...</h2>;
-  }
-
-  console.log(infiniteProductData);
-  // if (productData) {
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Home | Tohopedia</title>
-        <meta name="description" content="Generated by create next app" />
-        <link rel="icon" href="/favicon.ico" />
-        <InitFont />
-      </Head>
-      <Navbar />
-
-      <main className={styles.main}>
-        <div className={styles.main_container}>
-          <div className={styles.carousel_container}>
-            {/* <Carousel
-              ssr={true}
-              responsive={responsive}
-              autoPlay={true}
-              autoPlaySpeed={5000}
-              keyBoardControl={true}
-              // customTransition="all .5"
-              transitionDuration={1000}
-              swipeable={false}
-              draggable={false}
-              showDots={true}
-              infinite={true}
-              containerClass="carousel-container"
-              dotListClass="custom-dot-list-style"
-              itemClass={styles.carousel_item}
-              // itemClass="carousel-item-padding-40-px"
-              className={styles.carousel_container}
-            >
-              {getAllBanner()}
-            </Carousel> */}
-            <Carousel srcs={getAllBanner()} slideInterval={3000}/>
-            {/* </Carousel> */}
-          </div>
-          <Section
-            data={TopDiscountProductData?.topProductDiscount}
-            name={"Top Discount"}
-            href={"/product/top-discount"}
-          />
-
-          {/* <Section data={allProductData.products} name={""} /> */}
-          <div className={styles.infinite_product_wrapper}>            
-            {/* <SectionProduct data={productsState} name={""}/> */}
-            <SectionProduct data={infiniteProductData?.infiniteScrolling} name={""}/>
-          </div>
-          {/* <section className={styles.product_section}>
-              <div className={styles.product_section_label}>
-                <div>
-                  <h2>Top Discount</h2>
-                </div>
-                <div>
-                  <Link href={""}>
-                    <a href="">Lihat Semua</a>
-                  </Link>
-                </div>
-              </div>
-
-              <div className={styles.product_section_card}>
-                {productData.topProductDiscount.map((product: any) => {
-                  return (
-                    <Product
-                      key={product.id}
-                      productId={product.id}
-                      imageSrc={product.images[0].image}
-                      productName={product.name}
-                      productPrice={product.price}
-                      productDiscount={product.discount}
-                      shopBadge="pmp"
-                      shopCity={product.shop.city}
-                      shopName={product.shop.name}
-                    ></Product>
-                  );
-                  // <Product imageSrc="" productName="" productPrice={1} shopBadge="" shopCity="" shopName="" key={0}></Product>
-                })}
-              </div>
-            </section> */}
+    <main className={styles.main}>
+      <div className={styles.main_container}>
+        <div className={styles.carousel_container}>
+          <Carousel srcs={getAllBanner()} slideInterval={3000} />
         </div>
-      </main>
+        <Section
+          header={"Recommended For You"}
+          recommendation={true}
+          grid={false}
+          infinityScrolling={false}
+        />
+        <Section
+          header={"Top Discount"}
+          href={"/product/top-discount"}
+          limit={15}
+          order="discount DESC"
+          grid={false}
+          infinityScrolling={false}
+        />
+        <div className={styles.category_flex_container}>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "bf2b03db-7e3b-4775-bb61-bdae481cf761" },
+              }}
+            >
+              <a>Otomotif</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "bf7f2635-5e2e-4169-8699-fae5f92ce205" },
+              }}
+            >
+              <a>Rumah Tangga</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "3ac51dd5-e2d4-48ad-8faa-34930baa73a0" },
+              }}
+            >
+              <a>Komputer & Laptop</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "06ad653a-938d-4b0a-892d-315662d98e33" },
+              }}
+            >
+              <a>Elektronik</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "87fa537d-9a92-4c3c-9913-797f28dfd3d4" },
+              }}
+            >
+              <a>Pertukangan</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "85a9e12f-d9ae-4109-88b6-2e011385b2e5" },
+              }}
+            >
+              <a>Kamera</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "623c2f94-906f-41e8-b44c-15c670c317a7" },
+              }}
+            >
+              <a>Gaming</a>
+            </Link>
+          </button>
+          <button className={common.text_button}>
+            <Link
+              href={{
+                pathname: "/search",
+                query: { category: "a3be987f-d640-4a2e-82d8-e405db7cc637" },
+              }}
+            >
+              <a>Buku</a>
+            </Link>
+          </button>
+        </div>
 
-      {/* <Footer /> */}
-      <Footer/>
-    </div>
+        <div
+          id="infinity-scrolling-container"
+          className={styles.infinite_product_wrapper}
+        >
+          <Section grid={true} infinityScrolling={true} />
+          {/* <SectionProductInfinity limit={25} /> */}
+        </div>
+      </div>
+    </main>
   );
   // }
 };
