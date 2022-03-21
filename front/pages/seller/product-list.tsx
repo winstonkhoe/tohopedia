@@ -7,11 +7,12 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import Shop from "../../models/Shop";
 import { userDetailsContext } from "../../services/UserDataProvider";
 import { ADD_PRODUCT_MUTATION } from "../../misc/global_mutation";
-import { ALL_PRODUCT_QUERY, CATEGORY_QUERY } from "../../misc/global_query";
+import { CATEGORY_QUERY } from "../../misc/global_query";
 import Link from "next/link";
 import RupiahFormat from "../../misc/currency";
 import Image from "next/image";
 import { off } from "process";
+import { Product } from "../../models/Product";
 
 export default function ProductList() {
   const { addToast } = useToasts();
@@ -32,7 +33,7 @@ export default function ProductList() {
     loading: allProductLoading,
     error: allProductError,
     data: data,
-  } = useQuery(ALL_PRODUCT_QUERY, {
+  } = useQuery(Product.ALL_PRODUCT_QUERY, {
     variables: {
       slug: storeData?.slug,
       limit: limit,

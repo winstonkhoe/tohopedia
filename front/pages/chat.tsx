@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useToasts } from "react-toast-notifications";
-import { ShopIcon } from "../components/Badge/ShopBadge";
+import { ShopIcon } from "../components/ShopDetails/ShopDetails";
 import { UserNavbar } from "../components/Bars/user_navbar";
 import Footer from "../components/Footer/Footer";
 import InitFont from "../components/initialize_font";

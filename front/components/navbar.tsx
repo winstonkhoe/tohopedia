@@ -13,7 +13,7 @@ import { Url } from "url";
 import RupiahFormat from "../misc/currency";
 import Overlay from "./overlay/overlay";
 import { userDetailsContext } from "../services/UserDataProvider";
-import { ShopIcon } from "./Badge/ShopBadge";
+import { ShopIcon } from "./ShopDetails/ShopDetails";
 import { GetMerchantType } from "../misc/shop_type";
 
 export function Navbar() {

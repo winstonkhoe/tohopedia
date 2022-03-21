@@ -42,6 +42,7 @@ const UserDataProvider = (props: { children: any }) => {
           openTime
           closeTime
           isOpen
+          reputationPoint
 
           chats {
             id

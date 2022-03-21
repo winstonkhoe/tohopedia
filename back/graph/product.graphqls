@@ -8,7 +8,7 @@ type Product {
   price: Int!
   discount: Int!
   stock: Int!
-  sold: Int64! @goField(forceResolver: true)
+  sold: Int! @goField(forceResolver: true)
   metadata: String
   createdAt: Time!
   validTo: Time

@@ -88,6 +88,18 @@ func (r *emailTokenResolver) User(ctx context.Context, obj *model.EmailToken) (*
 	return user, nil
 }
 
+func (r *mutationResolver) AddReksadana(ctx context.Context, price int) (*model.Reksadana, error) {
+	db := config.GetDB()
+
+	reksadana := &model.Reksadana{
+		ID:        uuid.NewString(),
+		Price:     price,
+		CreatedAt: time.Now(),
+	}
+
+	return reksadana, db.Create(&reksadana).Error
+}
+
 func (r *mutationResolver) AddChat(ctx context.Context, senderID string, receiverID string, content string) (*model.Chat, error) {
 	db := config.GetDB()
 	user := new(model.User)
@@ -356,6 +368,14 @@ func (r *mutationResolver) AddWishlist(ctx context.Context, input model.NewWishl
 }
 
 func (r *mutationResolver) RemoveWishlist(ctx context.Context, id string) (*model.Wishlist, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Reksadanas(ctx context.Context) ([]*model.Reksadana, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetReksadanas(ctx context.Context) ([]*model.Reksadana, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

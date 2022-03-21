@@ -16,7 +16,7 @@ import { Accordion, AccordionItem } from "../../components/Accordion/Accordion";
 import { Section } from "../../components/Product/ProductSection";
 import { Checkbox } from "../../components/Checkbox/Checkbox";
 import { GetMerchantType } from "../../misc/shop_type";
-import { ShopIcon } from "../../components/Badge/ShopBadge";
+import { ShopIcon } from "../../components/ShopDetails/ShopDetails";
 import { stateContext } from "../../services/StateProvider";
 import { ALL_PRODUCT_QUERY } from "../../misc/global_query";
 import { Dropdown } from "../../components/Dropdown/dropdown";

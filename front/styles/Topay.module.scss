@@ -30,8 +30,12 @@ $card-color: #ffffff;
       max-width: 1020px;
       margin: auto;
 
+      @media screen and (max-width: 500px) {
+        flex-direction: column;
+      }
+
       .topay_balance_container {
-        width: 407px;
+        // width: 407px;
         padding: 0px 16px;
 
         .topay_wrapper_container {
@@ -193,6 +197,16 @@ $card-color: #ffffff;
 
       .topay_transaction_wrapper {
         width: 600px;
+
+        @media screen and (max-width: 900px) {
+          width: 500px;
+          margin-right: 20px;
+        } 
+
+        @media screen and (max-width: 500px) {
+          width: auto;
+          margin-left: 16px;
+        }  
 
         .topay_transaction_empty_container {
           margin-bottom: 32px;

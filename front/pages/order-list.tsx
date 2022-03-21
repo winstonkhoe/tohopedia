@@ -28,7 +28,7 @@ import {
   toIndonesianDateShort,
 } from "../misc/date";
 import { userDetailsContext } from "../services/UserDataProvider";
-import { ShopIcon } from "../components/Badge/ShopBadge";
+import { ShopIcon } from "../components/ShopDetails/ShopDetails";
 import { FinalPriceDiscount } from "../misc/prices";
 import { stateContext } from "../services/StateProvider";
 
@@ -249,8 +249,9 @@ const OrderList = (props: { children: any }) => {
                                 <ShopIcon type={transaction?.shop?.type} />
                               </div>
                             ) : null}
-
-                            <p>{transaction?.shop?.name}</p>
+                            <Link href={`/${transaction?.shop?.slug}`} passHref>
+                              <p>{transaction?.shop?.name}</p>
+                            </Link>
                           </div>
                           <div className={tCardStyle.order_detail_product}>
                             <div

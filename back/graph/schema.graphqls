@@ -115,6 +115,12 @@ type Chat {
   createdAt: Time!
 }
 
+type Reksadana {
+  id: ID!
+  price: Int!
+  createdAt: Time!
+}
+
 type ChatHeader {
   id: ID!
   details: [ChatDetails] @goField(forceResolver: true)
@@ -133,6 +139,8 @@ type ChatDetails {
 }
 
 type Query {
+  reksadanas: [Reksadana] @goField(forceResolver: true)
+  getReksadanas: [Reksadana!]! @goField(forceResolver: true)
   getShop(slug: String!): Shop!
   getShopById(id: String!): Shop!
   getTopayToken(code: String!): TopayToken! @auth
@@ -146,6 +154,7 @@ type Query {
 }
 
 type Mutation {
+  addReksadana(price: Int!): Reksadana! @auth
   addChat(senderId: String! receiverId: String! content: String!): Chat! @auth
   createTopayWallet(userId: ID!): Topay!
   createTopayToken(code: String!, value: Int!): TopayToken! @auth

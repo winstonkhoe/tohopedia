@@ -17,6 +17,7 @@ func MigrateTable() {
 	// 	fmt.Println(err)
 	// }
 	db.AutoMigrate(&model.Category{})
+	db.AutoMigrate(&model.Reksadana{})
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }

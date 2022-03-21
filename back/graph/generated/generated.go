@@ -148,6 +148,7 @@ type ComplexityRoot struct {
 		AddAddress             func(childComplexity int, input model.NewAddress) int
 		AddChat                func(childComplexity int, senderID string, receiverID string, content string) int
 		AddProduct             func(childComplexity int, input model.NewProduct) int
+		AddReksadana           func(childComplexity int, price int) int
 		AddReview              func(childComplexity int, input model.NewReview) int
 		AddShipment            func(childComplexity int, input model.NewShipment) int
 		AddShipmentType        func(childComplexity int, name string) int
@@ -223,6 +224,7 @@ type ComplexityRoot struct {
 		GetCurrentUser              func(childComplexity int) int
 		GetPasswordToken            func(childComplexity int, id string) int
 		GetRecommendation           func(childComplexity int) int
+		GetReksadanas               func(childComplexity int) int
 		GetShipments                func(childComplexity int) int
 		GetShop                     func(childComplexity int, slug string) int
 		GetShopByID                 func(childComplexity int, id string) int
@@ -234,12 +236,19 @@ type ComplexityRoot struct {
 		Product                     func(childComplexity int, id string) int
 		Products                    func(childComplexity int, id *string, slug *string, categoryID *string, keyword *string, limit *int, offset *int, order *string, recommendation *bool, shopTypes []*int, bestSeller *bool) int
 		ProductsPerCategory         func(childComplexity int) int
+		Reksadanas                  func(childComplexity int) int
 		ShipmentTypes               func(childComplexity int) int
 		TopProductDiscount          func(childComplexity int) int
 		TransactionsPerDay          func(childComplexity int) int
 		TransactionsPerShipmentType func(childComplexity int) int
 		User                        func(childComplexity int, id string) int
 		Users                       func(childComplexity int, offset int, limit int) int
+	}
+
+	Reksadana struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Price     func(childComplexity int) int
 	}
 
 	Review struct {
@@ -405,6 +414,7 @@ type EmailTokenResolver interface {
 	User(ctx context.Context, obj *model.EmailToken) (*model.User, error)
 }
 type MutationResolver interface {
+	AddReksadana(ctx context.Context, price int) (*model.Reksadana, error)
 	AddChat(ctx context.Context, senderID string, receiverID string, content string) (*model.Chat, error)
 	CreateTopayWallet(ctx context.Context, userID string) (*model.Topay, error)
 	CreateTopayToken(ctx context.Context, code string, value int) (*model.TopayToken, error)
@@ -455,6 +465,8 @@ type ProductImageResolver interface {
 	Product(ctx context.Context, obj *model.ProductImage) (*model.Product, error)
 }
 type QueryResolver interface {
+	Reksadanas(ctx context.Context) ([]*model.Reksadana, error)
+	GetReksadanas(ctx context.Context) ([]*model.Reksadana, error)
 	GetShop(ctx context.Context, slug string) (*model.Shop, error)
 	GetShopByID(ctx context.Context, id string) (*model.Shop, error)
 	GetTopayToken(ctx context.Context, code string) (*model.TopayToken, error)
@@ -939,6 +951,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddProduct(childComplexity, args["input"].(model.NewProduct)), true
+
+	case "Mutation.addReksadana":
+		if e.complexity.Mutation.AddReksadana == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addReksadana_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddReksadana(childComplexity, args["price"].(int)), true
 
 	case "Mutation.addReview":
 		if e.complexity.Mutation.AddReview == nil {
@@ -1566,6 +1590,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetRecommendation(childComplexity), true
 
+	case "Query.getReksadanas":
+		if e.complexity.Query.GetReksadanas == nil {
+			break
+		}
+
+		return e.complexity.Query.GetReksadanas(childComplexity), true
+
 	case "Query.getShipments":
 		if e.complexity.Query.GetShipments == nil {
 			break
@@ -1678,6 +1709,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ProductsPerCategory(childComplexity), true
 
+	case "Query.reksadanas":
+		if e.complexity.Query.Reksadanas == nil {
+			break
+		}
+
+		return e.complexity.Query.Reksadanas(childComplexity), true
+
 	case "Query.shipmentTypes":
 		if e.complexity.Query.ShipmentTypes == nil {
 			break
@@ -1729,6 +1767,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity, args["offset"].(int), args["limit"].(int)), true
+
+	case "Reksadana.createdAt":
+		if e.complexity.Reksadana.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Reksadana.CreatedAt(childComplexity), true
+
+	case "Reksadana.id":
+		if e.complexity.Reksadana.ID == nil {
+			break
+		}
+
+		return e.complexity.Reksadana.ID(childComplexity), true
+
+	case "Reksadana.price":
+		if e.complexity.Reksadana.Price == nil {
+			break
+		}
+
+		return e.complexity.Reksadana.Price(childComplexity), true
 
 	case "Review.anonymous":
 		if e.complexity.Review.Anonymous == nil {
@@ -2691,6 +2750,12 @@ type Chat {
   createdAt: Time!
 }
 
+type Reksadana {
+  id: ID!
+  price: Int!
+  createdAt: Time!
+}
+
 type ChatHeader {
   id: ID!
   details: [ChatDetails] @goField(forceResolver: true)
@@ -2709,6 +2774,8 @@ type ChatDetails {
 }
 
 type Query {
+  reksadanas: [Reksadana] @goField(forceResolver: true)
+  getReksadanas: [Reksadana!]! @goField(forceResolver: true)
   getShop(slug: String!): Shop!
   getShopById(id: String!): Shop!
   getTopayToken(code: String!): TopayToken! @auth
@@ -2722,6 +2789,7 @@ type Query {
 }
 
 type Mutation {
+  addReksadana(price: Int!): Reksadana! @auth
   addChat(senderId: String! receiverId: String! content: String!): Chat! @auth
   createTopayWallet(userId: ID!): Topay!
   createTopayToken(code: String!, value: Int!): TopayToken! @auth
@@ -3032,6 +3100,21 @@ func (ec *executionContext) field_Mutation_addProduct_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addReksadana_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["price"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["price"] = arg0
 	return args, nil
 }
 
@@ -5740,6 +5823,68 @@ func (ec *executionContext) _EmailToken_redeemed(ctx context.Context, field grap
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_addReksadana(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_addReksadana_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddReksadana(rctx, args["price"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Reksadana); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *tohopedia/graph/model.Reksadana`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Reksadana)
+	fc.Result = res
+	return ec.marshalNReksadana2ᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_addChat(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -8618,6 +8763,73 @@ func (ec *executionContext) _ProductImage_image(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_reksadanas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Reksadanas(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Reksadana)
+	fc.Result = res
+	return ec.marshalOReksadana2ᚕᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getReksadanas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetReksadanas(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Reksadana)
+	fc.Result = res
+	return ec.marshalNReksadana2ᚕᚖtohopediaᚋgraphᚋmodelᚐReksadanaᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getShop(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -9890,6 +10102,111 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Reksadana_id(ctx context.Context, field graphql.CollectedField, obj *model.Reksadana) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Reksadana",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Reksadana_price(ctx context.Context, field graphql.CollectedField, obj *model.Reksadana) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Reksadana",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Reksadana_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Reksadana) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Reksadana",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Review_id(ctx context.Context, field graphql.CollectedField, obj *model.Review) (ret graphql.Marshaler) {
@@ -15445,6 +15762,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "addReksadana":
+			out.Values[i] = ec._Mutation_addReksadana(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "addChat":
 			out.Values[i] = ec._Mutation_addChat(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -15866,6 +16188,31 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "reksadanas":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_reksadanas(ctx, field)
+				return res
+			})
+		case "getReksadanas":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getReksadanas(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "getShop":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -16217,6 +16564,43 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var reksadanaImplementors = []string{"Reksadana"}
+
+func (ec *executionContext) _Reksadana(ctx context.Context, sel ast.SelectionSet, obj *model.Reksadana) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reksadanaImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Reksadana")
+		case "id":
+			out.Values[i] = ec._Reksadana_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "price":
+			out.Values[i] = ec._Reksadana_price(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Reksadana_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -18034,6 +18418,64 @@ func (ec *executionContext) marshalNProductImage2ᚖtohopediaᚋgraphᚋmodelᚐ
 	return ec._ProductImage(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNReksadana2tohopediaᚋgraphᚋmodelᚐReksadana(ctx context.Context, sel ast.SelectionSet, v model.Reksadana) graphql.Marshaler {
+	return ec._Reksadana(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNReksadana2ᚕᚖtohopediaᚋgraphᚋmodelᚐReksadanaᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Reksadana) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNReksadana2ᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNReksadana2ᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx context.Context, sel ast.SelectionSet, v *model.Reksadana) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Reksadana(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNReview2tohopediaᚋgraphᚋmodelᚐReview(ctx context.Context, sel ast.SelectionSet, v model.Review) graphql.Marshaler {
 	return ec._Review(ctx, sel, &v)
 }
@@ -19002,6 +19444,54 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return graphql.MarshalInt(*v)
+}
+
+func (ec *executionContext) marshalOReksadana2ᚕᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx context.Context, sel ast.SelectionSet, v []*model.Reksadana) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOReksadana2ᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOReksadana2ᚖtohopediaᚋgraphᚋmodelᚐReksadana(ctx context.Context, sel ast.SelectionSet, v *model.Reksadana) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Reksadana(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOReview2ᚖtohopediaᚋgraphᚋmodelᚐReview(ctx context.Context, sel ast.SelectionSet, v *model.Review) graphql.Marshaler {

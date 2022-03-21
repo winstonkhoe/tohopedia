@@ -17,6 +17,7 @@ import { useRouter } from "next/router";
 import { useToasts } from "react-toast-notifications";
 import { Section, SectionProduct } from "../../components/Product/ProductSection";
 import { ErrorNotFound } from "../../components/error";
+import { ShopBadge } from "../../components/ShopDetails/ShopDetails";
 const banners = [1, 2, 3];
 // import existsSync from "fs";
 
@@ -193,11 +194,7 @@ const Shop: NextPage = () => {
                         <h1>{shopData?.getShop?.name}</h1>
                         <div className={styles.seller_badge_container}>
                           <div className={styles.seller_badge_relative}>
-                            <Image
-                              src={"/logo/logo_diamond_4.gif"}
-                              alt=""
-                              layout="fill"
-                            />
+                            {<ShopBadge reputation={shopData?.getShop?.reputationPoint}/>}
                           </div>
                           <div className={styles.badge_onhover_info}>
                             {shopData?.getShop?.reputationPoint} points
@@ -344,6 +341,7 @@ const Shop: NextPage = () => {
             href={"/product/top-discount"}
           /> */}
         <Section header="Best Selling Product" grid={false} infinityScrolling={false} slug={shopDomain} bestSeller={true} limit={10}/>
+        <Section header="Product Designed For You!" grid={false} infinityScrolling={false} slug={shopDomain} recommendation={true} limit={10}/>
           <Section infinityScrolling={false} grid={true} offset={offset} limit={limit} slug={shopDomain}/>
           {/* <SectionProduct
             data={productPaginateData?.getShopProductsPaginate}

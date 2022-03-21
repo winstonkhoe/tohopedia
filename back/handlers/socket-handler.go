@@ -86,6 +86,21 @@ func EmitToSpecificClient(hub *Hub, payload SocketEventStruct, userID string) {
     }
 }
 
+func EmitToAllClient(hub *Hub, payload SocketEventStruct) {
+	log.Println("Emit To All Client")
+    for client := range hub.clients {
+        log.Println("Client UserID: " + client.userID)
+        log.Println(client.webSocketConnection)
+        log.Println(client.hub)
+        select {
+        case client.send <- payload:
+        default:
+            close(client.send)
+            delete(hub.clients, client)
+        }
+    }
+}
+
 // BroadcastSocketEventToAllClient will emit the socket events to all socket users
 func BroadcastSocketEventToAllClient(hub *Hub, payload SocketEventStruct) {
     for client := range hub.clients {
@@ -187,7 +202,17 @@ func handleSocketPayloadEvents(client *Client, socketEventPayload SocketEventStr
                 db.Create(detail)
             }
         }
+
+    case "public":
+        log.Printf("Message Event triggered")
+        socketEventResponse.EventName = "message response"
+        socketEventResponse.EventPayload = map[string]interface{}{
+            // "username": getUsernameByUserID(client.hub, selectedUserID),
+            "message":  socketEventPayload.EventPayload.(map[string]interface{})["message"],
+        }
+        EmitToAllClient(client.hub, socketEventResponse)
     }
+
 }
 
 func keyExists(decoded map[string]interface{}, key string) bool {

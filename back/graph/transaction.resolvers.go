@@ -109,6 +109,13 @@ func (r *mutationResolver) UpdateStatus(ctx context.Context, id string, status i
 		return nil, err
 	}
 
+	if status == 1 {
+		shop := new(model.Shop)
+		db.Where("id = ?", transaction.ShopId).Find(&shop)
+		shop.ReputationPoint += 2
+		db.Save(shop)
+	}
+
 	transaction.Status = status
 
 	return transaction, db.Save(transaction).Error

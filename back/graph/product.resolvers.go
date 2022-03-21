@@ -130,7 +130,7 @@ func (r *productResolver) Sold(ctx context.Context, obj *model.Product) (int, er
 	if err := query.Find(&data).Error; err != nil {
 		return 0, err
 	}
-	
+
 	if num, ok := data["sold"].(int64); ok {
 		return int(num), nil
 	}
@@ -262,6 +262,250 @@ func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, 
 			if err := query.Find(&products).Error; err != nil {
 				return nil, err
 			}
+		} else if recommendation != nil && *recommendation {
+			fmt.Println("Masuk Shop Recommendation")
+			if ctx.Value("auth") != nil {
+				fmt.Println("Masuk CTX AUTH SHOP")
+				// userId := "1234"
+				userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
+				var minmax map[string]interface{}
+				db.Raw(`
+				SELECT
+				MIN(p.price) AS 'min',
+				MAX(p.price) AS 'max'
+				FROM 
+				transactions t 
+				JOIN transaction_details td ON t.id = td.transaction_id
+				JOIN products p ON p.id = td.product_id
+				WHERE
+				t.user_id = ?
+				`, userId).Find(&minmax)
+
+				var categories []*model.Category
+				var userPreferences []*model.UserPreferences
+				var otherUsers []*model.User
+				totalUniqueCategories := 0
+
+				db.Find(&categories) //Cari panjang Categories
+
+				var vectorCurrUser = make([]int, len(categories))
+				for i := range vectorCurrUser {
+					vectorCurrUser[i] = 0
+				}
+
+				db.Where("user_id = ?", userId).Find(&userPreferences)
+				db.Where("id <> ?", userId).Find(&otherUsers)
+
+				//Simpenin Index Categories
+				categoriesIndex := make(map[string]int)
+				userCategories := make(map[string]int)
+
+				//Simpen User Preferences -- Isi Categoriesnya
+				userPrefCategoryScore := make(map[string]int)
+
+				for i := 0; i < len(userPreferences); i++ {
+					userPrefCategoryScore[userPreferences[i].CategoryId] = userPreferences[i].Score
+					categoriesIndex[userPreferences[i].CategoryId] = totalUniqueCategories
+					userCategories[userPreferences[i].CategoryId] = 0
+					totalUniqueCategories += 1
+				}
+
+				for k, v := range categoriesIndex {
+					vectorCurrUser[v] = userPrefCategoryScore[k]
+				}
+
+				var cosineResults = make(map[string]float64, len(otherUsers))
+				/*
+					OTHER USER SECTION CHECK
+				*/
+				for i := 0; i < len(otherUsers); i++ {
+					otherUserPrefCategoryScore := make(map[string]int)
+					var otherUserPreferences []*model.UserPreferences
+					cosineResults[otherUsers[i].ID] = 0
+					db.Where("user_id = ?", otherUsers[i].ID).Find(&otherUserPreferences) //Find Other User's Preferences
+					for i := 0; i < len(otherUserPreferences); i++ {
+						otherUserPrefCategoryScore[otherUserPreferences[i].CategoryId] = otherUserPreferences[i].Score
+						if _, ok := categoriesIndex[otherUserPreferences[i].CategoryId]; !ok {
+							categoriesIndex[otherUserPreferences[i].CategoryId] = totalUniqueCategories
+							totalUniqueCategories += 1
+							// fmt.Println(otherUserPreferences[i].CategoryId + " belom exists")
+						}
+					}
+
+					var vectorTempOtherUser = make([]int, len(categories))
+					for i := range vectorTempOtherUser {
+						vectorTempOtherUser[i] = 0
+					}
+
+					for k, v := range categoriesIndex {
+						vectorTempOtherUser[v] = otherUserPrefCategoryScore[k]
+					}
+
+					dotProduct := 0
+					for i := range vectorCurrUser {
+						dotProduct += vectorCurrUser[i] * vectorTempOtherUser[i]
+					}
+
+					totalSquareCurrUserVector := 0
+					for i := range vectorCurrUser {
+						totalSquareCurrUserVector += vectorCurrUser[i] * vectorCurrUser[i]
+					}
+
+					totalSquareOtherUserVector := 0
+					for i := range vectorTempOtherUser {
+						totalSquareOtherUserVector += vectorTempOtherUser[i] * vectorTempOtherUser[i]
+					}
+
+					magnitudeCurrUser := math.Sqrt(float64(totalSquareCurrUserVector))
+					magnitudeOtherUser := math.Sqrt(float64(totalSquareOtherUserVector))
+
+					currCosineVal := float64(float64(dotProduct) / (magnitudeCurrUser * magnitudeOtherUser))
+					if !math.IsNaN(currCosineVal) {
+						cosineResults[otherUsers[i].ID] = currCosineVal
+					}
+
+					// fmt.Printf("Cosine Value: %f\n", currCosineVal)
+				}
+				sortedUsersCosine := make(PairList, len(cosineResults))
+
+				i := 0
+				for k, v := range cosineResults {
+					sortedUsersCosine[i] = Pair{k, v}
+					i++
+				}
+
+				sort.Sort(sortedUsersCosine)
+
+				uniqueNewCategories := make(map[string]int) //Selain UserCategories
+				// extraCategories := make([]string, 0, len(categories))
+				for i := 0; i < 3 && i < len(sortedUsersCosine); i++ {
+					if sortedUsersCosine[i].Value > 0 {
+						var tempPref []*model.UserPreferences
+						db.Where("user_id = ?", sortedUsersCosine[i].UserID).Find(&tempPref)
+
+						for j := 0; j < len(tempPref); j++ {
+							if _, exists := userCategories[tempPref[j].CategoryId]; !exists {
+								if _, exists := uniqueNewCategories[tempPref[j].CategoryId]; !exists {
+									uniqueNewCategories[tempPref[j].CategoryId] = 0
+									// fmt.Println(otherUserPreferences[j].CategoryId + " belom exists")
+								}
+							}
+						}
+
+					}
+				}
+				stringAllCategories := ""
+				stringNewCategories := ""
+				iterator := 0
+				for k, _ := range uniqueNewCategories {
+					// if(iterator > 0) {
+					stringNewCategories += "'"
+					stringAllCategories += "'"
+					// }
+					stringNewCategories += k
+					stringAllCategories += k
+					if iterator < len(uniqueNewCategories)-1 {
+						stringNewCategories += "',"
+					}
+					stringAllCategories += "',"
+					iterator += 1
+				}
+				stringNewCategories += "'"
+
+				// var extraProduct []*model.Product
+				// productBaseQuery := "SELECT id, name, description, price, discount, stock, metadata, created_at, category_id, shop_id, original_id, valid_to FROM products WHERE category_id IN"
+				// query := fmt.Sprintf("%s (%s) LIMIT %d", productBaseQuery, stringNewCategories, 5)
+				// query := fmt.Sprintf("%s (%s)", "SELECT id, name FROM categories WHERE id IN", stringNewCategories)
+				// db.Raw(query).Scan(&extraProduct)
+				// db.Raw("SELECT id, name FROM categories WHERE id IN (?)", stringNewCategories).Scan(&extraCategories)
+				// db.Where("id IN (?)", stringNewCategories).Limit(5).Find(&extraCategories)
+
+				// remaining := displayProduct - len(extraProduct)
+
+				stringUserCategories := ""
+				iterator = 0
+				for k, _ := range userCategories {
+					// if(iterator > 0) {
+					stringUserCategories += "'"
+					// }
+					stringAllCategories += "'"
+					stringUserCategories += k
+					stringAllCategories += k
+
+					if iterator < len(userCategories)-1 {
+						stringUserCategories += "',"
+						stringAllCategories += "',"
+					}
+					iterator += 1
+				}
+				stringUserCategories += "'"
+				stringAllCategories += "'"
+
+				// fmt.Printf("Length Extra Product: %d\n", len(extraProduct))
+
+				// for i := range extraProduct {
+				// 	fmt.Println(extraProduct[i].Name)
+				// }
+
+				// var userProduct []*model.Product
+				// query = fmt.Sprintf("%s (%s) LIMIT %d", productBaseQuery, stringUserCategories, remaining)
+				// db.Raw(query).Scan(&userProduct)
+
+				// userProduct = append(userProduct, extraProduct...)
+				// products = userProduct
+
+				shopRecommendationBaseQuery := fmt.Sprintf(`
+		SELECT 
+			p.* 
+		FROM
+			products p
+			JOIN shops s ON p.shop_id = s.id
+			JOIN categories c ON p.category_id = c.id
+		WHERE
+			s.slug = '%s'
+			AND c.id IN (%s)`, *slug, stringAllCategories)
+
+				if minmax["min"] != nil && minmax["max"] != nil { //ada min max
+					minPrice := int(minmax["min"].(int64))
+					maxPrice := int(minmax["max"].(int64))
+					withMinMaxQuery := fmt.Sprintf("%s AND (p.price BETWEEN %d AND %d) LIMIT 10", shopRecommendationBaseQuery, minPrice, maxPrice)
+
+					// db.Raw(`
+					// SELECT
+					// 	p.*
+					// FROM
+					// 	products p
+					// 	JOIN shops s ON p.shop_id = s.id
+					// 	JOIN categories c ON p.category_id = c.id
+					// WHERE
+					// 	s.slug = 'detailguy'
+					// 	AND c.id IN ()
+					// 	AND (p.price BETWEEN 100000 AND 1000000)
+					// `, minPrice, maxPrice)
+					db.Raw(withMinMaxQuery).Find(&products)
+				} else { //gaada min max
+					withLimitQuery := fmt.Sprintf("%s LIMIT 10", shopRecommendationBaseQuery)
+					db.Raw(withLimitQuery).Find(&products)
+				}
+
+			} else {
+				db.Raw(`SELECT 
+				p.*
+			FROM
+				products p
+				JOIN shops s ON p.shop_id = s.id
+				JOIN transaction_details td ON td.product_id = p.id
+			WHERE
+				s.slug = ?
+			GROUP BY
+				p.id
+			ORDER BY SUM(td.quantity) DESC`, *slug).Find(&products)
+			}
+
+			for i := 0; i < len(products); i++ {
+				fmt.Println(products[i])
+			}
+
 		} else if limit != nil {
 			query := db.Where("shop_id = ? AND valid_to = ? AND stock > 0 ", shop.ID, "0000-00-00 00:00:00.000").Limit(defaultLimit).Offset(defaultOffset)
 
@@ -320,7 +564,6 @@ func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, 
 			return nil, err
 		}
 	} else if recommendation != nil && *recommendation {
-		fmt.Println("recommendation")
 		var categories []*model.Category
 		var userPreferences []*model.UserPreferences
 		var otherUsers []*model.User
