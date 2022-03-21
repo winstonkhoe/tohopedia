@@ -1,12 +1,15 @@
+import { gql, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
 import { useContext, useEffect, useState } from "react";
 import { useToasts } from "react-toast-notifications";
 import { Button } from "../components/Button/button";
+import RupiahFormat from "../misc/currency";
 import { User } from "../models/User";
 import styles from "../styles/Cart.module.scss";
 
 const Reksadana: NextPage = () => {
   const [socketConnection, setSocketConnection] = useState<WebSocket>();
+  const [reksadanaPrice, setReksadanaPrice] = useState(0)
   const WSAddress = `ws://localhost:8080/ws/`;
   const { addToast } = useToasts();
   const userData = useContext<User>(userDetailsContext);
@@ -21,17 +24,27 @@ const Reksadana: NextPage = () => {
     addToast("TADAA This is Error Message", {appearance: "error"})
   }, [])
 
-  const CHATS_QUERY = gql`
-     query GetChats($id: String!) {
-       getChats(id: $id) {
-         id
-         sender
-         receiver
-         content
-         createdAt
-       }
-     }
+  const REKSADANA_QUERY = gql`
+     query reksadanas{
+      reksadanas {
+        id
+        price
+        createdAt
+      }
+    }
    `;
+  
+  const {
+     loading: load,
+     error: err,
+     data: data,
+  } = useQuery(REKSADANA_QUERY);
+  
+  useEffect(() => {
+    if (data?.reksadanas) {
+      setReksadanaPrice(data?.reksadanas[0]?.price)
+    }
+  }, [data])
 
   if (socketConnection !== null && socketConnection !== undefined) {
     socketConnection.onclose = (evt) => {
@@ -51,16 +64,6 @@ const Reksadana: NextPage = () => {
             }
 
             const userInitPayload = socketPayload.eventPayload;
-
-            // alert("masuk daleman")
-            // this.setState({
-            //   chatUserList: userInitPayload.users,
-            //   userID:
-            //     this.state.userID === null
-            //       ? userInitPayload.userID
-            //       : this.state.userID,
-            // });
-
             break;
 
           case "message response":
@@ -74,10 +77,7 @@ const Reksadana: NextPage = () => {
               : "An unnamed fellow";
             const actualMessage = messageContent.message;
 
-            // this.setState({
-            //   message: `${sentBy} says: ${actualMessage}`,
-            // });
-            // alert(`${sentBy} says: ${actualMessage}`);
+            
             break;
 
           default:
@@ -90,25 +90,17 @@ const Reksadana: NextPage = () => {
     };
   }
 
-  const handleSendChat = () => {
+  const handleBuyReksadana = (price: number) => {
     try {
       if (
         socketConnection 
       ) {
-        // console.log(JSON.stringify({
-        //   EventName: "message",
-        //   EventPayload: {
-        //     userID: targetId,
-        //     // userID: dat.id,
-        //     // userID: "75f4575c-c2a8-4189-9302-dccb8eb6a643",
-        //     message: chatInput,
-        //   },
-        // }))
+        
         socketConnection.send(
           JSON.stringify({
             EventName: "public",
             EventPayload: {
-              message: chatInput,
+              message: price,
             },
           })
         );
@@ -123,8 +115,14 @@ const Reksadana: NextPage = () => {
       <div className={styles.cart_header_container}>
         <h3 className={styles.cart_header_text}>Reksadana</h3>
       </div>
-      <Button disable={false} warning={false}>Buy</Button>
+      <h2>Reksadana Price: {RupiahFormat(reksadanaPrice)}</h2>
+      <span>
+        <Button disable={false} warning={false}>Buy</Button>
+      </span>
+      <span>
       <Button disable={false} warning={true}>Sell</Button>
+
+      </span>
     </main>
   );
 };

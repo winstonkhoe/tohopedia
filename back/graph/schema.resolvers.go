@@ -372,7 +372,14 @@ func (r *mutationResolver) RemoveWishlist(ctx context.Context, id string) (*mode
 }
 
 func (r *queryResolver) Reksadanas(ctx context.Context) ([]*model.Reksadana, error) {
-	panic(fmt.Errorf("not implemented"))
+	db := config.GetDB()
+	var reksadanas[]*model.Reksadana
+
+	if err := db.Order("created_at DESC").Find(&reksadanas).Error; err != nil {
+		return nil, err
+	}
+
+	return reksadanas, nil
 }
 
 func (r *queryResolver) GetReksadanas(ctx context.Context) ([]*model.Reksadana, error) {
