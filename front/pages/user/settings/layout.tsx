@@ -4,7 +4,7 @@ import Image from "next/image";
 import Footer from "../../../components/Footer/Footer";
 import InitFont from "../../../components/initialize_font";
 import Navbar from "../../../components/navbar";
-import styles from "../../../styles/Settings_Home.module.scss";
+import styles from "./layout.module.scss";
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
 import { gql, useQuery } from "@apollo/client";
@@ -34,8 +34,9 @@ const Layout = (props: { children: any }) => {
   // );
 
   const indicatorStyle = {
-    0: { width: "131px", left: "0px" },
-    1: { width: "148px", left: "131px" },
+    0: { width: "125px", left: "0px" },
+    1: { width: "140px", left: "125px" },
+    2: { width: "140px", left: "calc(125px + 140px)" },
   };
 
   return (
@@ -99,9 +100,29 @@ const Layout = (props: { children: any }) => {
                       Daftar Alamat
                     </div>
                     <div
+                      className={
+                        tabIndexSetting == 2
+                          ? // activeTab == "address"
+                            styles.settings_tab_navigator_item_active
+                          : styles.settings_tab_navigator_item_inactive
+                      }
+                      onClick={() => {
+                        // setActiveTab("address");
+                        setTabIndexSetting(2);
+                        Router.replace(
+                          {
+                            pathname: "/user/settings/authentication",
+                          },
+                          undefined,
+                          { shallow: true }
+                        );
+                      }}
+                    >
+                      Authentication
+                    </div>
+                    <div
                       className={styles.settings_tab_navigator_active_indicator}
                       style={indicatorStyle[tabIndexSetting]}
-                      // style={{width: "131px", left: "0px"}}
                     ></div>
                   </div>
                 </div>

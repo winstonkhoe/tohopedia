@@ -29,3 +29,35 @@
         background-color: #be3b23;
     }
 }
+
+.disable {
+  height: 48px;
+  color: var(--N400, #6c727c);
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 22px;
+  text-indent: initial;
+  background-color: var(--N75, #e5e7e9);
+  border: none;
+  border-radius: 8px;
+  display: inline-block;
+  outline: none;
+  cursor: not-allowed;
+  position: relative;
+  padding: 0px 16px;
+  transition: background-color 300ms ease 0s;
+  // width: 160px;
+
+  span {
+    font-size: inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 1;
+    display: block;
+    overflow: hidden;
+    position: relative;
+    top: 0px;
+    transition: opacity 300ms linear 0s, top 300ms linear 0s;
+  }
+}

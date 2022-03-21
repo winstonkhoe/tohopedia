@@ -1,0 +1,192 @@
+.option_wrapper_close {
+  position: relative;
+  width: 300px;
+}
+
+.option_wrapper_open {
+  position: relative;
+  width: 300px;
+}
+
+.container {
+  .dropdown_select {
+    border-radius: 8px;
+    -webkit-appearance: button;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    padding: 0px 8px 0px 12px;
+    cursor: pointer;
+    border: 1px solid var(--color-border, #e5e7e9);
+    user-select: none;
+    transition: border-radius 280ms ease 0s;
+    width: 100%;
+    height: 60px;
+    font-size: 14px;
+    line-height: 40px;
+    background-color: var(--color-page-background, #ffffff);
+    pointer-events: all;
+    text-align: left;
+
+    &:hover {
+      &::after {
+        border-radius: 12px;
+        background-color: #f3f4f5;
+      }
+    }
+
+    &::after {
+      content: "";
+      display: inline-block;
+      background-image: url("/logo/icon_arrow_dropdown.svg");
+      width: 24px;
+      height: 24px;
+      background-repeat: no-repeat;
+      background-position: center center;
+      transition: transform 280ms ease 0s, background-color 0.12s ease 0s;
+      transform: rotate(0deg);
+      border-radius: 50%;
+    }
+
+    label {
+      flex: 1 1 0%;
+      color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+      cursor: pointer;
+      overflow: hidden;
+      padding-right: 8px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+  .dropdown_select_open {
+    &::after {
+      transform: rotate(-180deg);
+    }
+  }
+}
+
+.option_wrapper_close .option_list_wrapper {
+  transform: translateY(-8px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.option_list_wrapper {
+  max-height: unset;
+  transition: transform 280ms ease-out 0s, opacity 0.16s ease 0s,
+    visibility 0.16s ease 0s;
+  width: 300px;
+  max-height: 150px;
+  padding: 0px 4px;
+  overflow: auto;
+  position: absolute;
+  background: var(--color-card, #ffffff);
+  border: 1px solid var(--color-border, #e5e7e9);
+  border-radius: 0px 0px 8px 8px;
+  transform-origin: center top;
+  scroll-behavior: smooth;
+  z-index: 20;
+
+  ul {
+    list-style: none;
+    padding: 0px;
+    margin: 4px 0px;
+
+    .selected {
+      &::before {
+        content: "";
+        position: absolute;
+        left: -4px;
+        top: 0px;
+        height: 100%;
+        width: 3px;
+        background-color: var(--G500, #03ac0e);
+        opacity: 1;
+        transition: opacity 0.08s ease-in 0s;
+      }
+    }
+    li {
+      cursor: pointer;
+      list-style: none;
+      outline: none;
+      position: relative;
+      min-height: 40px;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      padding: 4px 0px;
+      button {
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        position: relative;
+        padding: 6px 8px 6px 5px;
+        color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+        background-color: transparent;
+        font-size: 14px;
+        font-weight: 400;
+        min-height: 32px;
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
+        border-image: initial;
+        text-align: left;
+        line-height: 1.33;
+        width: 100%;
+        cursor: pointer;
+        border-radius: 4px;
+        border-left: 3px solid transparent;
+        appearance: none;
+        span {
+        }
+      }
+    }
+
+    .active_item {
+      &::before {
+        content: "";
+        position: absolute;
+        left: -4px;
+        top: 0px;
+        height: 100%;
+        width: 3px;
+        background-color: var(--G500,#03AC0E);
+        opacity: 1;
+        transition: opacity 0.08s ease-in 0s;
+      }
+    }
+  }
+}
+
+.item_profile {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-right: 8px;
+  .item_profile_relative {
+    width: 28px;
+    height: 28px;
+    position: relative;
+  }
+}
+
+.profile_detail {
+
+  p {
+    margin: 0px;
+    font-size: 0.8rem;
+    line-height: 16px;
+  }
+}
+
+p.description {
+  font-size: 0.7rem;
+}

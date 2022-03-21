@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useContext } from "react";
 import { stateContext } from "../../services/StateProvider";
 import Footer from "../Footer/Footer";
@@ -7,7 +8,27 @@ import Navbar from "../navbar";
 import styles from "./PageLayout.module.scss"
 
 const PageLayout = (props: { children: any }) => {
-  const {pageTitle} = useContext(stateContext)
+  const router = useRouter();
+  const { pageTitle } = useContext(stateContext)
+  const noNavbar = ["login", "register"]
+  
+  function checkPathExists(array: any, path: string) {
+    return array.indexOf(path) >= 0;
+  }
+  
+  const paths = router.pathname.split("/");
+
+  function checkList(pathList: string[], array: string[]): boolean {
+    let counter = 0;
+
+    array.map((str: string) => {
+      if (pathList.indexOf(str) >= 0) {
+        counter++;
+      }
+    })
+    return counter == 0
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -22,9 +43,9 @@ const PageLayout = (props: { children: any }) => {
         )}
       </Head>
       <InitFont />
-      <Navbar />
-          {props.children}
-      <Footer />
+      {checkList(paths, noNavbar) == true ? <Navbar /> : null }
+        {props.children}
+      {checkList(paths, noNavbar) == true ? <Footer /> : null }
     </div>
   );
 };

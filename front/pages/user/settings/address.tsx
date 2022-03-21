@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import Layout from "./layout";
-import styles from "../../../styles/Settings_Address.module.scss";
+import styles from "./address.module.scss";
 import Image from "next/image";
 import Overlay from "../../../components/overlay/overlay";
 import address from "../../../styles/components/address_overlay.module.scss";
@@ -10,8 +10,10 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { userDetailsContext } from "../../../services/UserDataProvider";
 import { stateContext } from "../../../services/StateProvider";
 import Router from "next/router";
+import { Address } from "../../../models/Address";
 
-export default function Address() {
+export default function AddressPage() {
+  const { tabIndexSetting, setTabIndexSetting} = useContext(stateContext);
   const [tambahAlamat, setTambahAlamat] = useState(false);
   const [ubahAlamat, setUbahAlamat] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -47,93 +49,14 @@ export default function Address() {
   const { setPollInterval } = useContext(stateContext);
   useEffect(() => {
     setPollInterval(3000)
+    setTabIndexSetting(1)
   }, []);
 
-  const ADD_ADDRESS_MUTATION = gql`
-    mutation addAddress(
-      $label: String!
-      $receiver: String!
-      $phone: String!
-      $city: String!
-      $postalCode: String!
-      $address: String!
-    ) {
-      addAddress(
-        input: {
-          label: $label
-          receiver: $receiver
-          phone: $phone
-          city: $city
-          postalCode: $postalCode
-          address: $address
-        }
-      ) {
-        id
-      }
-    }
-  `;
 
-  const [addAddress, { loading, error, data }] =
-    useMutation(ADD_ADDRESS_MUTATION);
-  
-  const UPDATE_ADDRESS_MUTATION = gql`
-    mutation updateAddress(
-      $id: ID!
-      $label: String!
-      $receiver: String!
-      $phone: String!
-      $city: String!
-      $postalCode: String!
-      $address: String!
-    ) {
-      updateAddress(
-        id: $id,
-        input: {
-          label: $label
-          receiver: $receiver
-          phone: $phone
-          city: $city
-          postalCode: $postalCode
-          address: $address
-        }
-      ) {
-        id
-      }
-    }
-  `;
-
-  const [updateAddressMutation, { loading: updateAddressLoad, error: updateAddressErr, data: updateAddressData }] =
-    useMutation(UPDATE_ADDRESS_MUTATION);
-
-  const DELETE_ADDRESS_MUTATION = gql`
-    mutation deleteAddress($id: ID!) {
-      deleteAddress(id: $id) {
-        id
-      }
-    }
-  `;
-
-  const [
-    deleteAddress,
-    {
-      loading: deleteAddressLoad,
-      error: deleteAddressErr,
-      data: deleteAddressData,
-    },
-  ] = useMutation(DELETE_ADDRESS_MUTATION);
-
-  const SET_MAIN_ADDRESS_MUTATION = gql`
-    mutation setMainAddress($id: ID!) {
-      setMainAddress(id: $id) {
-        id
-      }
-    }
-  `;
-
-  const [
-    setMainAddress,
-    { loading: setMainLoad, error: setMainErr, data: setMainData },
-  ] = useMutation(SET_MAIN_ADDRESS_MUTATION);
+  const [addAddress] = useMutation(Address.ADD_ADDRESS_MUTATION);
+  const [updateAddressMutation] = useMutation(Address.UPDATE_ADDRESS_MUTATION);
+  const [deleteAddress] = useMutation(Address.DELETE_ADDRESS_MUTATION);
+  const [setMainAddress] = useMutation(Address.SET_MAIN_ADDRESS_MUTATION);
 
   function getAddress(addressId: string) {
     return addressData?.filter((address: any) => {
@@ -153,27 +76,19 @@ export default function Address() {
       postalcode: addressObj?.postalCode,
       address: addressObj?.address,
     })
-    // setUpdateAddress(addressObj)
-    console.log(updateAddress)
     setUbahAlamat(true)
-    console.log(updateAddress)
   }
 
   function handleNewAddress(attribute: string, value: string) {
     let currValue = newAddress;
     currValue[attribute] = value;
     setNewAddress(currValue);
-    console.log(newAddress);
-    console.log(Object.keys(currValue));
   }
 
   function handleUpdateAddress(attribute: string, value: string) {
     let currValue = updateAddress;
-    console.log(currValue);
-    console.log(updateAddress);
     currValue[attribute] = value;
     setUpdateAddress(currValue);
-    console.log(Object.keys(currValue));
   }
 
   function handleSubmitNewAddress() {
@@ -213,10 +128,7 @@ export default function Address() {
     let currStyle = inputStyle;
     let allow = true;
     setSubmitted(true);
-    console.log(submitted && checkEmptyField(updateAddress, "label"));
     Object.keys(updateAddress).map((key: any) => {
-      console.log("key: " + key);
-      console.log(checkEmptyField(updateAddress, key));
       if (checkEmptyField(updateAddress, key)) {
         currStyle[key] = address.warning;
         allow = false;
@@ -659,7 +571,7 @@ export default function Address() {
 };
 
 
-Address.getLayout = function getLayout(page: any) {
+AddressPage.getLayout = function getLayout(page: any) {
   return (
     <Layout>
       {page}

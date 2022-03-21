@@ -3,10 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import RupiahFormat from "../../misc/currency";
-import { ALL_PRODUCT_QUERY } from "../../misc/global_query";
+import { Product } from "../../models/Product";
 import styles from "./ProductSection.module.scss";
 
-function Product(props: {
+function ProductCard(props: {
   productId: string;
   productName: string;
   productDiscount: number;
@@ -124,6 +124,7 @@ function Section(props: {
   recommendation?: boolean;
   infinityScrolling: boolean;
   grid: boolean;
+  bestSeller?: boolean;
   onLoadData?: any;
   categoryId?: string | string[];
   shopType?: number[];
@@ -137,7 +138,7 @@ function Section(props: {
     loading: allProductLoading,
     error: allProductError,
     data: data,
-  } = useQuery(ALL_PRODUCT_QUERY, {
+  } = useQuery(Product.ALL_PRODUCT_QUERY, {
     variables: {
       slug: props?.slug,
       keyword: props?.keyword,
@@ -146,7 +147,8 @@ function Section(props: {
       order: props?.order,
       recommendation: props?.recommendation,
       categoryId: props?.categoryId,
-      shopTypes: shopTypeFilter
+      shopTypes: shopTypeFilter,
+      bestSeller: props?.bestSeller
     },
   });
 
@@ -235,7 +237,7 @@ function Section(props: {
                 //   shopName={product.shop.name}
                 // ></Product>);
                 return (
-                  <Product
+                  <ProductCard
                     key={index}
                     productId={product.id}
                     imageSrc={product.images[0].image}
@@ -245,7 +247,7 @@ function Section(props: {
                     shopType={product?.shop?.type}
                     shopCity={product.shop.city}
                     shopName={product.shop.name}
-                  ></Product>
+                  ></ProductCard>
                 );
 
                 // <Product imageSrc="" productName="" productPrice={1} shopBadge="" shopCity="" shopName="" key={0}></Product>
@@ -258,7 +260,7 @@ function Section(props: {
           {data?.products?.map((product: any, index: number) => {
             return (
               <>
-                <Product
+                <ProductCard
                   key={index}
                   productId={product.id}
                   imageSrc={product.images[0].image}
@@ -268,7 +270,7 @@ function Section(props: {
                   shopType={product?.shop?.type ? product?.shop?.type : null}
                   shopCity={product?.shop?.city ? product?.shop?.city : null}
                   shopName={product?.shop?.name ? product?.shop?.name : null}
-                ></Product>
+                ></ProductCard>
               </>
             );
             // <Product imageSrc="" productName="" productPrice={1} shopBadge="" shopCity="" shopName="" key={0}></Product>
@@ -285,7 +287,7 @@ function SectionProduct(props: { data: any; name: string; href?: any }) {
       {props?.data?.map((product: any, index: number) => {
         return (
           <>
-            <Product
+            <ProductCard
               key={index}
               productId={product.id}
               imageSrc={product.images[0].image}
@@ -295,7 +297,7 @@ function SectionProduct(props: { data: any; name: string; href?: any }) {
               shopType={product?.shop?.type ? product?.shop?.type : null}
               shopCity={product?.shop?.city ? product?.shop?.city : null}
               shopName={product?.shop?.name ? product?.shop?.name : null}
-            ></Product>
+            ></ProductCard>
           </>
         );
         // <Product imageSrc="" productName="" productPrice={1} shopBadge="" shopCity="" shopName="" key={0}></Product>
@@ -305,7 +307,7 @@ function SectionProduct(props: { data: any; name: string; href?: any }) {
 }
 
 export {
-  Product,
+  ProductCard as Product,
   Section,
   SectionProduct,
   // SectionProductInfinity

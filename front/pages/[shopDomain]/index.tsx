@@ -15,7 +15,7 @@ import RupiahFormat from "../../misc/currency";
 import { Carousel, Item } from "../../components/carousel/Carousel";
 import { useRouter } from "next/router";
 import { useToasts } from "react-toast-notifications";
-import { SectionProduct } from "../../components/Product/ProductSection";
+import { Section, SectionProduct } from "../../components/Product/ProductSection";
 import { ErrorNotFound } from "../../components/error";
 const banners = [1, 2, 3];
 // import existsSync from "fs";
@@ -343,10 +343,12 @@ const Shop: NextPage = () => {
             name={"Top Discount"}
             href={"/product/top-discount"}
           /> */}
-          <SectionProduct
+        <Section header="Best Selling Product" grid={false} infinityScrolling={false} slug={shopDomain} bestSeller={true} limit={10}/>
+          <Section infinityScrolling={false} grid={true} offset={offset} limit={limit} slug={shopDomain}/>
+          {/* <SectionProduct
             data={productPaginateData?.getShopProductsPaginate}
             name={""}
-          />
+          /> */}
           <div className={styles.pagination_container}>
             <ul>
               {offset - 1 >= 0 && (

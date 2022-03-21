@@ -7,12 +7,6 @@ $color-shadow: rgba(49, 53, 59, 0.12);
 .container {
   width: 100%;
 
-  .link_text {
-    color: $main-color;
-    font-size: 0.85rem;
-    font-weight: 300;
-    cursor: pointer;
-  }
   .header {
     display: flex;
     justify-content: center;
@@ -80,45 +74,6 @@ $color-shadow: rgba(49, 53, 59, 0.12);
           margin-top: 0em;
 
           // Label + Fields
-          .label_fields_container {
-            margin-bottom: 16px;
-
-            //Input Container
-            div {
-              height: 40px;
-              border-radius: 8px;
-              display: flex;
-              -webkit-box-align: center;
-              align-items: center;
-              flex: 1 1 0%;
-              position: relative;
-              overflow: hidden;
-              transition: border-color 280ms ease 0s;
-              background-color: var(--color-page-background, #ffffff);
-              border: 1px solid #e5e7e9;
-
-              &:focus {
-                border: 1px solid #4fd15a;
-              }
-              input {
-                padding-right: 12px;
-                padding-left: 12px;
-                min-width: 0;
-                min-height: 0;
-                width: 100%;
-                color: var(--color-text-high, rgba(49, 53, 59, 0.96));
-                font-family: inherit;
-                background-color: transparent;
-                line-height: 22px;
-                border: none;
-                outline: none;
-                height: auto;
-                font-size: 14px;
-                padding-top: 8px;
-                padding-bottom: 8px;
-              }
-            }
-          }
 
           .remember_forget_container {
             display: flex;
@@ -228,6 +183,53 @@ $color-shadow: rgba(49, 53, 59, 0.12);
           }
         }
       }
+    }
+  }
+}
+
+.link_text {
+  color: $main-color;
+  font-size: 0.85rem;
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.label_fields_container {
+  margin-bottom: 16px;
+
+  //Input Container
+  div {
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    flex: 1 1 0%;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 280ms ease 0s;
+    background-color: var(--color-page-background, #ffffff);
+    border: 1px solid #e5e7e9;
+
+    &:focus {
+      border: 1px solid #4fd15a;
+    }
+    input {
+      padding-right: 12px;
+      padding-left: 12px;
+      min-width: 0;
+      min-height: 0;
+      width: 100%;
+      color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+      font-family: inherit;
+      background-color: transparent;
+      line-height: 22px;
+      border: none;
+      outline: none;
+      height: auto;
+      font-size: 14px;
+      padding-top: 8px;
+      padding-bottom: 8px;
     }
   }
 }

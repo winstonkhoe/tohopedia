@@ -25,6 +25,7 @@ input NewTransaction {
 type TransactionDetail {
   id: ID!
   transaction: Transaction! @goField(forceResolver: true)
+  review: Review @goField(forceResolver: true)
   product: Product! @goField(forceResolver: true)
   quantity: Int!
   note: String

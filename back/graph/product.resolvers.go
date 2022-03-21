@@ -111,6 +111,33 @@ func (r *productResolver) Images(ctx context.Context, obj *model.Product) ([]*mo
 	return images, nil
 }
 
+func (r *productResolver) Sold(ctx context.Context, obj *model.Product) (int, error) {
+	db := config.GetDB()
+	var data map[string]interface{}
+
+	query := db.Raw(`
+	SELECT 
+		CAST(SUM(td.quantity) AS INT) AS 'sold'
+	FROM 
+		products p 
+		JOIN transaction_details td ON p.id = td.product_id
+	WHERE
+		p.id = ?
+	GROUP BY
+		p.id
+	`, obj.ID)
+
+	if err := query.Find(&data).Error; err != nil {
+		return 0, err
+	}
+	
+	if num, ok := data["sold"].(int64); ok {
+		return int(num), nil
+	}
+
+	return 0, nil
+}
+
 func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*model.Category, error) {
 	db := config.GetDB()
 	category := new(model.Category)
@@ -186,7 +213,7 @@ func (r *queryResolver) Product(ctx context.Context, id string) (*model.Product,
 	return product, nil
 }
 
-func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, categoryID *string, keyword *string, limit *int, offset *int, order *string, recommendation *bool, shopTypes []*int) ([]*model.Product, error) {
+func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, categoryID *string, keyword *string, limit *int, offset *int, order *string, recommendation *bool, shopTypes []*int, bestSeller *bool) ([]*model.Product, error) {
 	db := config.GetDB()
 	var products []*model.Product
 	defaultOffset := 0
@@ -215,7 +242,27 @@ func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, 
 		if err := db.First(shop, "slug = ?", slug).Error; err != nil {
 			return nil, err
 		}
-		if limit != nil {
+		if bestSeller != nil {
+			fmt.Println()
+			query := db.Raw(`SELECT
+			p.*
+			FROM 
+				products p JOIN transaction_details td
+				ON p.id = td.product_id join transactions t
+				ON t.id = td.transaction_id JOIN shops s
+				ON s.id = t.shop_id
+			WHERE
+				s.slug = ?
+			GROUP BY
+				p.id,
+				p.name  
+			ORDER BY SUM(td.quantity) DESC
+			LIMIT ?`, *slug, defaultLimit)
+
+			if err := query.Find(&products).Error; err != nil {
+				return nil, err
+			}
+		} else if limit != nil {
 			query := db.Where("shop_id = ? AND valid_to = ? AND stock > 0 ", shop.ID, "0000-00-00 00:00:00.000").Limit(defaultLimit).Offset(defaultOffset)
 
 			if order != nil {
@@ -253,6 +300,23 @@ func (r *queryResolver) Products(ctx context.Context, id *string, slug *string, 
 		}
 	} else if order != nil && *order != "" {
 		if err := db.Where("valid_to = ? AND stock > 0", "0000-00-00 00:00:00.000").Order(*order).Find(&products).Error; err != nil {
+			return nil, err
+		}
+	} else if bestSeller != nil {
+		query := db.Raw(`SELECT
+			p.*
+			FROM 
+				products p JOIN transaction_details td
+				ON p.id = td.product_id join transactions t
+				ON t.id = td.transaction_id JOIN shops s
+				ON s.id = t.shop_id
+			GROUP BY
+				p.id,
+				p.name  
+			ORDER BY SUM(td.quantity) DESC
+			LIMIT ?`, defaultLimit)
+
+		if err := query.Find(&products).Error; err != nil {
 			return nil, err
 		}
 	} else if recommendation != nil && *recommendation {

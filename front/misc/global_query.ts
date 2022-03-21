@@ -26,48 +26,5 @@ const GET_ALL_USER_QUERY = gql`
   }
 `;
 
-const ALL_PRODUCT_QUERY = gql`
-  query GetProducts(
-    $id: String
-    $slug: String
-    $categoryId: String
-    $keyword: String
-    $limit: Int
-    $offset: Int
-    $order: String
-    $recommendation: Boolean
-    $shopTypes: [Int]
-  ) {
-    products(
-      id: $id
-      slug: $slug
-      categoryId: $categoryId
-      keyword: $keyword
-      limit: $limit
-      offset: $offset
-      order: $order
-      recommendation: $recommendation
-      shopTypes: $shopTypes
-    ) {
-      id
-      name
-      price
-      discount
-      createdAt
-      category {
-        id
-        name
-      }
-      images {
-        image
-      }
-      shop {
-        name
-        city
-        type
-      }
-    }
-  }
-`;
 
-export { CATEGORY_QUERY, GET_ALL_USER_QUERY, ALL_PRODUCT_QUERY };
+export { CATEGORY_QUERY, GET_ALL_USER_QUERY};

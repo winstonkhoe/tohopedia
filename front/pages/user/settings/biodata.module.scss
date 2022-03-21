@@ -1,0 +1,142 @@
+.container {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 16px 0px;
+  max-height: 607px;
+
+  .biodata_container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 0px;
+    max-height: 607px;
+
+    .profile_image_container {
+      display: block;
+      max-width: 322px;
+      padding: 16px;
+
+      .profile_image_section {
+        display: block;
+        position: relative;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 1px 6px 0 var(--color-shadow, rgba(49, 53, 59, 0.12));
+        background-color: var(--color-card, #ffffff);
+        cursor: default;
+        margin: 0px 0px 24px;
+
+        .profile_image_input {
+          position: absolute;
+          top: 290px;
+          height: 40px;
+          width: 258px;
+          opacity: 0;
+          z-index: 1;
+          cursor: pointer;
+          font-family: sans-serif;
+          font-size: 100%;
+          line-height: 1.15;
+          margin: 0;
+        }
+
+        picture {
+          border-radius: 4px;
+          background-image: none;
+          display: block;
+          height: 258px;
+          width: 258px;
+          object-fit: contain;
+          margin-bottom: 16px;
+
+          div {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+          }
+        }
+
+        button {
+          width: 100%;
+          height: 40px;
+          color: var(--color-text-high, rgba(49, 53, 59, 0.96));
+          font-family: "Nunito Sans", sans-serif;
+          font-weight: 700;
+          font-size: 0.857143rem;
+          line-height: 24px;
+          text-indent: initial;
+          background-color: transparent;
+          border: 1px solid var(--N75, #e5e7e9);
+          border-radius: 8px;
+          display: block;
+          outline: none;
+          cursor: pointer;
+          position: relative;
+          padding: 0px 16px;
+          transition: background-color 300ms ease 0s;
+          margin-bottom: 16px;
+
+          span {
+            font-size: inherit;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            opacity: 1;
+            display: block;
+            overflow: hidden;
+            position: relative;
+            top: 0px;
+            transition: opacity 300ms linear 0s, top 300ms linear 0s;
+          }
+        }
+        p {
+          font-size: 12px;
+          max-width: 400px;
+          line-height: 1.6;
+        }
+      }
+    }
+
+    .biodata_list_container {
+      display: block;
+      padding: 16px;
+      font-family: "open sans", "tahoma", sans-serif;
+
+      .biodata_list_headers {
+        display: block;
+        position: relative;
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 20px;
+        color: var(--color-text-low, rgba(49, 53, 59, 0.68));
+        text-decoration: initial;
+        margin-bottom: 24px;
+      }
+
+      .biodata_item_container {
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        margin-bottom: 32px;
+        font-size: 0.8rem;
+
+        .biodata_item_label {
+          width: 114px;
+        }
+
+        .biodata_item_value {
+          margin-right: 12px;
+        }
+
+        .biodata_item_change {
+          color: var(--G500, #03ac0e);
+          font-size: 0.7rem;
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

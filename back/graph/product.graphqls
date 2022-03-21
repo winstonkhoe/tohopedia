@@ -8,6 +8,7 @@ type Product {
   price: Int!
   discount: Int!
   stock: Int!
+  sold: Int64! @goField(forceResolver: true)
   metadata: String
   createdAt: Time!
   validTo: Time
@@ -41,7 +42,7 @@ type ProductImage {
 extend type Query {
   categories: [Category!]! @goField(forceResolver: true)
   product(id: ID!): Product! @goField(forceResolver: true)
-  products(id: String slug: String categoryId: String keyword: String limit: Int offset: Int order: String recommendation: Boolean shopTypes: [Int]): [Product!]! @goField(forceResolver: true)
+  products(id: String slug: String categoryId: String keyword: String limit: Int offset: Int order: String recommendation: Boolean shopTypes: [Int] bestSeller: Boolean): [Product!]! @goField(forceResolver: true)
   getShopProductsPaginate(slug: String! limit: Int! offset: Int!): [Product!]! @goField(forceResolver: true)
   topProductDiscount: [Product!]! @goField(forceResolver: true)
   infiniteScrolling(limit: Int!): [Product!]! @goField(forceResolver: true)

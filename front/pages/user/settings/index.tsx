@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import Layout from "./layout";
-import styles from "../../../styles/Settings_Biodata.module.scss";
+import styles from "./biodata.module.scss";
 import nameStyle from "../../../styles/components/user_name_overlay.module.scss";
 import genderStyle from "../../../styles/components/user_gender_overlay.module.scss";
 import common from "../../../styles/components/common.module.scss";
@@ -12,15 +12,19 @@ import { toIndonesianDate } from "../../../misc/date";
 import { userDetailsContext } from "../../../services/UserDataProvider";
 import { init, send } from "@emailjs/browser";
 import { useToasts } from "react-toast-notifications";
+import { User } from "../../../models/User";
+import { stateContext } from "../../../services/StateProvider";
+import { DEFAULT_PROFILE_IMAGE } from "../../../misc/global_constant";
 
 const SERVICE_ID = "service_egdaufp";
 const TEMPLATE_ID = "template_fg0ncxa";
 
 export default function BioData() {
   const { addToast } = useToasts();
-  const DEFAULT_PROFILE_IMAGE = `/logo/user_profile.jpg`;
+  const { tabIndexSetting, setTabIndexSetting} = useContext(stateContext);
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
   const [profileImageChosen, setProfileImageChosen] = useState();
+
 
   const [updateName, setUpdateName] = useState(false);
   const [name, setName] = useState("");
@@ -47,134 +51,24 @@ export default function BioData() {
     phone: false,
   });
 
-  
+  const userData = useContext<User>(userDetailsContext);
 
-  const userData = useContext(userDetailsContext)
+  const [updateUserImage] = useMutation(User.UPDATE_USER_IMAGE_MUTATION);
+  const [updateUserName] = useMutation(User.UPDATE_USER_NAME_MUTATION);
+  const [updateUserPhone] = useMutation(User.UPDATE_USER_PHONE_MUTATION);
+  const [updateUserEmail] = useMutation(User.UPDATE_USER_EMAIL_MUTATION);
+  const [createTokenEmail] = useMutation(User.CREATE_VERIFY_EMAIL_MUTATION);
+  const [updateUserGender] = useMutation(User.UPDATE_USER_GENDER_MUTATION);
 
-  const UPDATE_USER_IMAGE_MUTATION = gql`
-    mutation updateUserImage($image: String!) {
-      updateUserImage(image: $image) {
-        id
-        image
-      }
-    }
-  `;
+  const [updateUserDOB] = useMutation(User.UPDATE_USER_DOB_MUTATION);
 
-  const [
-    updateUserImage,
-    {
-      loading: updateUserImageLoad,
-      error: updateUserImageErr,
-      data: updateUserImageData,
-    },
-  ] = useMutation(UPDATE_USER_IMAGE_MUTATION);
-
-  const UPDATE_USER_NAME_MUTATION = gql`
-    mutation updateUserName($name: String!) {
-      updateUserName(name: $name) {
-        id
-        name
-      }
-    }
-  `;
-  const [
-    updateUserName,
-    {
-      loading: updateUserNameLoad,
-      error: updateUserNameErr,
-      data: updateUserNameData,
-    },
-  ] = useMutation(UPDATE_USER_NAME_MUTATION);
-
-  const UPDATE_USER_PHONE_MUTATION = gql`
-    mutation updateUserPhone($phone: String!) {
-      updateUserPhone(phone: $phone) {
-        id
-        phone
-      }
-    }
-  `;
-  const [
-    updateUserPhone,
-    {
-      loading: updateUserPhoneLoad,
-      error: updateUserPhoneErr,
-      data: updateUserPhoneData,
-    },
-  ] = useMutation(UPDATE_USER_PHONE_MUTATION);
-
-  const UPDATE_USER_EMAIL_MUTATION = gql`
-    mutation updateUserEmail($email: String!) {
-      updateUserEmail(email: $email) {
-        id
-        email
-      }
-    }
-  `;
-  const [
-    updateUserEmail,
-    {
-      loading: updateUserEmailLoad,
-      error: updateUserEmailErr,
-      data: updateUserEmailData,
-    },
-  ] = useMutation(UPDATE_USER_EMAIL_MUTATION);
-
-  const CREATE_VERIFY_EMAIL_MUTATION = gql`
-    mutation createVerifyEmailToken($email: String!){
-      createEmailToken(email: $email) {
-        id
-      }
-    }
-  `;
-
-  const [
-    createTokenEmail,
-    {
-      loading: createTokenEmailLoad,
-      error: createTokenEmailErr,
-      data: createTokenEmailData,
-    },
-  ] = useMutation(CREATE_VERIFY_EMAIL_MUTATION);
-
-  const UPDATE_USER_GENDER_MUTATION = gql`
-    mutation updateUserGender($gender: String!) {
-      updateUserGender(gender: $gender) {
-        id
-        gender
-      }
-    }
-  `;
-  const [
-    updateUserGender,
-    {
-      loading: updateUserGenderLoad,
-      error: updateUserGenderErr,
-      data: updateUserGenderData,
-    },
-  ] = useMutation(UPDATE_USER_GENDER_MUTATION);
-
-  const UPDATE_USER_DOB_MUTATION = gql`
-    mutation updateUserDOB($dob: String!) {
-      updateUserDOB(dob: $dob) {
-        id
-      }
-    }
-  `;
-  const [
-    updateUserDOB,
-    {
-      loading: updateUserDOBLoad,
-      error: updateUserDOBErr,
-      data: updateUserDOBData,
-    },
-  ] = useMutation(UPDATE_USER_DOB_MUTATION);
+  useEffect(() => {
+    setTabIndexSetting(0)
+  }, [setTabIndexSetting])
 
   useEffect(() => {
     setProfileImage(
-      userData?.image
-        ? `/uploads/${userData?.image}`
-        : DEFAULT_PROFILE_IMAGE
+      userData?.image ? `/uploads/${userData?.image}` : DEFAULT_PROFILE_IMAGE
     );
 
     setName(userData?.name);
@@ -197,15 +91,12 @@ export default function BioData() {
         return d.name;
       });
       let image = images[0];
-      console.log(image);
       try {
         await updateUserImage({
           variables: {
             image: image,
           },
-        }).then((data) => {
-          console.log(data);
-        });
+        }).then((data) => {});
       } catch (error) {}
     }
   }
@@ -217,118 +108,114 @@ export default function BioData() {
   }
 
   return (
-      <div className={styles.container}>
-        <div className={styles.biodata_container}>
-          <div className={styles.profile_image_container}>
-            <section className={styles.profile_image_section}>
-              <input
-                className={styles.profile_image_input}
-                type="file"
-                name=""
-                id=""
-                accept="image/jpeg, .jpeg, .jpg, image/png, .png"
-                onChange={(e) => onImageChange(e)}
-              />
-              <picture>
-                <div>
-                  <Image
-                    src={profileImage}
-                    alt=""
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-              </picture>
-              <button>
-                <span>Pilih Foto</span>
-              </button>
-              <p>
-                Besar file: maksimum 10.000.000 bytes (10 Megabytes). Ekstensi
-                file yang diperbolehkan: .JPG .JPEG .PNG
-              </p>
-            </section>
-          </div>
-          <div className={styles.biodata_list_container}>
-            <p className={styles.biodata_list_headers}>Ubah Biodata Diri</p>
-            <div className={styles.biodata_item_container}>
-              <span className={styles.biodata_item_label}>Nama</span>
-              <span className={styles.biodata_item_value}>
-                {userData?.name}
-              </span>
-              <span
-                className={styles.biodata_item_change}
-                onClick={() => {
-                  setUpdateName(true);
-                }}
-              >
-                Ubah
-              </span>
-            </div>
-            <div className={styles.biodata_item_container}>
-              <span className={styles.biodata_item_label}>Tanggal Lahir</span>
-              <span className={styles.biodata_item_value}>
-                {userData?.dob
-                  ? toIndonesianDate(userData?.dob)
-                  : "Not Specified Yet"}
-              </span>
-              <span
-                className={styles.biodata_item_change}
-                onClick={() => setUpdateDob(true)}
-              >
-                Ubah
-              </span>
-            </div>
-            <div className={styles.biodata_item_container}>
-              <span className={styles.biodata_item_label}>Jenis Kelamin</span>
-              <span className={styles.biodata_item_value}>
-                {userData?.gender
-                  ? (userData?.gender == 0 ? "Female" : "Male")
-                  : "Not Specified Yet"}
-              </span>
-              <span
-                className={styles.biodata_item_change}
-                onClick={() => setUpdateGender(true)}
-              >
-                Ubah
-              </span>
-            </div>
-            <p className={styles.biodata_list_headers}>Ubah Kontak</p>
-            <div className={styles.biodata_item_container}>
-              <span className={styles.biodata_item_label}>Email</span>
-              <span className={styles.biodata_item_value}>
-                {userData?.email}
-              </span>
-              <span
-                className={styles.biodata_item_change}
-                onClick={() => setUpdateEmail(true)}
-              >
-                Ubah
-              </span>
-            </div>
-            <div className={styles.biodata_item_container}>
-              <span className={styles.biodata_item_label}>Nomor HP</span>
-              <span className={styles.biodata_item_value}>
-                {userData?.phone
-                  ? userData?.phone
-                  : "Not Specified Yet"}
-              </span>
-              <span
-                className={styles.biodata_item_change}
-                onClick={() => setUpdatePhone(true)}
-              >
-                Ubah
-              </span>
-            </div>
-          </div>
+    <div className={styles.container}>
+      <div className={styles.biodata_container}>
+        <div className={styles.profile_image_container}>
+          <section className={styles.profile_image_section}>
+            <input
+              className={styles.profile_image_input}
+              type="file"
+              name=""
+              id=""
+              accept="image/jpeg, .jpeg, .jpg, image/png, .png"
+              onChange={(e) => onImageChange(e)}
+            />
+            <picture>
+              <div>
+                <Image
+                  src={profileImage}
+                  alt=""
+                  layout="fill"
+                  objectFit="cover"
+                />
+              </div>
+            </picture>
+            <button>
+              <span>Pilih Foto</span>
+            </button>
+            <p>
+              Besar file: maksimum 10.000.000 bytes (10 Megabytes). Ekstensi
+              file yang diperbolehkan: .JPG .JPEG .PNG
+            </p>
+          </section>
         </div>
-        <div>
-          {updateName && NameOverlay()}
-          {updatePhone && PhoneOverlay()}
-          {updateEmail && EmailOverlay()}
-          {updateGender && GenderOverlay()}
-          {updateDob && DOBOverlay()}
+        <div className={styles.biodata_list_container}>
+          <p className={styles.biodata_list_headers}>Ubah Biodata Diri</p>
+          <div className={styles.biodata_item_container}>
+            <span className={styles.biodata_item_label}>Nama</span>
+            <span className={styles.biodata_item_value}>{userData?.name}</span>
+            <span
+              className={styles.biodata_item_change}
+              onClick={() => {
+                setUpdateName(true);
+              }}
+            >
+              Ubah
+            </span>
+          </div>
+          <div className={styles.biodata_item_container}>
+            <span className={styles.biodata_item_label}>Tanggal Lahir</span>
+            <span className={styles.biodata_item_value}>
+              {userData?.dob
+                ? toIndonesianDate(userData?.dob)
+                : "Not Specified Yet"}
+            </span>
+            <span
+              className={styles.biodata_item_change}
+              onClick={() => setUpdateDob(true)}
+            >
+              Ubah
+            </span>
+          </div>
+          <div className={styles.biodata_item_container}>
+            <span className={styles.biodata_item_label}>Jenis Kelamin</span>
+            <span className={styles.biodata_item_value}>
+              {userData?.gender
+                ? userData?.gender == 0
+                  ? "Female"
+                  : "Male"
+                : "Not Specified Yet"}
+            </span>
+            <span
+              className={styles.biodata_item_change}
+              onClick={() => setUpdateGender(true)}
+            >
+              Ubah
+            </span>
+          </div>
+          <p className={styles.biodata_list_headers}>Ubah Kontak</p>
+          <div className={styles.biodata_item_container}>
+            <span className={styles.biodata_item_label}>Email</span>
+            <span className={styles.biodata_item_value}>{userData?.email}</span>
+            <span
+              className={styles.biodata_item_change}
+              onClick={() => setUpdateEmail(true)}
+            >
+              Ubah
+            </span>
+          </div>
+          <div className={styles.biodata_item_container}>
+            <span className={styles.biodata_item_label}>Nomor HP</span>
+            <span className={styles.biodata_item_value}>
+              {userData?.phone ? userData?.phone : "Not Specified Yet"}
+            </span>
+            <span
+              className={styles.biodata_item_change}
+              onClick={() => setUpdatePhone(true)}
+            >
+              Ubah
+            </span>
+          </div>
         </div>
       </div>
+      <div>
+        {updateName && NameOverlay()}
+        {updatePhone && PhoneOverlay()}
+        {updateEmail && EmailOverlay()}
+        {updateGender && GenderOverlay()}
+        {updateDob && DOBOverlay()}
+      </div>
+    </div>
   );
 
   function NameOverlay() {
@@ -474,8 +361,8 @@ export default function BioData() {
             onClick={() => {
               createTokenEmail({
                 variables: {
-                email: email
-                }
+                  email: email,
+                },
               }).then((d: any) => {
                 var templateParams = {
                   email_reply: "winstonkcoding@gmail.com",
@@ -484,14 +371,16 @@ export default function BioData() {
                 };
                 send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
                   function (response) {
-                    addToast("Check your email to verify email change", {appearance:"success"})
+                    addToast("Check your email to verify email change", {
+                      appearance: "success",
+                    });
                     setUpdateEmail(false);
                   },
                   function (error) {
-                    addToast("Error Sending Email", {appearance:"error"})
+                    addToast("Error Sending Email", { appearance: "error" });
                   }
                 );
-              })
+              });
               // updateUserEmail({ variables: { email: email } }).then((data) => {
               // });
             }}
@@ -507,7 +396,6 @@ export default function BioData() {
   }
 
   function DOBOverlay() {
-
     return (
       <Overlay>
         <div className={nameStyle.container}>
@@ -527,7 +415,7 @@ export default function BioData() {
                 <input
                   className={common.input_fields}
                   type="date"
-                  max={new Date().toISOString().split('T')[0]}
+                  max={new Date().toISOString().split("T")[0]}
                   onChange={(e) => {
                     setDob(e.target.value);
                   }}
@@ -537,14 +425,14 @@ export default function BioData() {
           </div>
           <button
             className={
-              dob == ""
-                ? common.button_overlay_disable
-                : common.button_overlay
+              dob == "" ? common.button_overlay_disable : common.button_overlay
             }
             onClick={() => {
-              updateUserDOB({ variables: { dob: new Date(dob) } }).then((data) => {
-                setUpdateDob(false);
-              });
+              updateUserDOB({ variables: { dob: new Date(dob) } }).then(
+                (data) => {
+                  setUpdateDob(false);
+                }
+              );
             }}
             // className={
             //   common.button_overlay
@@ -558,7 +446,6 @@ export default function BioData() {
   }
 
   function GenderOverlay() {
-
     return (
       <Overlay>
         <div className={nameStyle.container}>
@@ -579,14 +466,29 @@ export default function BioData() {
                   <div className={common.image_icon}>
                     <Image src={"/logo/icon_woman.svg"} alt="" layout="fill" />
                   </div>
-                  <input type="radio" name="gender" id="" value="female" onClick={e=>setGender(e.target.value)} />
+                  <input
+                    type="radio"
+                    name="gender"
+                    id=""
+                    value="female"
+                    onClick={(e) => setGender(e.target.value)}
+                  />
                   <span>Female</span>
                 </div>
-                <div style={{marginLeft: "10px"}} className={genderStyle.radio_container}>
+                <div
+                  style={{ marginLeft: "10px" }}
+                  className={genderStyle.radio_container}
+                >
                   <div className={common.image_icon}>
                     <Image src={"/logo/icon_male.svg"} alt="" layout="fill" />
                   </div>
-                  <input type="radio" name="gender" id="" value="male" onClick={e=>setGender(e.target.value)} />
+                  <input
+                    type="radio"
+                    name="gender"
+                    id=""
+                    value="male"
+                    onClick={(e) => setGender(e.target.value)}
+                  />
                   <span>Male</span>
                 </div>
               </div>
@@ -608,9 +510,11 @@ export default function BioData() {
                 : common.button_overlay
             }
             onClick={() => {
-              updateUserGender({ variables: { gender: gender } }).then((data) => {
-                setUpdateGender(false);
-              });
+              updateUserGender({ variables: { gender: gender } }).then(
+                (data) => {
+                  setUpdateGender(false);
+                }
+              );
             }}
             // className={
             //   common.button_overlay
@@ -622,12 +526,8 @@ export default function BioData() {
       </Overlay>
     );
   }
-};
+}
 
 BioData.getLayout = function getLayout(page: any) {
-  return (
-    <Layout>
-      {page}
-    </Layout>
-  )
-}
+  return <Layout>{page}</Layout>;
+};

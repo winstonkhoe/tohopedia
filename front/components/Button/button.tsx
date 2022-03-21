@@ -1,15 +1,15 @@
-import styles from "./button.module.scss"
+import styles from "./button.module.scss";
 
-function Button(props: { warning: boolean, children?: any }) {
-    return (
-        <button className={`${styles.button} ${props?.warning === true ? styles.warning : null}`}>
-            <span>
-                {props?.children}
-            </span>
-        </button>
-    )
+function Button(props: { warning: boolean; children?: any; disable: boolean }) {
+  return (
+    <button
+      className={`${
+        props?.disable === false ? styles.button : styles.disable
+      } ${props?.warning === true ? styles.warning : ""}`}
+    >
+      <span>{props?.children}</span>
+    </button>
+  );
 }
 
-export {
-    Button
-}
+export { Button };

@@ -72,8 +72,10 @@ $phone: 550px;
             }
 
             .seller_header_detail_container {
+              margin-left: 20px;
               display: flex;
               flex-direction: column;
+              justify-content: center;
 
               .seller_name {
                 color: $color-text-high;

@@ -2,6 +2,7 @@ import { useEffect, useState, createContext, useContext } from "react";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Shop from "../models/Shop";
 import { stateContext } from "./StateProvider";
+import { User } from "../models/User";
 export const userDetailsContext = createContext(null);
 
 const UserDataProvider = (props: { children: any }) => {
@@ -19,6 +20,7 @@ const UserDataProvider = (props: { children: any }) => {
         email
         phone
         isAdmin
+        verification
         addresses(query: $query) {
           id
           receiver
@@ -99,6 +101,7 @@ const UserDataProvider = (props: { children: any }) => {
             name
             type
             slug
+            image
           }
           shipment {
             id
@@ -119,6 +122,15 @@ const UserDataProvider = (props: { children: any }) => {
           details {
             id
             quantity
+            review {
+              id
+              images {
+                image
+              }
+              rating
+              message
+              anonymous
+            }
             product {
               id
               name
@@ -127,6 +139,16 @@ const UserDataProvider = (props: { children: any }) => {
               images {
                 image
               }
+              shop {
+                id
+                name
+                image
+                slug
+              }
+            }
+            transaction {
+              id
+              date
             }
           }
         }

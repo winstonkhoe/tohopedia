@@ -125,11 +125,11 @@ export default function ManageUser() {
                       }}
                     >
                       {user?.isSuspended === false ? (
-                        <Button warning={user?.isSuspended}>
+                        <Button warning={user?.isSuspended} disable={false}>
                           Suspend User
                         </Button>
                       ) : (
-                        <Button warning={user?.isSuspended}>
+                        <Button warning={user?.isSuspended} disable={false}>
                           Unsuspend User
                         </Button>
                       )}

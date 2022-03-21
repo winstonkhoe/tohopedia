@@ -160,7 +160,7 @@ export function UserNavbar(props: {}) {
       <div className={styles.settings_user_utilities_container}>
         <Accordion header="Kotak Masuk">
           <AccordionItemNotif name="Chat" href={"/chat"} notifCount={7} />
-          <AccordionItemNotif name="Ulasan" notifCount={5} />
+          <AccordionItemNotif name="Ulasan" href={"/inbox-reputation/review"} notifCount={5} />
         </Accordion>
         <Accordion header="Pembelian">
           <AccordionItemNotif name="Daftar Transaksi" href={"/order-list"} notifCount={7} />

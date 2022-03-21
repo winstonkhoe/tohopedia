@@ -201,6 +201,17 @@ func (r *transactionDetailResolver) Transaction(ctx context.Context, obj *model.
 	return transaction, nil
 }
 
+func (r *transactionDetailResolver) Review(ctx context.Context, obj *model.TransactionDetail) (*model.Review, error) {
+	db := config.GetDB()
+	review := new(model.Review)
+
+	if err := db.Where("transaction_detail_id = ?", obj.ID).Find(&review).Error; err != nil {
+		return nil, err
+	}
+
+	return review, nil
+}
+
 func (r *transactionDetailResolver) Product(ctx context.Context, obj *model.TransactionDetail) (*model.Product, error) {
 	db := config.GetDB()
 	product := new(model.Product)

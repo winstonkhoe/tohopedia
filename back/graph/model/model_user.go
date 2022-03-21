@@ -44,6 +44,7 @@ type User struct {
 	Password         string         `json:"password"`
 	Phone            string         `json:"phone"`
 	Gender           int            `json:"gender"`
+	Verification           int            `json:"verification"`
 	Dob              string         `json:"dob"`
 	Image            string         `json:"image"`
 	IsAdmin          bool           `json:"isAdmin"`

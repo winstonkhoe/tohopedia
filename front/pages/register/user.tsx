@@ -3,18 +3,22 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import Navbar from "../../components/navbar";
+import React, {
+  LegacyRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styles from "../../styles/register.module.scss";
 import { useForm } from "react-hook-form";
-import { redirect } from "next/dist/server/api-utils";
 import Router from "next/router";
 import { init, send } from "@emailjs/browser";
 import { OTPGenerator } from "../../misc/otp";
 import { useToasts } from "react-toast-notifications";
-import InitFont from "../../components/initialize_font";
-import Footer from "../../components/Footer/Footer";
-
+import { stateContext } from "../../services/StateProvider";
+import { User } from "../../models/User";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const SERVICE_ID = "service_egdaufp";
 const TEMPLATE_ID = "template_fg0ncxa";
@@ -25,48 +29,34 @@ const Register: NextPage = () => {
   const [first, setFirst] = useState(true);
   const [second, setSecond] = useState(false);
   const [third, setThird] = useState(false);
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  // const recaptchaRef = useRef();
+  const recaptchaRef = React.createRef<ReCAPTCHA>();
+  // const recaptchaRef = React.createRef<LegacyRef>();
 
   const [email, setEmail] = useState("");
   const [generatedOTP, setGeneratedOTP] = useState("");
+  const { setPageTitle } = useContext(stateContext);
 
+  useEffect(() => {
+    setPageTitle("Daftar / Register | Tohopedia");
+  }, [setPageTitle]);
   init("user_3FcFw9m04bwuTvX6TklJs");
 
-  const REGISTER_QUERY = gql`
-    mutation register($name: String!, $email: String!, $password: String!) {
-      auth {
-        register(input: { name: $name, email: $email, password: $password })
-      }
-    }
-  `;
-
+  console.log(email);
   function First() {
     async function sendMail(formData: any) {
+      console.log(recaptchaRef.current);
       if (formData.email == "") {
         addToast("Field harus diisi semua", { appearance: "error" });
       } else {
-        var temp = OTPGenerator();
-        setGeneratedOTP(temp);
-        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        
+        let re =
+          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (re.test(formData.email)) {
+          recaptchaRef.current.reset();
+          recaptchaRef.current.execute();
           setEmail(formData.email);
-          console.log("1 Original: " + generatedOTP)
-          var templateParams = {
-            email_reply: "winstonkcoding@gmail.com",
-            email_destination: formData.email,
-            otp_code: temp,
-          };
-          send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
-            function (response) {
-              console.log("SUCCESS!", response.status, response.text);
-              console.log("2 Original: " + generatedOTP)
-              setSecond(true);
-              setFirst(false);
-            },
-            function (error) {
-              console.log("FAILED...", error);
-            }
-          );
         } else {
           addToast("Format email salah", { appearance: "error" });
         }
@@ -95,12 +85,23 @@ const Register: NextPage = () => {
               <div className={styles.label_fields_container}>
                 <label htmlFor="email">Email</label>
                 <div tabIndex={-1}>
-                  <input type="email" {...register("email")} defaultValue={email}/>
+                  <input
+                    type="email"
+                    {...register("email")}
+                    defaultValue={email}
+                  />
                 </div>
               </div>
               <button type="submit">
                 <span>Daftar</span>
               </button>
+              <ReCAPTCHA
+                sitekey={"6Lfav-4eAAAAAJQ54m1cgb9vy5lRdmP3T_xFViCj"}
+                // sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                size="invisible"
+                ref={recaptchaRef}
+                onChange={onReCAPTCHAChange}
+              />
             </form>
           </div>
         </section>
@@ -134,7 +135,13 @@ const Register: NextPage = () => {
         </div>
         <section>
           <div className={styles.section_header}>
-          <a className={styles.back_arrow} data-testid="back_arrow" onClick={InitializeFirst}>&nbsp;</a>
+            <a
+              className={styles.back_arrow}
+              data-testid="back_arrow"
+              onClick={InitializeFirst}
+            >
+              &nbsp;
+            </a>
             <h3 className={styles.extra_margin}>Verification</h3>
           </div>
           <div className={styles.section_body}>
@@ -162,8 +169,57 @@ const Register: NextPage = () => {
     setThird(false);
   }
 
-  function Third() {
+  const onReCAPTCHAChange = async (captchaCode: any) => {
+    // If the reCAPTCHA code is null or undefined indicating that
+    // the reCAPTCHA was expired then return early
+    if (!captchaCode) {
+      return;
+    }
 
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        body: JSON.stringify({ email: email, captcha: captchaCode }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        // If the response is ok than show the success alert
+        var temp = OTPGenerator();
+        setGeneratedOTP(temp);
+        var templateParams = {
+          email_reply: "winstonkcoding@gmail.com",
+          email_destination: email,
+          otp_code: temp,
+        };
+        send(SERVICE_ID, TEMPLATE_ID, templateParams).then(
+          function (response) {
+            setSecond(true);
+            setFirst(false);
+          },
+          function (error) {
+            addToast("Error send email!", { appearance: "error" });
+          }
+        );
+      } else {
+        // Else throw an error with the message returned
+        // from the API
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      addToast(error?.message || "Something went wrong", {
+        appearance: "error",
+      });
+    } finally {
+      // Reset the reCAPTCHA when the request has failed or succeeeded
+      // so that it can be executed again if user submits another email.
+      // recaptchaRef.current.reset();
+    }
+  };
+
+  function Third() {
     async function onSubmit(formData: any) {
       try {
         await getRegister({
@@ -172,10 +228,8 @@ const Register: NextPage = () => {
             email: email,
             password: formData.password,
           },
-        }).then((data) => {
-          
-        });
-        Router.push("/");
+        }).then((data) => {});
+        Router.push("/login");
       } catch (error) {
         console.log(error);
       }
@@ -193,12 +247,25 @@ const Register: NextPage = () => {
         </div>
         <section>
           <div className={styles.register_ending_header}>
-            <a className={styles.back_arrow} data-testid="back_arrow" onClick={InitializeFirst}>&nbsp;</a>
+            <a
+              className={styles.back_arrow}
+              data-testid="back_arrow"
+              onClick={InitializeFirst}
+            >
+              &nbsp;
+            </a>
             <h3>Daftar dengan Email </h3>
             <p>{email}</p>
           </div>
           <div className={styles.section_body}>
             <form autoComplete="on" onSubmit={handleSubmit(onSubmit)}>
+              <ReCAPTCHA
+                sitekey={"6Lfav-4eAAAAAJQ54m1cgb9vy5lRdmP3T_xFViCj"}
+                // sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+                ref={recaptchaRef}
+                size="invisible"
+                onChange={onReCAPTCHAChange}
+              />
               <div className={styles.label_fields_container}>
                 <label htmlFor="name">Nama Lengkap</label>
                 <div tabIndex={-1}>
@@ -223,7 +290,9 @@ const Register: NextPage = () => {
     );
   }
 
-  const [getRegister, { loading, error, data }] = useMutation(REGISTER_QUERY);
+  const [getRegister, { loading, error, data }] = useMutation(
+    User.REGISTER_MUTATION
+  );
 
   async function onSubmit(formData: any) {
     try {
@@ -244,33 +313,27 @@ const Register: NextPage = () => {
     console.log(data);
   }
 
+  // useEffect(() => {
+  //   recaptchaRef.current.execute()
+  // }, [recaptchaRef])
+
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Daftar / Register | Tohopedia</title>
-        <meta name="description" content="Generated by create next app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-        <InitFont/>
-      {/* <Navbar/> */}
-      <div className={styles.container}>
-        {/* Header */}
-        <div className={styles.header}>
-          <Link href="/">
-            <div>
-              <Image
-                src="/logo/tohopedia_logo.png"
-                alt="tohopedia logo"
-                layout="fill"
-              />
-            </div>
-          </Link>
-        </div>
-        {first && First()}
-        {second && Second()}
-        {third && Third()}
+      {/* Header */}
+      <div className={styles.header}>
+        <Link href="/" passHref>
+          <div>
+            <Image
+              src="/logo/tohopedia_logo.png"
+              alt="tohopedia logo"
+              layout="fill"
+            />
+          </div>
+        </Link>
       </div>
-      <Footer/>
+      {first && First()}
+      {second && Second()}
+      {third && Third()}
     </div>
   );
 };

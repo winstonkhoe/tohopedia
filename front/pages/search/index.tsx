@@ -10,7 +10,7 @@ import Footer from "../../components/Footer/Footer";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";
-import styles from "../../styles/Search.module.scss";
+import styles from "./search.module.scss";
 import { useToasts } from "react-toast-notifications";
 import { Accordion, AccordionItem } from "../../components/Accordion/Accordion";
 import { Section } from "../../components/Product/ProductSection";
@@ -19,6 +19,7 @@ import { GetMerchantType } from "../../misc/shop_type";
 import { ShopIcon } from "../../components/Badge/ShopBadge";
 import { stateContext } from "../../services/StateProvider";
 import { ALL_PRODUCT_QUERY } from "../../misc/global_query";
+import { Dropdown } from "../../components/Dropdown/dropdown";
 
 const SearchPage: NextPage = () => {
   const { addToast } = useToasts();

@@ -59,14 +59,35 @@ type TransactionCoupon struct {
 // 	Quantity          int          `json:"quantity"`
 // }
 
-type Ulasan struct {
-	ID                	string             `json:"id"`
+// type Ulasan struct {
+// 	ID                	string             `json:"id"`
+// 	TransactionDetailId string       `json:"transactionDetailId" gorm:"size:191"`
+// 	TransactionDetail *TransactionDetail `json:"transactionDetail"`
+// 	UserId     			string               `json:"userId" gorm:"size:191"`
+// 	User              *User              `json:"user"`
+// 	Rating            int                `json:"rating"`
+// 	Message           *string            `json:"message"`
+// 	Anonymous         bool               `json:"anonymous"`
+// 	CreatedAt       time.Time            `json:"createdAt"`
+// }
+type Review struct {
+	ID                string             `json:"id"`
 	TransactionDetailId string       `json:"transactionDetailId" gorm:"size:191"`
 	TransactionDetail *TransactionDetail `json:"transactionDetail"`
 	UserId     			string               `json:"userId" gorm:"size:191"`
 	User              *User              `json:"user"`
+	ShopId     			string               `json:"shopId" gorm:"size:191"`
+	Shop              *Shop              `json:"shop"`
+	Images              *ReviewImage              `json:"reviewImage"`
 	Rating            int                `json:"rating"`
 	Message           *string            `json:"message"`
 	Anonymous         bool               `json:"anonymous"`
-	CreatedAt       time.Time            `json:"createdAt"`
+	CreatedAt         time.Time          `json:"createdAt"`
+}
+
+type ReviewImage struct {
+	ID     string  `json:"id"`
+	ReviewId string `json:"reviewId" gorm:"size:191"`
+	Review *Review `json:"review"`
+	Image  string  `json:"image"`
 }

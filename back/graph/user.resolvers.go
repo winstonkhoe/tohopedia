@@ -69,6 +69,23 @@ func (r *mutationResolver) UpdateUserEmail(ctx context.Context, email string) (*
 	return user, db.Save(user).Error
 }
 
+func (r *mutationResolver) UpdateUserPassword(ctx context.Context, email string, password string) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	if user.ID != "" {
+		user.Password = helpers.HashPassword(password)
+
+		return user, db.Save(&user).Error
+	}
+
+	return user, nil
+}
+
 func (r *mutationResolver) UpdateUserPhone(ctx context.Context, phone string) (*model.User, error) {
 	db := config.GetDB()
 	user := new(model.User)
@@ -186,6 +203,27 @@ func (r *mutationResolver) RequestUnsuspend(ctx context.Context, id string) (*mo
 	}
 
 	user.RequestUnsuspend = true
+
+	return user, db.Save(&user).Error
+}
+
+func (r *mutationResolver) ToggleUserVerification(ctx context.Context, verification int) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if ctx.Value("auth") == nil {
+		return nil, &gqlerror.Error{
+			Message: "Error, token gaada",
+		}
+	}
+
+	id := ctx.Value("auth").(*service.JwtCustomClaim).ID
+
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	user.Verification = verification
 
 	return user, db.Save(&user).Error
 }

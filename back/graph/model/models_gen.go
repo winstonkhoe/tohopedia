@@ -2,9 +2,6 @@
 
 package model
 
-import (
-)
-
 type ChatSenderReceiver interface {
 	IsChatSenderReceiver()
 }
@@ -47,6 +44,15 @@ type NewProduct struct {
 	Images      []string `json:"images"`
 }
 
+type NewReview struct {
+	TransactionDetailID string    `json:"transactionDetailId"`
+	ShopID              string    `json:"shopId"`
+	Rating              int       `json:"rating"`
+	Message             *string   `json:"message"`
+	Anonymous           bool      `json:"anonymous"`
+	Images              []*string `json:"images"`
+}
+
 type NewShipment struct {
 	Name           string `json:"name"`
 	Duration       int    `json:"duration"`
@@ -80,13 +86,6 @@ type NewTransactionDetail struct {
 	Quantity            int    `json:"quantity"`
 }
 
-type NewUlasan struct {
-	TransactionDetailID string  `json:"transactionDetailId"`
-	Rating              int     `json:"rating"`
-	Message             *string `json:"message"`
-	Anonymous           bool    `json:"anonymous"`
-}
-
 type NewUser struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -96,5 +95,3 @@ type NewUser struct {
 type NewWishlist struct {
 	ProductID string `json:"productId"`
 }
-
-

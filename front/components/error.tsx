@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router from "next/router";
 import styles from "../styles/error.module.scss";
 
-function DefaultError(props: { header: string; text: string }) {
+function DefaultError(props: { header: string; text: string; href?: any }) {
   return (
     <div className={styles.big_container}>
       <div className={styles.error_container}>
@@ -21,12 +21,12 @@ function DefaultError(props: { header: string; text: string }) {
             <p>{props.text}</p>
             <div className={styles.error_button_container}>
               <div className={styles.error_button_inner_container}>
-                <Link href={"/"}>
+                <Link href={props?.href !== undefined ? props?.href : "/"}>
                   <a href="">
                     <button
                       className={styles.error_button_return}
                       onClick={() => {
-                        Router.back();
+                        props?.href !== undefined ? null : Router.back();
                       }}
                     >
                       <span className={styles.error_button_span_text}>

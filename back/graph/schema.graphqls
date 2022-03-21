@@ -38,21 +38,31 @@ input NewWishlist {
   productId: String!
 }
 
-type Ulasan {
+type Review {
   id: ID!
   transactionDetail: TransactionDetail! @goField(forceResolver: true)
   user: User! @goField(forceResolver: true)
+  shop: Shop! @goField(forceResolver: true)
+  images: [ReviewImage] @goField(forceResolver: true)
   rating: Int!
   message: String
   anonymous: Boolean!
   createdAt: Time!
 }
 
-input NewUlasan {
+type ReviewImage {
+  id: ID!
+  review: Review! @goField(forceResolver: true)
+  image: String!
+}
+
+input NewReview {
   transactionDetailId: String!
+  shopId: String!
   rating: Int!
   message: String
   anonymous: Boolean!
+  images: [String]
 }
 
 type Topay {
@@ -126,9 +136,13 @@ type Query {
   getShop(slug: String!): Shop!
   getShopById(id: String!): Shop!
   getTopayToken(code: String!): TopayToken! @auth
-  getPasswordToken(email: String!): PasswordToken! 
+  getPasswordToken(id: ID!): PasswordToken! 
   getRecommendation: [Product!]! @goField(forceResolver: true) @auth
   getChats(id: String!): [Chat!]! @goField(forceResolver: true) @auth
+  # adminData(type: String!): Any! @goField(forceResolver: true) @auth
+  transactionsPerDay: Any! @goField(forceResolver: true) @auth
+  transactionsPerShipmentType: Any! @goField(forceResolver: true) @auth
+  productsPerCategory: Any! @goField(forceResolver: true) @auth
 }
 
 type Mutation {
@@ -139,7 +153,7 @@ type Mutation {
   createPasswordToken(email: String!): PasswordToken!
   verifyEmailAddress(id: ID!): Boolean! @auth
   addTopayBalance(code: String!): Topay! @auth
-  addUlasan(input: NewUlasan!): Ulasan! @auth
+  addReview(input: NewReview!): Review! @auth
   addWishlist(input: NewWishlist!): Wishlist! @auth
   removeWishlist(id: ID!): Wishlist! @auth
 }

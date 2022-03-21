@@ -260,7 +260,7 @@ func (r *mutationResolver) AddTopayBalance(ctx context.Context, code string) (*m
 	return topay, db.Save(topay).Error
 }
 
-func (r *mutationResolver) AddUlasan(ctx context.Context, input model.NewUlasan) (*model.Ulasan, error) {
+func (r *mutationResolver) AddReview(ctx context.Context, input model.NewReview) (*model.Review, error) {
 	db := config.GetDB()
 
 	if ctx.Value("auth") == nil {
@@ -271,16 +271,35 @@ func (r *mutationResolver) AddUlasan(ctx context.Context, input model.NewUlasan)
 
 	userId := ctx.Value("auth").(*service.JwtCustomClaim).ID
 
-	ulasan := &model.Ulasan{
-		ID:                  uuid.NewString(),
+	reviewId := uuid.NewString()
+
+	review := &model.Review{
+		ID:                  reviewId,
 		TransactionDetailId: input.TransactionDetailID,
 		UserId:              userId,
+		ShopId:              input.ShopID,
 		Rating:              input.Rating,
 		Message:             input.Message,
 		Anonymous:           input.Anonymous,
+		CreatedAt:           time.Now(),
+	}
+	if err := db.Create(&review).Error; err != nil {
+		return nil, err
 	}
 
-	return ulasan, db.Create(ulasan).Error
+	for i := range input.Images {
+		image := &model.ReviewImage{
+			ID:       uuid.NewString(),
+			ReviewId: reviewId,
+			Image:    *input.Images[i],
+		}
+
+		if err := db.Create(&image).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	return review, nil
 }
 
 func (r *mutationResolver) AddWishlist(ctx context.Context, input model.NewWishlist) (*model.Wishlist, error) {
@@ -377,18 +396,13 @@ func (r *queryResolver) GetTopayToken(ctx context.Context, code string) (*model.
 	return topayToken, nil
 }
 
-func (r *queryResolver) GetPasswordToken(ctx context.Context, email string) (*model.PasswordToken, error) {
+func (r *queryResolver) GetPasswordToken(ctx context.Context, id string) (*model.PasswordToken, error) {
 	db := config.GetDB()
 	token := new(model.PasswordToken)
 
-	if err := db.Where("email = ? AND redeemed = ?", email, false).Find(&token).Error; err != nil {
+	if err := db.Where("id = ?", id).Find(&token).Error; err != nil {
 		return nil, err
 	}
-
-	if(token.ID == "") {
-		fmt.Println("Token ID Empty")
-	}
-	fmt.Println(token.ID)
 
 	return token, nil
 }
@@ -656,11 +670,118 @@ func (r *queryResolver) GetChats(ctx context.Context, id string) ([]*model.Chat,
 	return chats, nil
 }
 
+func (r *queryResolver) TransactionsPerDay(ctx context.Context) (interface{}, error) {
+	db := config.GetDB()
+	var data []map[string]interface{}
+
+	db.Raw(`SELECT DISTINCT
+	CAST(DATE(t.date) AS DATE) AS date,
+	COUNT(*) AS count
+	FROM 
+	transactions t, 
+	(SELECT date FROM transactions) x  
+	WHERE
+		DATEDIFF(t.date, x.date) = 0
+	GROUP BY
+		t.date`).Find(&data)
+
+	if data != nil {
+		fmt.Println(data)
+		for i := 0; i < len(data); i++ {
+			fmt.Println(data[i]["count"])
+			fmt.Println(data[i]["date"])
+		}
+	}
+
+	return data, nil
+}
+
+func (r *queryResolver) TransactionsPerShipmentType(ctx context.Context) (interface{}, error) {
+	db := config.GetDB()
+	var data []map[string]interface{}
+
+	db.Raw(`SELECT DISTINCT
+	st.name,
+	COUNT(*) AS count
+	FROM 
+		transactions t JOIN shipments s
+		ON t.shipment_id = s.id JOIN shipment_types st
+		ON s.shipment_type_id = st.id
+	GROUP BY
+		st.id, st.name`).Find(&data)
+
+	return data, nil
+}
+
+func (r *queryResolver) ProductsPerCategory(ctx context.Context) (interface{}, error) {
+	db := config.GetDB()
+	var data []map[string]interface{}
+
+	db.Raw(`SELECT DISTINCT
+	c.name,
+	COUNT(*) AS count
+	FROM 
+		products p JOIN categories c
+		ON p.category_id = c.id
+	GROUP BY
+		c.id, c.name`).Find(&data)
+
+	return data, nil
+}
+
+func (r *reviewResolver) TransactionDetail(ctx context.Context, obj *model.Review) (*model.TransactionDetail, error) {
+	db := config.GetDB()
+	detail := new(model.TransactionDetail)
+
+	if err := db.First(detail, "id = ?", obj.TransactionDetailId).Error; err != nil {
+		return nil, err
+	}
+
+	return detail, nil
+}
+
+func (r *reviewResolver) User(ctx context.Context, obj *model.Review) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.First(user, "id = ?", obj.UserId).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *reviewResolver) Shop(ctx context.Context, obj *model.Review) (*model.Shop, error) {
+	db := config.GetDB()
+	shop := new(model.Shop)
+
+	if err := db.First(shop, "id = ?", obj.ShopId).Error; err != nil {
+		return nil, err
+	}
+
+	return shop, nil
+}
+
+func (r *reviewResolver) Images(ctx context.Context, obj *model.Review) ([]*model.ReviewImage, error) {
+	db := config.GetDB()
+	var images []*model.ReviewImage
+
+	if err := db.Where("review_id = ?", obj.ID).Find(&images).Error; err != nil {
+		return nil, err
+	}
+
+	return images, nil
+}
+
+func (r *reviewImageResolver) Review(ctx context.Context, obj *model.ReviewImage) (*model.Review, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *topayResolver) User(ctx context.Context, obj *model.Topay) (*model.User, error) {
 	db := config.GetDB()
 	user := new(model.User)
 
-	if err := db.First(user, "user_id = ?", obj.UserId).Error; err != nil {
+	if err := db.First(user, "id = ?", obj.UserId).Error; err != nil {
 		return nil, err
 	}
 
@@ -669,28 +790,6 @@ func (r *topayResolver) User(ctx context.Context, obj *model.Topay) (*model.User
 
 func (r *topayTokenResolver) User(ctx context.Context, obj *model.TopayToken) (*model.User, error) {
 	panic(fmt.Errorf("not implemented"))
-}
-
-func (r *ulasanResolver) TransactionDetail(ctx context.Context, obj *model.Ulasan) (*model.TransactionDetail, error) {
-	db := config.GetDB()
-	transactionDetail := new(model.TransactionDetail)
-
-	if err := db.First(transactionDetail, "transaction_detail_id = ?", obj.TransactionDetailId).Error; err != nil {
-		return nil, err
-	}
-
-	return transactionDetail, nil
-}
-
-func (r *ulasanResolver) User(ctx context.Context, obj *model.Ulasan) (*model.User, error) {
-	db := config.GetDB()
-	user := new(model.User)
-
-	if err := db.First(user, "user_id = ?", obj.UserId).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
 }
 
 func (r *userPreferencesResolver) User(ctx context.Context, obj *model.UserPreferences) (*model.User, error) {
@@ -734,14 +833,17 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// Review returns generated.ReviewResolver implementation.
+func (r *Resolver) Review() generated.ReviewResolver { return &reviewResolver{r} }
+
+// ReviewImage returns generated.ReviewImageResolver implementation.
+func (r *Resolver) ReviewImage() generated.ReviewImageResolver { return &reviewImageResolver{r} }
+
 // Topay returns generated.TopayResolver implementation.
 func (r *Resolver) Topay() generated.TopayResolver { return &topayResolver{r} }
 
 // TopayToken returns generated.TopayTokenResolver implementation.
 func (r *Resolver) TopayToken() generated.TopayTokenResolver { return &topayTokenResolver{r} }
-
-// Ulasan returns generated.UlasanResolver implementation.
-func (r *Resolver) Ulasan() generated.UlasanResolver { return &ulasanResolver{r} }
 
 // UserPreferences returns generated.UserPreferencesResolver implementation.
 func (r *Resolver) UserPreferences() generated.UserPreferencesResolver {
@@ -757,9 +859,10 @@ type couponResolver struct{ *Resolver }
 type emailTokenResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type reviewResolver struct{ *Resolver }
+type reviewImageResolver struct{ *Resolver }
 type topayResolver struct{ *Resolver }
 type topayTokenResolver struct{ *Resolver }
-type ulasanResolver struct{ *Resolver }
 type userPreferencesResolver struct{ *Resolver }
 type wishlistResolver struct{ *Resolver }
 
@@ -769,6 +872,60 @@ type wishlistResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) AdminData(ctx context.Context, typeArg string) (interface{}, error) {
+	db := config.GetDB()
+	var data []map[string]interface{}
+
+	db.Raw(`SELECT DISTINCT
+	CAST(DATE(t.date) AS DATE) AS date,
+	COUNT(*) AS 'Total Transaction'
+	FROM 
+	transactions t, 
+	(SELECT date FROM transactions) x  
+	WHERE
+		DATEDIFF(t.date, x.date) = 0
+	GROUP BY
+		t.date`).Find(&data)
+
+	if data != nil {
+		fmt.Println(data)
+		for i := 0; i < len(data); i++ {
+			fmt.Println(data[i]["Total Transaction"])
+			fmt.Println(data[i]["date"])
+		}
+	}
+
+	return data, nil
+}
+
+type trans struct {
+	date             string
+	totalTransaction int
+}
+
+func (r *ReviewResolver) TransactionDetail(ctx context.Context, obj *model.Review) (*model.TransactionDetail, error) {
+	db := config.GetDB()
+	transactionDetail := new(model.TransactionDetail)
+
+	if err := db.First(transactionDetail, "transaction_detail_id = ?", obj.TransactionDetailId).Error; err != nil {
+		return nil, err
+	}
+
+	return transactionDetail, nil
+}
+func (r *ReviewResolver) User(ctx context.Context, obj *model.Review) (*model.User, error) {
+	db := config.GetDB()
+	user := new(model.User)
+
+	if err := db.First(user, "user_id = ?", obj.UserId).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+type ReviewResolver struct{ *Resolver }
+
 func (r *chatResolver) SenderModel(ctx context.Context, obj *model.Chat) (model.ChatSenderReceiver, error) {
 	db := config.GetDB()
 	user := new(model.ChatSenderReceiver)
@@ -826,7 +983,7 @@ type PairList []Pair
 func (p PairList) Len() int           { return len(p) }
 func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p PairList) Less(i, j int) bool { return p[i].Value > p[j].Value }
-func (r *ulasanResolver) CreatedAt(ctx context.Context, obj *model.Ulasan) (*time.Time, error) {
+func (r *ReviewResolver) CreatedAt(ctx context.Context, obj *model.Review) (*time.Time, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 func (r *transactionDetailResolver) Quantity(ctx context.Context, obj *model.TransactionDetail) (int, error) {

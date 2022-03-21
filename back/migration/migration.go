@@ -32,7 +32,7 @@ func MigrateTable() {
 	db.AutoMigrate(&model.TransactionDetail{})
 	db.AutoMigrate(&model.TransactionCoupon{})
 	// fmt.Println(err)
-	db.AutoMigrate(&model.Ulasan{})
+	db.AutoMigrate(&model.Review{})
 	db.AutoMigrate(&model.Topay{})
 	db.AutoMigrate(&model.TopayToken{})
 	db.AutoMigrate(&model.UserPreferences{})
@@ -42,5 +42,6 @@ func MigrateTable() {
 	db.AutoMigrate(&model.ChatDetails{})
 	db.AutoMigrate(&model.EmailToken{})
 	db.AutoMigrate(&model.PasswordToken{})
+	db.AutoMigrate(&model.ReviewImage{})
 	
 }
