@@ -1,9 +1,9 @@
 import { useEffect, useState, createContext, useContext } from "react";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import Shop from "../models/Shop";
 import { stateContext } from "./StateProvider";
 import { User } from "../models/User";
-export const userDetailsContext = createContext(null);
+import { Shop } from "../models/Shop";
+export const userDetailsContext = createContext<any>(null);
 
 const UserDataProvider = (props: { children: any }) => {
   const { addressQuery } = useContext(stateContext);
