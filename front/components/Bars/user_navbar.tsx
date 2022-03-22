@@ -1,20 +1,20 @@
-import { gql, useQuery } from "@apollo/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useContext} from "react";
 import RupiahFormat from "../../misc/currency";
 import NumberFormat from "../../misc/number";
 import { Accordion, AccordionItemNotif } from "../Accordion/Accordion";
 import styles from "./user_navbar.module.scss";
 import { userDetailsContext } from "../../services/UserDataProvider";
+import { User } from "../../models/User";
 
 export function UserNavbar(props: {}) {
 
-  const userData = useContext(userDetailsContext)
+  const userData = useContext<User>(userDetailsContext)
 
-  // useEffect(() => {
-  //   // props?.onLoadUser(userData?.getCurrentUser?.name)
-  // }, [props, userData?.getCurrentUser?.name])
+  if (!userData) {
+    return null
+  }
 
   return (
     <div className={styles.main_left_container}>
