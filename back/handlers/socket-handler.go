@@ -211,6 +211,19 @@ func handleSocketPayloadEvents(client *Client, socketEventPayload SocketEventStr
             "message":  socketEventPayload.EventPayload.(map[string]interface{})["message"],
         }
         EmitToAllClient(client.hub, socketEventResponse)
+        if(keyExists(socketEventPayload.EventPayload.(map[string]interface{}), "message")) {
+            db := config.GetDB()
+
+            reksadana := &model.Reksadana{
+                ID:        uuid.NewString(),
+                Price:     int(socketEventPayload.EventPayload.(map[string]interface{})["message"].(float64)),
+                CreatedAt: time.Now(),
+            }
+
+            if err := db.Create(&reksadana).Error; err != nil {
+                log.Println(err)
+            }
+        }
     }
 
 }

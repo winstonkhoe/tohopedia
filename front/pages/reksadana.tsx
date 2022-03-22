@@ -5,6 +5,7 @@ import { useToasts } from "react-toast-notifications";
 import { Button } from "../components/Button/button";
 import RupiahFormat from "../misc/currency";
 import { User } from "../models/User";
+import { userDetailsContext } from "../services/UserDataProvider";
 import styles from "../styles/Cart.module.scss";
 
 const Reksadana: NextPage = () => {
@@ -76,7 +77,7 @@ const Reksadana: NextPage = () => {
               ? messageContent.username
               : "An unnamed fellow";
             const actualMessage = messageContent.message;
-
+            setReksadanaPrice(Number(actualMessage))
             
             break;
 
@@ -116,12 +117,11 @@ const Reksadana: NextPage = () => {
         <h3 className={styles.cart_header_text}>Reksadana</h3>
       </div>
       <h2>Reksadana Price: {RupiahFormat(reksadanaPrice)}</h2>
-      <span>
+      <span onClick={()=>{handleBuyReksadana(reksadanaPrice + 371)}}>
         <Button disable={false} warning={false}>Buy</Button>
       </span>
-      <span>
-      <Button disable={false} warning={true}>Sell</Button>
-
+      <span onClick={()=>{handleBuyReksadana(reksadanaPrice - 232)}}>
+        <Button disable={false} warning={true}>Sell</Button>
       </span>
     </main>
   );
