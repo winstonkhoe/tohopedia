@@ -51,7 +51,7 @@ const Register: NextPage = () => {
       } else {
         let re =
           /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (re.test(formData.email)) {
+        if (re.test(formData.email) && recaptchaRef.current) {
           recaptchaRef.current.reset();
           recaptchaRef.current.execute();
           setEmail(formData.email);
@@ -206,7 +206,7 @@ const Register: NextPage = () => {
         const error = await response.json();
         throw new Error(error.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       addToast(error?.message || "Something went wrong", {
         appearance: "error",
       });

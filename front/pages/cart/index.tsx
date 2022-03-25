@@ -10,7 +10,6 @@ import HeadIcon from "../../components/head_icon";
 import InitFont from "../../components/initialize_font";
 import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";
-import Shop from "../../models/Shop";
 import { stateContext } from "../../services/StateProvider";
 import styles from "../../styles/Cart.module.scss";
 

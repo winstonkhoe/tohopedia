@@ -21,28 +21,28 @@ import { User } from "../../models/User";
 const Shipment: NextPage = () => {
   const { addToast } = useToasts();
   const router = useRouter();
-  const [updateAddress, setUpdateAddress] = useState<Address>();
+  const [updateAddress, setUpdateAddress] = useState<any>();
   const [newAddress, setNewAddress] = useState<Address>();
-  const [inputStyle, setInputStyle] = useState<Address>();
+  const [inputStyle, setInputStyle] = useState<any>();
 
-  const [choosingPayment, setChoosingPayment] = useState(false);
+  const [choosingPayment, setChoosingPayment] = useState<any>(false);
 
-  const [tambahAlamat, setTambahAlamat] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [tambahAlamat, setTambahAlamat] = useState<any>(false);
+  const [submitted, setSubmitted] = useState<any>(false);
   const [currAddress, setCurrAddress] = useState<Address>();
-  const [ubahAlamat, setUbahAlamat] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [chooseAddress, setChooseAddress] = useState(false);
+  const [ubahAlamat, setUbahAlamat] = useState<any>(false);
+  const [searchQuery, setSearchQuery] = useState<any>("");
+  const [chooseAddress, setChooseAddress] = useState<any>(false);
 
   const [chosenShipment, setChosenShipment] = useState<any>({});
 
-  const [cartsQty, setCartsQty] = useState([]);
-  const [cartSummary, setCartSummary] = useState({
+  const [cartsQty, setCartsQty] = useState<any>([]);
+  const [cartSummary, setCartSummary] = useState<any>({
     quantity: 0,
     original: 0,
     discount: 0,
   });
-  const { setPageTitle } = useContext(stateContext);
+  const { setPageTitle } = useContext<any>(stateContext);
 
   useEffect(() => {
     setPageTitle("Checkout | Tohopedia");
@@ -263,7 +263,7 @@ const Shipment: NextPage = () => {
     },
   ] = useMutation(ADD_TRANSACTION_MUTATION);
 
-  function getAddress(addressId: string) {
+  function getAddress(addressId: string | undefined) {
     return addressData?.getAddress?.filter((address: any) => {
       return address?.id === addressId;
     });

@@ -35,12 +35,12 @@ import { stateContext } from "../services/StateProvider";
 const OrderList = (props: { children: any }) => {
   const router = useRouter();
 
-  const [selectedTransaction, setSelectedTransaction] = useState("");
-  const [selectedTransactionObj, setSelectedTransactionObj] = useState();
-  const [seeDetailTransaction, setSeeDetailTransaction] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [transactionSummary, setTransactionSummary] = useState({});
-  const { setPageTitle } = useContext(stateContext);
+  const [selectedTransaction, setSelectedTransaction] = useState<any>("");
+  const [selectedTransactionObj, setSelectedTransactionObj] = useState<any>();
+  const [seeDetailTransaction, setSeeDetailTransaction] = useState<any>(false);
+  const [searchQuery, setSearchQuery] = useState<any>("");
+  const [transactionSummary, setTransactionSummary] = useState<any>({});
+  const { setPageTitle } = useContext<any>(stateContext);
 
   useEffect(() => {
     setPageTitle("Pembelian | Tohopedia");

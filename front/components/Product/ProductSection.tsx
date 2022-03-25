@@ -116,7 +116,7 @@ function ProductCard(props: {
 }
 
 function Section(props: {
-  slug?: string;
+  slug?: string | string[];
   header?: string;
   href?: any;
   keyword?: string | string[];

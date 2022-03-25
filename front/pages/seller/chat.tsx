@@ -11,11 +11,11 @@ import {
   toHourMinute,
   toIndonesianDateShort,
 } from "../../misc/date";
-import Shop from "../../models/Shop";
 import { stateContext } from "../../services/StateProvider";
 import { userDetailsContext } from "../../services/UserDataProvider";
 import styles from "./chat.module.scss";
 import SellerLayout from "./layout";
+import { Shop } from "../../models/Shop";
 
 export default function SellerChat (props: { children: any }) {
   const { addToast } = useToasts();
@@ -64,10 +64,8 @@ export default function SellerChat (props: { children: any }) {
             if (!socketPayload.eventPayload) {
               return;
             }
-
             const userInitPayload = socketPayload.eventPayload;
 
-            // alert("masuk daleman")
             // this.setState({
             //   chatUserList: userInitPayload.users,
             //   userID:

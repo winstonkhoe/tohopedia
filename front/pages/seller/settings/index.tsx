@@ -5,10 +5,10 @@ import { useContext, useEffect, useState } from "react";
 import { useToasts } from "react-toast-notifications";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { userDetailsContext } from "../../../services/UserDataProvider";
-import Shop from "../../../models/Shop";
 import { DEFAULT_PROFILE_IMAGE } from "../../../misc/global_constant";
 import Image from "next/image";
 import ReactSwitch from "react-switch";
+import { Shop } from "../../../models/Shop";
 
 export default function SellerSettings() {
   const { addToast } = useToasts();
