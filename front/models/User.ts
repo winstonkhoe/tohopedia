@@ -94,7 +94,7 @@ class User {
   `;
 
   static UPDATE_USER_GENDER_MUTATION = gql`
-    mutation updateUserGender($gender: String!) {
+    mutation updateUserGender($gender: Int!) {
       updateUserGender(gender: $gender) {
         id
         gender

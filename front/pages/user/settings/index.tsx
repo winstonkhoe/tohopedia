@@ -36,7 +36,7 @@ export default function BioData() {
   const [dob, setDob] = useState("");
 
   const [updateGender, setUpdateGender] = useState(false);
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState<number>(0);
 
   const [updatePhone, setUpdatePhone] = useState(false);
   const [phone, setPhone] = useState("");
@@ -102,7 +102,7 @@ export default function BioData() {
   }
 
   function handleOverlay(key: string, value: boolean) {
-    let currStatus = overlayStatus;
+    let currStatus: any = overlayStatus;
     currStatus[key] = value;
     setOverlayStatus(currStatus);
   }
@@ -471,7 +471,7 @@ export default function BioData() {
                     name="gender"
                     id=""
                     value="female"
-                    onClick={(e) => setGender(e.target.value)}
+                    onClick={(e) => setGender(0)}
                   />
                   <span>Female</span>
                 </div>
@@ -487,7 +487,7 @@ export default function BioData() {
                     name="gender"
                     id=""
                     value="male"
-                    onClick={(e) => setGender(e.target.value)}
+                    onClick={(e) => setGender(1)}
                   />
                   <span>Male</span>
                 </div>
@@ -505,9 +505,10 @@ export default function BioData() {
           </div>
           <button
             className={
-              gender == ""
-                ? common.button_overlay_disable
-                : common.button_overlay
+              // gender == ""
+              //   ? common.button_overlay_disable
+              //   :
+                common.button_overlay
             }
             onClick={() => {
               updateUserGender({ variables: { gender: gender } }).then(

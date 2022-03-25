@@ -373,7 +373,7 @@ func (r *mutationResolver) RemoveWishlist(ctx context.Context, id string) (*mode
 
 func (r *queryResolver) Reksadanas(ctx context.Context) ([]*model.Reksadana, error) {
 	db := config.GetDB()
-	var reksadanas[]*model.Reksadana
+	var reksadanas []*model.Reksadana
 
 	if err := db.Order("created_at DESC").Find(&reksadanas).Error; err != nil {
 		return nil, err

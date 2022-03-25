@@ -107,7 +107,7 @@ func (r *mutationResolver) UpdateUserPhone(ctx context.Context, phone string) (*
 	return user, db.Save(user).Error
 }
 
-func (r *mutationResolver) UpdateUserGender(ctx context.Context, gender string) (*model.User, error) {
+func (r *mutationResolver) UpdateUserGender(ctx context.Context, gender int) (*model.User, error) {
 	db := config.GetDB()
 	user := new(model.User)
 
@@ -123,14 +123,7 @@ func (r *mutationResolver) UpdateUserGender(ctx context.Context, gender string) 
 		return nil, err
 	}
 
-	genderInt := 0
-	if gender == "female" || gender == "Female" {
-		genderInt = 0
-	} else if gender == "male" || gender == "Male" {
-		genderInt = 1
-	}
-
-	user.Gender = genderInt
+	user.Gender = gender
 
 	return user, db.Save(user).Error
 }

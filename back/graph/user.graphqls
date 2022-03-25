@@ -46,7 +46,7 @@ extend type Mutation {
   updateUserEmail(email: String!): User! @auth
   updateUserPassword(email: String! password: String!): User!
   updateUserPhone(phone: String!): User! @auth
-  updateUserGender(gender: String!): User! @auth
+  updateUserGender(gender: Int!): User! @auth
   updateUserDOB(dob: String!): User! @auth
   updateUserImage(image: String!): User! @auth
   suspendUser(id: ID! bool: Boolean!): User! @auth

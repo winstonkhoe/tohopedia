@@ -1,9 +1,3 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import Footer from "../../../components/Footer/Footer";
-import InitFont from "../../../components/initialize_font";
-import Navbar from "../../../components/navbar";
 import styles from "./layout.module.scss";
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
@@ -34,7 +28,7 @@ const Layout = (props: { children: any }) => {
   //   checkPathExists(paths, "address") ? "address" : "index"
   // );
 
-  const indicatorStyle = {
+  const indicatorStyle: any = {
     0: { width: "125px", left: "0px" },
     1: { width: "140px", left: "125px" },
     2: { width: "140px", left: "calc(125px + 140px)" },

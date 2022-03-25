@@ -177,7 +177,7 @@ type ComplexityRoot struct {
 		UpdateStatus           func(childComplexity int, id string, status int) int
 		UpdateUserDob          func(childComplexity int, dob string) int
 		UpdateUserEmail        func(childComplexity int, email string) int
-		UpdateUserGender       func(childComplexity int, gender string) int
+		UpdateUserGender       func(childComplexity int, gender int) int
 		UpdateUserImage        func(childComplexity int, image string) int
 		UpdateUserName         func(childComplexity int, name string) int
 		UpdateUserPassword     func(childComplexity int, email string, password string) int
@@ -446,7 +446,7 @@ type MutationResolver interface {
 	UpdateUserEmail(ctx context.Context, email string) (*model.User, error)
 	UpdateUserPassword(ctx context.Context, email string, password string) (*model.User, error)
 	UpdateUserPhone(ctx context.Context, phone string) (*model.User, error)
-	UpdateUserGender(ctx context.Context, gender string) (*model.User, error)
+	UpdateUserGender(ctx context.Context, gender int) (*model.User, error)
 	UpdateUserDob(ctx context.Context, dob string) (*model.User, error)
 	UpdateUserImage(ctx context.Context, image string) (*model.User, error)
 	SuspendUser(ctx context.Context, id string, bool bool) (*model.User, error)
@@ -1305,7 +1305,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUserGender(childComplexity, args["gender"].(string)), true
+		return e.complexity.Mutation.UpdateUserGender(childComplexity, args["gender"].(int)), true
 
 	case "Mutation.updateUserImage":
 		if e.complexity.Mutation.UpdateUserImage == nil {
@@ -2986,7 +2986,7 @@ extend type Mutation {
   updateUserEmail(email: String!): User! @auth
   updateUserPassword(email: String! password: String!): User!
   updateUserPhone(phone: String!): User! @auth
-  updateUserGender(gender: String!): User! @auth
+  updateUserGender(gender: Int!): User! @auth
   updateUserDOB(dob: String!): User! @auth
   updateUserImage(image: String!): User! @auth
   suspendUser(id: ID! bool: Boolean!): User! @auth
@@ -3670,10 +3670,10 @@ func (ec *executionContext) field_Mutation_updateUserEmail_args(ctx context.Cont
 func (ec *executionContext) field_Mutation_updateUserGender_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int
 	if tmp, ok := rawArgs["gender"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gender"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -7708,7 +7708,7 @@ func (ec *executionContext) _Mutation_updateUserGender(ctx context.Context, fiel
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateUserGender(rctx, args["gender"].(string))
+			return ec.resolvers.Mutation().UpdateUserGender(rctx, args["gender"].(int))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Auth == nil {

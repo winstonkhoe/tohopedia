@@ -1,3 +1,5 @@
+import { Chat } from "./Chat";
+import { ChatHeader } from "./ChatHeader";
 import { Product } from "./Product";
 
 class Shop {
@@ -13,11 +15,12 @@ class Shop {
       public closeTime: string = "",
       public isOpen: boolean = false,
       public reputationPoint: number = 0,
+      public type: number = 0,
       public city: string = "",
       public postalCode: string = "",
       public address: string = "",
       public products: Product[] = [],
-
+      public chats: ChatHeader[] = [],
     ) {}
   }
   
