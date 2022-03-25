@@ -1,19 +1,13 @@
 import type { NextPage } from "next";
-import Head from "next/head";
 import Image from "next/image";
-import Footer from "../components/Footer/Footer";
-import InitFont from "../components/initialize_font";
-import Navbar from "../components/navbar";
 import styles from "../styles/Topay.module.scss";
 import common from "../styles/components/common.module.scss";
 // import Carousel from "react-multi-carousel";
 
-import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { useContext, useEffect, useState } from "react";
 import RupiahFormat from "../misc/currency";
-import { Carousel, Item } from "../components/carousel/Carousel";
 import Overlay from "../components/overlay/overlay";
 import { init, send } from "@emailjs/browser";
 import { useToasts } from "react-toast-notifications";
@@ -24,8 +18,7 @@ import { stateContext } from "../services/StateProvider";
 
 const SERVICE_ID = "service_egdaufp";
 const TEMPLATE_ID = "template_b62xusn";
-
-const Topay: NextPage = () => {
+function Topay() {
   const { addToast } = useToasts();
   const [topUpping, setTopUpping] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
@@ -51,7 +44,6 @@ const Topay: NextPage = () => {
 
   const [
     createTokenTopay,
-    { loading: tokenTopayLoad, error: tokenTopayErr, data: tokenTopayData },
     ] = useMutation(MUTATION_TOKEN_TOPAY);
 
   const MUTATION_TOPUP_TOPAY = gql`
@@ -64,7 +56,6 @@ const Topay: NextPage = () => {
 
   const [
     addTopayBalance,
-    { loading: topUpLoad, error: topUpErr, data: topUpData },
     ] = useMutation(MUTATION_TOPUP_TOPAY);
     
   const GET_TOKEN_TOPAY = gql`
@@ -80,7 +71,6 @@ const Topay: NextPage = () => {
 
   const [
     getTopayToken,
-    { loading: qTokenTopayLoad, error: qTokenTopayErr, data: qTokenTopayData },
   ] = useLazyQuery(GET_TOKEN_TOPAY);
     function handleTopUp(value: number) {
       
