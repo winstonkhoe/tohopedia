@@ -37,59 +37,11 @@ const Chat = (props: { children: any }) => {
   }, [setPageTitle]);
 
   const userData = useContext(userDetailsContext);
-  // const CHATS_QUERY = gql`
-  //   query GetChats($id: String!) {
-  //     getChats(id: $id) {
-  //       id
-  //       sender
-  //       receiver
-  //       content
-  //       createdAt
-  //     }
-  //   }
-  // `;
-
-  // const {
-  //   loading: chatLoad,
-  //   error: chatErr,
-  //   data: chatData,
-  // } = useQuery(CHATS_QUERY, {
-  //   variables: {
-  //     id: userData?.id,
-  //   },
-  // });
-
-  // const SHOP_LAZY_QUERY = gql`
-  //   query GetShop($id: String!) {
-  //     getShopById(id: $id) {
-  //       id
-  //       name
-  //       type
-  //       image
-  //     }
-  //   }
-  // `;
-
-  // const [GetShop, { loading: shopLoad, error: shopErr, data: shopData }] =
-  //   useLazyQuery(SHOP_LAZY_QUERY);
-
-  // const handleAddShop = (id: string) => {
-  //   GetShop({
-  //     variables: {
-  //       id: id,
-  //     },
-  //   }).then((data: any) => {
-  //     let curr = shops;
-  //     curr[id] = data?.data?.getShopById;
-  //     setShops(curr);
-  //   });
-  // };
 
   useEffect(() => {
     if (window["WebSocket"]) {
       setSocketConnection(new WebSocket(WSAddress + userData?.id));
     }
-
   }, [WSAddress, userData]);
 
   function getChatObj(shopId: string) {
@@ -187,20 +139,6 @@ const Chat = (props: { children: any }) => {
     }
   };
 
-  // if (userData === undefined) {
-  //   return null;
-  // }
-
-  /*
-  FILTER UNIQUE FROM CHATS
-  userData?.chats
-                      ?.map((chat: any) => chat?.receiver)
-                      .filter(
-                        (value: any, index: any, self: string | any[]) =>
-                          self.indexOf(value) === index
-                      )
-                      .map((receiverId: string, index: number) => {
-*/
   return (
     <main className={styles.main}>
       <div className={styles.main_container}>
@@ -219,120 +157,60 @@ const Chat = (props: { children: any }) => {
                 </div>
                 <div className={styles.chat_list_bottom_wrapper}>
                   {/* {userData?.chats?.map((chat: any, index: number) => { */}
-                  {
-                    userData?.chats?.map((chat: any, index: number) => {
-                      return (
+                  {userData?.chats?.map((chat: any, index: number) => {
+                    return (
+                      <div
+                        key={index}
+                        className={styles.chat_list_item_wrapper}
+                        onClick={() => {
+                          setChatDestination(chat?.shop?.id);
+                        }}
+                      >
+                        {/* ${styles.chat_list_item_flex} --> untuk inactive */}
                         <div
-                          key={index}
-                          className={styles.chat_list_item_wrapper}
-                          onClick={() => {
-                            setChatDestination(chat?.shop?.id);
-                          }}
+                          className={`${
+                            chatDestination == chat?.shop?.id
+                              ? styles.chat_list_item_flex_active
+                              : styles.chat_list_item_flex
+                          }`}
                         >
-                          {/* ${styles.chat_list_item_flex} --> untuk inactive */}
-                          <div
-                            className={`${
-                              chatDestination == chat?.shop?.id
-                                ? styles.chat_list_item_flex_active
-                                : styles.chat_list_item_flex
-                            }`}
-                          >
-                            <div className={styles.shop_image_wrapper}>
-                              <div className={styles.shop_image_relative}>
-                                <Image
-                                  src={`/uploads/${chat?.shop?.image}`}
-                                  alt=""
-                                  layout="fill"
-                                />
-                              </div>
+                          <div className={styles.shop_image_wrapper}>
+                            <div className={styles.shop_image_relative}>
+                              <Image
+                                src={`/uploads/${chat?.shop?.image}`}
+                                alt=""
+                                layout="fill"
+                              />
                             </div>
-                            <div className={styles.shop_name_wrapper}>
-                              <div className={styles.shop_name_flex}>
-                                <h3>{chat?.shop?.name}</h3>
-                                <GreenLabel text="Penjual" />
-                              </div>
-                              <div className={styles.shop_chat_hints_container}>
-                                {/* <div>{getChatObj(receiverId)[0]?.content}</div> */}
-                                <div>
-                                  {
-                                    chat?.details[chat?.details?.length - 1]
-                                      ?.content
-                                  }
-                                </div>
-                              </div>
+                          </div>
+                          <div className={styles.shop_name_wrapper}>
+                            <div className={styles.shop_name_flex}>
+                              <h3>{chat?.shop?.name}</h3>
+                              <GreenLabel text="Penjual" />
                             </div>
-                            <div className={styles.chat_time_wrapper}>
-                              <div className={styles.chat_time_container}>
-                                {toHourMinute(chat?.details[chat?.details?.length - 1]?.createdAt)}
-                                {/* {toHourMinute(getChatObj(receiverId)[0]?.createdAt)} */}
+                            <div className={styles.shop_chat_hints_container}>
+                              {/* <div>{getChatObj(receiverId)[0]?.content}</div> */}
+                              <div>
+                                {
+                                  chat?.details[chat?.details?.length - 1]
+                                    ?.content
+                                }
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })
-
-                    // let isUser = "user"
-                    // let user
-                    // if (chat?.sender === userData?.id) {
-                    //   user = userData
-                    // } else {
-                    //   handleAddShop(chat?.sender)
-                    // }
-                  }
-
-                  {/* ${styles.chat_list_item_flex} --> untuk inactive */}
-                  {/* <div className={styles.chat_list_item_wrapper}>
-                    <div className={`${styles.chat_list_item_flex_active}`}>
-                      <div className={styles.shop_image_wrapper}>
-                        <div className={styles.shop_image_relative}>
-                          <Image
-                            src={"/uploads/1646628895559_0.jpg"}
-                            alt=""
-                            layout="fill"
-                          />
+                          <div className={styles.chat_time_wrapper}>
+                            <div className={styles.chat_time_container}>
+                              {toHourMinute(
+                                chat?.details[chat?.details?.length - 1]
+                                  ?.createdAt
+                              )}
+                              {/* {toHourMinute(getChatObj(receiverId)[0]?.createdAt)} */}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className={styles.shop_name_wrapper}>
-                        <div className={styles.shop_name_flex}>
-                          <h3>Shop Name</h3>
-                          <GreenLabel text="Penjual" />
-                        </div>
-                        <div className={styles.shop_chat_hints_container}>
-                          <div>Text ini itu hahashhdajsdoijaiosd</div>
-                        </div>
-                      </div>
-                      <div className={styles.chat_time_wrapper}>
-                        <div className={styles.chat_time_container}>22:22</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.chat_list_item_wrapper}>
-                    
-                    <div className={`${styles.chat_list_item_flex}`}>
-                      <div className={styles.shop_image_wrapper}>
-                        <div className={styles.shop_image_relative}>
-                          <Image
-                            src={"/uploads/1646628895559_0.jpg"}
-                            alt=""
-                            layout="fill"
-                          />
-                        </div>
-                      </div>
-                      <div className={styles.shop_name_wrapper}>
-                        <div className={styles.shop_name_flex}>
-                          <h3>Shop Name</h3>
-                          <GreenLabel text="Penjual" />
-                        </div>
-                        <div className={styles.shop_chat_hints_container}>
-                          <div>Text ini itu hahashhdajsdoijaiosd</div>
-                        </div>
-                      </div>
-                      <div className={styles.chat_time_wrapper}>
-                        <div className={styles.chat_time_container}>16:22</div>
-                      </div>
-                    </div>
-                  </div> */}
+                    );
+                  })}
                 </div>
               </div>
               <div className={styles.chat_details_wrapper}>
@@ -393,14 +271,18 @@ const Chat = (props: { children: any }) => {
                               </div> */}
                               {getChatObj(chatDestination)?.details.map(
                                 (detail: any, index: number) => {
-                                  
                                   return (
                                     <div key={index}>
-                                      {index == 0 || (index > 0 &&
-                                      !datesAreOnSameDay(
-                                        new Date(getChatObj(chatDestination)?.details[index-1]?.createdAt),
-                                        new Date(detail?.createdAt)
-                                      )) ? (
+                                      {index == 0 ||
+                                      (index > 0 &&
+                                        !datesAreOnSameDay(
+                                          new Date(
+                                            getChatObj(
+                                              chatDestination
+                                            )?.details[index - 1]?.createdAt
+                                          ),
+                                          new Date(detail?.createdAt)
+                                        )) ? (
                                         <div
                                           key={detail?.createdAt}
                                           className={styles.chat_content_date}

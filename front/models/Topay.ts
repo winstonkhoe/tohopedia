@@ -7,7 +7,7 @@ class Topay {
     public id: string = "",
     public balance: number = 0,
     public coin: number = 0,
-    public user: User = new User("", "", "", "", "", 0, "", "", false, false, false, false, 0, new Shop, new Topay(), [])
+    public user: User = new User("", "", "", "", "", 0, "", "", false, false, false, false, 0, new Shop, new Topay(), [], [], [], [])
   ) {}
 }
 

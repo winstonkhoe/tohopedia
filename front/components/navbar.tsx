@@ -238,7 +238,7 @@ export function Navbar() {
                 <NavProfileItem
                   src={profileImage}
                   alt="Seller Logo"
-                  name={data?.shop?.name ? data?.shop?.name : null}
+                  name={data?.shop?.name ? data?.shop?.name : ""}
                   type={data?.shop?.type}
                 >
                   {data?.shop?.name !== undefined || data?.shop?.name !== "" ? (

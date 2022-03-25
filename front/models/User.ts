@@ -1,4 +1,7 @@
 import { gql } from "@apollo/client";
+import { Address } from "./Address";
+import { Cart } from "./Cart";
+import { ChatHeader } from "./ChatHeader";
 import { Shop } from "./Shop";
 import { Topay } from "./Topay";
 import { Transaction } from "./Transaction";
@@ -20,6 +23,9 @@ class User {
     public verification: number = -1,
     public shop: Shop,
     public topay: Topay,
+    public carts: Cart[],
+    public chats: ChatHeader[],
+    public addresses: Address[],
     public transactions: Transaction[]
   ) {}
 
