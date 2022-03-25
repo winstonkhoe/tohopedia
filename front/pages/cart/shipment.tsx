@@ -16,14 +16,14 @@ const Shipment: NextPage = () => {
   const { addToast } = useToasts();
   const router = useRouter();
   const [updateAddress, setUpdateAddress] = useState<any>();
-  const [newAddress, setNewAddress] = useState<Address>();
+  const [newAddress, setNewAddress] = useState<any>();
   const [inputStyle, setInputStyle] = useState<any>();
 
   const [choosingPayment, setChoosingPayment] = useState<any>(false);
 
   const [tambahAlamat, setTambahAlamat] = useState<any>(false);
   const [submitted, setSubmitted] = useState<any>(false);
-  const [currAddress, setCurrAddress] = useState<Address>();
+  const [currAddress, setCurrAddress] = useState<any>();
   const [ubahAlamat, setUbahAlamat] = useState<any>(false);
   const [searchQuery, setSearchQuery] = useState<any>("");
   const [chooseAddress, setChooseAddress] = useState<any>(false);
