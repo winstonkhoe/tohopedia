@@ -12,20 +12,20 @@ func MigrateTable() {
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
-	db.AutoMigrate(&model.User{})
+	// db.AutoMigrate(&model.User{})
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
-	db.AutoMigrate(&model.Category{})
-	db.AutoMigrate(&model.Reksadana{})
+	// db.AutoMigrate(&model.Category{})
+	// db.AutoMigrate(&model.Reksadana{})
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
-	db.AutoMigrate(&model.Product{})
-	db.AutoMigrate(&model.ProductImage{})
-	db.AutoMigrate(&model.Cart{})
-	db.AutoMigrate(&model.Wishlist{})
-	db.AutoMigrate(&model.Address{})
+	// db.AutoMigrate(&model.Product{})
+	// db.AutoMigrate(&model.ProductImage{})
+	// db.AutoMigrate(&model.Cart{})
+	// db.AutoMigrate(&model.Wishlist{})
+	// db.AutoMigrate(&model.Address{})
 	db.AutoMigrate(&model.ShipmentType{})
 	db.AutoMigrate(&model.Shipment{})
 	db.AutoMigrate(&model.Coupon{})

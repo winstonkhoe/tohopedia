@@ -1,13 +1,13 @@
 package config
 
 import (
-	"fmt"
+	// "fmt"
 	"io"
 	"log"
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -23,18 +23,21 @@ func GetDB() *gorm.DB {
 }
 
 func init() {
-	godotenv.Load()
+	// godotenv.Load()
 	connectDatabase()
 }
 
 func connectDatabase() {
-	databaseConfig := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true",
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_DATABASE"),
-	)
+	// databaseConfig := "b1edca0b2f39e2:c095cddd@tcp(us-cdbr-east-05.cleardb.net)/heroku_2f17d7f0b02a5c2?reconnect=true"
+	// databaseConfig := "b1edca0b2f39e2:c095cddd@tcp(us-cdbr-east-05.cleardb.net)/heroku_2f17d7f0b02a5c2"
+	databaseConfig := "b1edca0b2f39e2:c095cddd@tcp(us-cdbr-east-05.cleardb.net)/heroku_2f17d7f0b02a5c2?charset=utf8mb4&multiStatements=true&parseTime=True"
+	// databaseConfig := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true",
+	// 	os.Getenv("DB_USERNAME"),
+	// 	os.Getenv("DB_PASSWORD"),
+	// 	os.Getenv("DB_HOST"),
+	// 	os.Getenv("DB_PORT"),
+	// 	os.Getenv("DB_DATABASE"),
+	// )
 
 	var err error
 	db, err = gorm.Open(mysql.Open(databaseConfig), initConfig())
@@ -47,7 +50,7 @@ func connectDatabase() {
 //InitConfig Initialize Config
 func initConfig() *gorm.Config {
 	return &gorm.Config{
-		Logger:         initLog(),
+		// Logger:         initLog(),
 		NamingStrategy: initNamingStrategy(),
 	}
 }

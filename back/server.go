@@ -36,19 +36,19 @@ const defaultPort = "8080"
 func main() {
 	log.Println("BACKEND STARTING")
 	// Database Migration
-	// migration.MigrateTable()
-
+	
 	// godotenv.Load()
-
+	
 	port := os.Getenv("PORT")
     if port == "" {
-        port = defaultPort
+		port = defaultPort
     }
-
+	
 	// hub := NewHub()
 	// go hub.run()
-
+	
 	log.Printf("PORT: [%s]\n",port)
+	// migration.MigrateTable()
 	db:= config.GetDB()
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
