@@ -12,7 +12,8 @@ const token = getCookie('tokenid')
 // })
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:8080/query',
+  uri: '/graphql',
+  // uri: 'http://localhost:8080/query',
   headers: token
     ? {
         Authorization: 'bearer ' + token,
