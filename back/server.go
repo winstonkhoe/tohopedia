@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,13 +13,13 @@ import (
 	"tohopedia/graph/generated"
 	"tohopedia/handlers"
 	"tohopedia/middlewares"
-	"tohopedia/migration"
+	// "tohopedia/migration"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 
 	// "github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -33,21 +34,21 @@ type Message struct {
 const defaultPort = "8080"
 
 func main() {
-
+	log.Println("BACKEND STARTING")
 	// Database Migration
-	migration.MigrateTable()
+	// migration.MigrateTable()
 
-	godotenv.Load()
+	// godotenv.Load()
 
 	port := os.Getenv("PORT")
     if port == "" {
-        port = "3000"
-    } 
+        port = defaultPort
+    }
 
 	// hub := NewHub()
 	// go hub.run()
 
-	// log.Printf("PORT: %s",port)
+	log.Printf("PORT: [%s]\n",port)
 	db:= config.GetDB()
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
@@ -78,9 +79,9 @@ func main() {
 	go hub.Run()
 
 	// port := process.env.PORT || 80
-	if port == "" {
-		port = defaultPort
-	}
+	// if port == "" {
+	// 	port = defaultPort
+	// }
 
 	c := generated.Config{Resolvers: &graph.Resolver{}}
 	c.Directives.Auth = directives.Auth
@@ -100,6 +101,17 @@ func main() {
         },
     })
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		resp := make(map[string]string)
+		resp["message"] = "Ping Success"
+		jsonResp, err := json.Marshal(resp)
+		if err != nil {
+			log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+		}
+		w.Write(jsonResp)
+	})
 	router.Handle("/query", srv)
 
 
@@ -111,8 +123,6 @@ func main() {
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 		}
-
-		fmt.Println("Ketangkep di path")
 
 		// Reading username from request parameter
 		// username := route.Get(chi.URLParam(request, "username"), route.NotFoundHandler())

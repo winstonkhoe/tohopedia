@@ -12,7 +12,7 @@ const token = getCookie('tokenid')
 // })
 
 const httpLink = new HttpLink({
-  uri: '/graphql',
+  uri: 'https://tohopedia-app.herokuapp.com/query',
   // uri: 'http://localhost:8080/query',
   headers: token
     ? {
