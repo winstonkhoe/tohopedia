@@ -3,10 +3,6 @@ import Link from "next/link";
 import Router from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { ErrorNotFound } from "../../components/error";
-import {
-  GreenLabel,
-  GreyLabel,
-} from "../../components/transaction/TransactionStatus";
 import { DEFAULT_PROFILE_IMAGE } from "../../misc/global_constant";
 import { GetMerchantType } from "../../misc/shop_type";
 import { Shop } from "../../models/Shop";
@@ -21,7 +17,7 @@ const AdminLayout = (props: { children: any }) => {
     setPageTitle("Seller Dashboard");
   }, [setPageTitle]);
 
-  const userData:Shop = useContext(userDetailsContext).shop;
+  const userData = useContext(userDetailsContext);
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
 
   useEffect(() => {
