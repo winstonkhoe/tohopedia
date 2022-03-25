@@ -1,7 +1,7 @@
 import Image from "next/image";
 import RupiahFormat from "../../misc/currency";
 import styles from "./TransactionCard.module.scss";
-import { SelesaiOtomatis, TibaDiTujuan } from "./TransactionStatus";
+import { SelesaiOtomatis, YellowLabel } from "./TransactionStatus";
 function TransactionCard(props: {
   date: string;
   transactionId: string;
@@ -27,7 +27,7 @@ function TransactionCard(props: {
           </div>
           <div className={styles.order_status}>
             <p>
-              <TibaDiTujuan />
+              <YellowLabel text="Tiba di Tujuan" />
             </p>
           </div>
           <div className={styles.order_invoice}>
@@ -94,7 +94,7 @@ function TransactionCard(props: {
       </div>
       <div className={styles.order_detail_buttons}>
         <div className={styles.order_detail_button_detail}>
-          <p onClick={()=>{setSeeDetailTransaction(true)}}>Lihat Detail Transaksi</p>
+          <p>Lihat Detail Transaksi</p>
         </div>
         <div className={styles.order_detail_button_action}>
           <button>
