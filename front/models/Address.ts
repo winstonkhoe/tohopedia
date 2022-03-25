@@ -8,12 +8,12 @@ class Address {
     public label: string = "",
     public receiver: string = "",
     public phone: string = "",
-    public city: string,
+    public city: string = "",
     public postalCode: string = "",
     public address: string = "",
-    public main: boolean,
-    public isDeleted: boolean,
-    public user: User
+    public main: boolean = false,
+    public isDeleted: boolean = false,
+    public user?: User
   ) {}
 
   static ADD_ADDRESS_MUTATION = gql`

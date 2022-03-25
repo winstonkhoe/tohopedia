@@ -1,15 +1,9 @@
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
-import Footer from "../../components/Footer/Footer";
-import HeadIcon from "../../components/head_icon";
-import InitFont from "../../components/initialize_font";
-import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";
-import Shop from "../../models/Shop";
 import styles from "../../styles/Shipment.module.scss";
 import addressStyle from "../../styles/components/address_overlay.module.scss";
 import common from "../../styles/components/common.module.scss";
@@ -21,47 +15,26 @@ import Overlay from "../../components/overlay/overlay";
 import { useToasts } from "react-toast-notifications";
 import { useRouter } from "next/router";
 import { stateContext } from "../../services/StateProvider";
+import { Address } from "../../models/Address";
+import { User } from "../../models/User";
 
 const Shipment: NextPage = () => {
   const { addToast } = useToasts();
   const router = useRouter();
-  const [updateAddress, setUpdateAddress] = useState({
-    label: "",
-    receiver: "",
-    phone: "",
-    city: "",
-    postalCode: "",
-    address: "",
-  });
-
-  const [newAddress, setNewAddress] = useState({
-    label: "",
-    receiver: "",
-    phone: "",
-    city: "",
-    postalCode: "",
-    address: "",
-  });
-
-  const [inputStyle, setInputStyle] = useState({
-    label: "",
-    receiver: "",
-    phone: "",
-    city: "",
-    postalCode: "",
-    address: "",
-  });
+  const [updateAddress, setUpdateAddress] = useState<Address>();
+  const [newAddress, setNewAddress] = useState<Address>();
+  const [inputStyle, setInputStyle] = useState<Address>();
 
   const [choosingPayment, setChoosingPayment] = useState(false);
 
   const [tambahAlamat, setTambahAlamat] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [currAddress, setCurrAddress] = useState();
+  const [currAddress, setCurrAddress] = useState<Address>();
   const [ubahAlamat, setUbahAlamat] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [chooseAddress, setChooseAddress] = useState(false);
 
-  const [chosenShipment, setChosenShipment] = useState({});
+  const [chosenShipment, setChosenShipment] = useState<any>({});
 
   const [cartsQty, setCartsQty] = useState([]);
   const [cartSummary, setCartSummary] = useState({
@@ -299,15 +272,20 @@ const Shipment: NextPage = () => {
   function handleUpdateProcess(addressId: string) {
     let addressObj = getAddress(addressId)[0];
     console.log(addressObj);
-    setUpdateAddress({
-      id: addressId,
-      label: addressObj?.label,
-      receiver: addressObj?.receiver,
-      phone: addressObj?.phone,
-      city: addressObj?.city,
-      postalCode: addressObj?.postalCode,
-      address: addressObj?.address,
-    });
+    setUpdateAddress(
+      new Address(
+        addressId,
+        addressObj?.label,
+        addressObj?.receiver,
+        addressObj?.phone,
+        addressObj?.city,
+        addressObj?.postalCode,
+        addressObj?.address,
+        false,
+        false,
+        undefined
+      )
+    );
     // setUpdateAddress(addressObj)
     console.log(updateAddress);
     setUbahAlamat(true);
@@ -315,31 +293,23 @@ const Shipment: NextPage = () => {
   }
 
   function handleNewAddress(attribute: string, value: string) {
-    let currValue = newAddress;
+    let currValue: any = newAddress;
     currValue[attribute] = value;
     setNewAddress(currValue);
-    console.log(newAddress);
-    console.log(Object.keys(currValue));
   }
 
   function handleUpdateAddress(attribute: string, value: string) {
-    let currValue = updateAddress;
-    console.log(currValue);
-    console.log(updateAddress);
+    let currValue: any = updateAddress;
     currValue[attribute] = value;
     setUpdateAddress(currValue);
     console.log(Object.keys(currValue));
   }
 
   function handleSubmitNewAddress() {
-    let currStyle = inputStyle;
-    console.log("masuk");
+    let currStyle: any = inputStyle;
     let allow = true;
     setSubmitted(true);
-    console.log(submitted && checkEmptyField(newAddress, "label"));
     Object.keys(newAddress).map((key: any) => {
-      console.log("key: " + key);
-      console.log(checkEmptyField(newAddress, key));
       if (checkEmptyField(newAddress, key)) {
         currStyle[key] = addressStyle.warning;
         allow = false;
@@ -348,8 +318,7 @@ const Shipment: NextPage = () => {
       }
     });
     setInputStyle(currStyle);
-    console.log(inputStyle);
-    if (allow) {
+    if (allow && newAddress) {
       addAddress({
         variables: {
           label: newAddress["label"],
@@ -366,14 +335,10 @@ const Shipment: NextPage = () => {
   }
 
   function handleSubmitUpdateAddress() {
-    let currStyle = inputStyle;
-    console.log("masuk");
+    let currStyle: any = inputStyle;
     let allow = true;
     setSubmitted(true);
-    console.log(submitted && checkEmptyField(updateAddress, "label"));
     Object.keys(updateAddress).map((key: any) => {
-      console.log("key: " + key);
-      console.log(checkEmptyField(updateAddress, key));
       if (checkEmptyField(updateAddress, key)) {
         currStyle[key] = addressStyle.warning;
         allow = false;
@@ -382,8 +347,7 @@ const Shipment: NextPage = () => {
       }
     });
     setInputStyle(currStyle);
-    console.log(inputStyle);
-    if (allow) {
+    if (allow && updateAddress) {
       updateAddressMutation({
         variables: {
           id: updateAddress["id"],
@@ -462,7 +426,7 @@ const Shipment: NextPage = () => {
   }
 
   function handleShipment(shopId: string, value: string) {
-    let curr = chosenShipment;
+    let curr: any = chosenShipment;
     curr[shopId] = value;
     setChosenShipment(curr);
   }
@@ -485,8 +449,8 @@ const Shipment: NextPage = () => {
               self.indexOf(value) === index
           )
           .map((shop: any) => {
-            let productList = [];
-            let quantityList = [];
+            let productList: any = [];
+            let quantityList: any = [];
             getShopCarts(shop?.id).map((cart: any) => {
               productList.push(cart?.product?.id);
               quantityList.push(Number(cart?.quantity));

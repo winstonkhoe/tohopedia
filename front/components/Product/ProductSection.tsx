@@ -65,7 +65,8 @@ function ProductCard(props: {
                     >
                       {props?.shopName ? (
                         <div className={styles.product_detail_location}>
-                          {props?.shopType > 0 ? (
+                          {props?.shopType ?
+                            props?.shopType > 0 ? (
                             <div className={styles.product_store_badge}>
                               <div
                                 className={styles.product_store_badge_container}
@@ -85,7 +86,8 @@ function ProductCard(props: {
                                 />
                               </div>
                             </div>
-                          ) : null}
+                            ) : null
+                        :null}
 
                           <div className={styles.product_store_location}>
                             <span className={styles.store_location}>
@@ -130,7 +132,7 @@ function Section(props: {
   shopType?: number[];
 }) {
   const [productLimit, setProductLimit] = useState(5);
-  const [shopTypeFilter, setShopTypeFilter] = useState();
+  const [shopTypeFilter, setShopTypeFilter] = useState<number[]>();
   
 
   console.log(props?.categoryId);
