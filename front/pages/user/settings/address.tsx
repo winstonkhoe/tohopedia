@@ -45,7 +45,7 @@ export default function AddressPage() {
     address: "",
   });
 
-  const addressData = useContext(userDetailsContext)?.addresses
+  const addressData: Address[] = useContext(userDetailsContext)?.addresses
   const { setPollInterval } = useContext(stateContext);
   useEffect(() => {
     setPollInterval(3000)

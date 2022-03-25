@@ -16,8 +16,8 @@ import { TransactionDetail } from "../../../models/TransactionDetail";
 export default function ReviewPage() {
   const { setTabIndexSetting } = useContext(stateContext);
 
-  const transactionData =
-    useContext<Transaction[]>(userDetailsContext)?.transactions;
+  const transactionData: Transaction[] =
+    useContext(userDetailsContext)?.transactions;
   const { setPollInterval } = useContext(stateContext);
   useEffect(() => {
     setTabIndexSetting(0);

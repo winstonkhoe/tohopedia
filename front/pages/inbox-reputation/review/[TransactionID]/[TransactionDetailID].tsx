@@ -48,8 +48,8 @@ export default function InputReviewPage() {
   ];
 
   const userData = useContext<User>(userDetailsContext);
-  const transactionData =
-    useContext<Transaction[]>(userDetailsContext)?.transactions;
+  const transactionData: Transaction[] =
+    useContext(userDetailsContext)?.transactions;
 
   const [addReview] = useMutation(Review.ADD_REVIEW_MUTATION);
   useEffect(() => {

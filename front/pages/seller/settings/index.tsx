@@ -19,7 +19,7 @@ export default function SellerSettings() {
   const [profileImageChosen, setProfileImageChosen] = useState();
   const [openTime, setOpenTime] = useState("08:00");
   const [closeTime, setCloseTime] = useState("18:00");
-  const storeData = useContext<Shop>(userDetailsContext)?.shop;
+  const storeData: Shop = useContext(userDetailsContext)?.shop;
   const [statusToko, setStatusToko] = useState(false);
 
   const UPDATE_STORE_MUTATION = gql`

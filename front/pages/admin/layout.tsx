@@ -21,7 +21,7 @@ const AdminLayout = (props: { children: any }) => {
     setPageTitle("Seller Dashboard");
   }, [setPageTitle]);
 
-  const userData = useContext<Shop>(userDetailsContext);
+  const userData:Shop = useContext(userDetailsContext).shop;
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
 
   useEffect(() => {

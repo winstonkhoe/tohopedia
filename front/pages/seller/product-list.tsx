@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
 import { useToasts } from "react-toast-notifications";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import Shop from "../../models/Shop";
 import { userDetailsContext } from "../../services/UserDataProvider";
 import { ADD_PRODUCT_MUTATION } from "../../misc/global_mutation";
 import { CATEGORY_QUERY } from "../../misc/global_query";
@@ -13,12 +12,13 @@ import RupiahFormat from "../../misc/currency";
 import Image from "next/image";
 import { off } from "process";
 import { Product } from "../../models/Product";
+import { Shop } from "../../models/Shop";
 
 export default function ProductList() {
   const { addToast } = useToasts();
   const [offset, setOffset] = useState(0);
   const limit = 10;
-  const storeData = useContext<Shop>(userDetailsContext)?.shop;
+  const storeData: Shop = useContext(userDetailsContext)?.shop;
 
   var page = 1;
   var pages = 1;

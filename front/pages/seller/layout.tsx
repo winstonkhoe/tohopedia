@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import Router from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { ShopBadge, ShopIcon } from "../../components/ShopDetails/ShopDetails";
 import { ErrorNotFound } from "../../components/error";
@@ -10,10 +9,10 @@ import {
 } from "../../components/transaction/TransactionStatus";
 import { DEFAULT_PROFILE_IMAGE } from "../../misc/global_constant";
 import { GetMerchantType } from "../../misc/shop_type";
-import Shop from "../../models/Shop";
 import { stateContext } from "../../services/StateProvider";
 import { userDetailsContext } from "../../services/UserDataProvider";
 import styles from "./layout.module.scss";
+import { Shop } from "../../models/Shop";
 
 const SellerLayout = (props: { children: any }) => {
   const { setPageTitle } = useContext(stateContext);
@@ -22,7 +21,7 @@ const SellerLayout = (props: { children: any }) => {
     setPageTitle("Seller Dashboard");
   }, [setPageTitle]);
 
-  const storeData = useContext<Shop>(userDetailsContext)?.shop;
+  const storeData: Shop = useContext(userDetailsContext)?.shop;
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
 
   useEffect(() => {

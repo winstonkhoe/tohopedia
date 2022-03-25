@@ -51,7 +51,7 @@ export default function BioData() {
     phone: false,
   });
 
-  const userData = useContext<User>(userDetailsContext);
+  const userData: User = useContext<User>(userDetailsContext);
 
   const [updateUserImage] = useMutation(User.UPDATE_USER_IMAGE_MUTATION);
   const [updateUserName] = useMutation(User.UPDATE_USER_NAME_MUTATION);

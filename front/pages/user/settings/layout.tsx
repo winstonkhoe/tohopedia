@@ -13,10 +13,11 @@ import { UserNavbar } from "../../../components/Bars/user_navbar";
 import Router, { useRouter } from "next/router";
 import { userDetailsContext } from "../../../services/UserDataProvider";
 import { stateContext } from "../../../services/StateProvider";
+import { User } from "../../../models/User";
 
 const Layout = (props: { children: any }) => {
   // const router = useRouter();
-  const userData = useContext(userDetailsContext);
+  const userData: User = useContext(userDetailsContext);
   const { setPageTitle } = useContext(stateContext);
 
   useEffect(() => {

@@ -1,3 +1,5 @@
+import { Product } from "./Product";
+
 class Shop {
     constructor(
       public id: string = "",
@@ -14,6 +16,8 @@ class Shop {
       public city: string = "",
       public postalCode: string = "",
       public address: string = "",
+      public products: Product[] = [],
+
     ) {}
   }
   

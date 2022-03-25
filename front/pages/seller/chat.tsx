@@ -33,7 +33,7 @@ export default function SellerChat (props: { children: any }) {
     setPageTitle("Chat | Tohopedia");
   }, [setPageTitle]);
 
-  const shopData = useContext<Shop>(userDetailsContext)?.shop;
+  const shopData: Shop = useContext(userDetailsContext)?.shop;
 
   useEffect(() => {
     if (window["WebSocket"]) {

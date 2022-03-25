@@ -14,7 +14,7 @@ export default function AddProduct() {
   const { register: productForm, handleSubmit: handleProduct } = useForm();
   const [metadatas, setMetadatas] = useState([{ label: "", value: "" }]);
   const [descriptionLength, setDescriptionLength] = useState(0);
-  const storeData = useContext<Shop>(userDetailsContext)?.shop;
+  const storeData: Shop = useContext(userDetailsContext)?.shop;
 
   
   const [

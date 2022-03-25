@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client";
 import { Shop } from "./Shop";
 import { Topay } from "./Topay";
+import { Transaction } from "./Transaction";
 
 class User {
   constructor(
@@ -18,7 +19,8 @@ class User {
     public emailVerified: boolean = false,
     public verification: number = -1,
     public shop: Shop,
-    public topay: Topay
+    public topay: Topay,
+    public transactions: Transaction[]
   ) {}
 
   static getAllUser() {

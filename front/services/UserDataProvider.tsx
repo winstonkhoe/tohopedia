@@ -3,7 +3,9 @@ import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { stateContext } from "./StateProvider";
 import { User } from "../models/User";
 import { Shop } from "../models/Shop";
-export const userDetailsContext = createContext<any>(null);
+import { UserDetailContextModel } from "../models/UserDetailContext";
+import { Topay } from "../models/Topay";
+export const userDetailsContext = createContext<any>(new User("", "", "", "", "", 0, "", "", false, false, false, false, 0, new Shop, new Topay, []));
 
 const UserDataProvider = (props: { children: any }) => {
   const { addressQuery } = useContext(stateContext);

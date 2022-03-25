@@ -1,16 +1,10 @@
 import { NextPage } from "next";
 import Layout from "./layout";
 import styles from "./authentication.module.scss";
-import nameStyle from "../../../styles/components/user_name_overlay.module.scss";
-import genderStyle from "../../../styles/components/user_gender_overlay.module.scss";
-import common from "../../../styles/components/common.module.scss";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import Overlay from "../../../components/overlay/overlay";
-import { toIndonesianDate } from "../../../misc/date";
 import { userDetailsContext } from "../../../services/UserDataProvider";
-import { init, send } from "@emailjs/browser";
 import { useToasts } from "react-toast-notifications";
 import { User } from "../../../models/User";
 import { DEFAULT_PROFILE_IMAGE } from "../../../misc/global_constant";
@@ -20,7 +14,7 @@ import { stateContext } from "../../../services/StateProvider";
 export default function BioData() {
   const { addToast } = useToasts();
 
-  const userData = useContext<User>(userDetailsContext);
+  const userData: User = useContext<User>(userDetailsContext);
   const { tabIndexSetting, setTabIndexSetting, setPollInterval } = useContext(stateContext);
 
   const [updateAuthentication] = useMutation(
