@@ -25,7 +25,7 @@ const ReviewLayout = (props: { children: any }) => {
   //   checkPathExists(paths, "address") ? "address" : "index"
   // );
 
-  const indicatorStyle = {
+  const indicatorStyle: any = {
     0: { width: "160px", left: "0px" },
     1: { width: "140px", left: "160px" },
     2: { width: "140px", left: "calc(125px + 140px)" },

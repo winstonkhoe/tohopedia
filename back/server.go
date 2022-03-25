@@ -40,10 +40,9 @@ func main() {
 	godotenv.Load()
 
 	port := os.Getenv("PORT")
-	// port := process.env.PORT || 80
-	if port == "" {
-		port = defaultPort
-	}
+    if port == "" {
+        port = "3000"
+    } 
 
 	// hub := NewHub()
 	// go hub.run()
@@ -91,10 +90,10 @@ func main() {
         Upgrader: websocket.Upgrader{
             CheckOrigin: func(r *http.Request) bool {
                 // Check against your desired domains here
-                // return r.Host == "0.0.0.0:"+port
+                return r.Host == "0.0.0.0:"+port
                 // return r.Host == "https://tohopedia-app.herokuapp.com:8080"
                 // return r.Host == "https://tohopedia-app.herokuapp.com:"+port
-                return r.Host == "localhost:8080"
+                // return r.Host == "localhost:8080"
             },
             ReadBufferSize:  1024,
             WriteBufferSize: 1024,
