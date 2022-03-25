@@ -5,20 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
-import Footer from "../../components/Footer/Footer";
-import HeadIcon from "../../components/head_icon";
-import InitFont from "../../components/initialize_font";
-import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";
 import { stateContext } from "../../services/StateProvider";
 import styles from "../../styles/Cart.module.scss";
 
 const Cart: NextPage = () => {
   const router = useRouter();
-  const [prevSet, setPrevSet] = useState(new Set());
-  const [cartsQty, setCartsQty] = useState([]);
-  const [uniqueStoreList, setUniqueStoreList] = useState([]);
-  const [uniqueStoreObjs, setUniqueStoreObjs] = useState([]);
   const [cartSummary, setCartSummary] = useState({
     quantity: 0,
     original: 0,
@@ -77,7 +69,6 @@ const Cart: NextPage = () => {
 
   const [
     getStock,
-    { loading: stockLoading, error: stockError, data: stockData },
   ] = useLazyQuery(PRODUCT_STOCK_QUERY);
 
   const UPDATE_CART_MUTATION = gql`
@@ -90,11 +81,6 @@ const Cart: NextPage = () => {
 
   const [
     getUpdateCart,
-    {
-      loading: updateCartLoading,
-      error: updateCartError,
-      data: updateCartData,
-    },
   ] = useMutation(UPDATE_CART_MUTATION);
 
   const TOGGLE_CART_MUTATION = gql`
@@ -108,11 +94,6 @@ const Cart: NextPage = () => {
 
   const [
     toggleCart,
-    {
-      loading: toggleCartLoading,
-      error: toggleCartError,
-      data: toggleCartData,
-    },
   ] = useMutation(TOGGLE_CART_MUTATION);
 
   const DELETE_CART_MUTATION = gql`
@@ -125,11 +106,6 @@ const Cart: NextPage = () => {
 
   const [
     getDeleteCart,
-    {
-      loading: deleteCartLoading,
-      error: deleteCartError,
-      data: deleteCartData,
-    },
   ] = useMutation(DELETE_CART_MUTATION);
 
   useEffect(() => {
@@ -220,7 +196,6 @@ const Cart: NextPage = () => {
             <div className={styles.cart_lists_unavailable_container}> </div>
             {/* END KALO SEMPET */}
 
-            {/* {[...new Set(cartData?.getCurrentUser?.carts.map())].map((shop: any, index: number) => { */}
             {cartData?.getCurrentUser?.carts
               .map((cart: any) => cart?.product?.shop)
               .filter(
@@ -228,7 +203,6 @@ const Cart: NextPage = () => {
                   self.indexOf(value) === index
               )
               .map((shop: any, index: number) => {
-                // {uniqueStoreObjs.map((shop: any, index: number) => {
                 return (
                   <div
                     key={shop.id}
@@ -320,8 +294,6 @@ const Cart: NextPage = () => {
                     >
                       {getShopCarts(shop?.id).map(
                         (cart: any, index: number) => {
-                          // if (cart?.product?.shop?.id == shop?.id) {
-                          // () => { setCartsQty([...cartsQty, { label: cart?.id }]) }
 
                           return (
                             <div

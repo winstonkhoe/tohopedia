@@ -1,22 +1,16 @@
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import RupiahFormat from "../../misc/currency";
 import styles from "../../styles/Shipment.module.scss";
 import addressStyle from "../../styles/components/address_overlay.module.scss";
 import common from "../../styles/components/common.module.scss";
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from "react-places-autocomplete";
 import Overlay from "../../components/overlay/overlay";
 import { useToasts } from "react-toast-notifications";
 import { useRouter } from "next/router";
 import { stateContext } from "../../services/StateProvider";
 import { Address } from "../../models/Address";
-import { User } from "../../models/User";
 
 const Shipment: NextPage = () => {
   const { addToast } = useToasts();
@@ -36,7 +30,6 @@ const Shipment: NextPage = () => {
 
   const [chosenShipment, setChosenShipment] = useState<any>({});
 
-  const [cartsQty, setCartsQty] = useState<any>([]);
   const [cartSummary, setCartSummary] = useState<any>({
     quantity: 0,
     original: 0,
@@ -189,11 +182,6 @@ const Shipment: NextPage = () => {
 
   const [
     updateAddressMutation,
-    {
-      loading: updateAddressLoad,
-      error: updateAddressErr,
-      data: updateAddressData,
-    },
   ] = useMutation(UPDATE_ADDRESS_MUTATION);
 
   const DELETE_ADDRESS_MUTATION = gql`
@@ -206,11 +194,6 @@ const Shipment: NextPage = () => {
 
   const [
     deleteAddress,
-    {
-      loading: deleteAddressLoad,
-      error: deleteAddressErr,
-      data: deleteAddressData,
-    },
   ] = useMutation(DELETE_ADDRESS_MUTATION);
 
   const SET_MAIN_ADDRESS_MUTATION = gql`
@@ -256,11 +239,6 @@ const Shipment: NextPage = () => {
 
   const [
     addTransaction,
-    {
-      loading: addTransactionLoad,
-      error: addTransactionErr,
-      data: addTransactionData,
-    },
   ] = useMutation(ADD_TRANSACTION_MUTATION);
 
   function getAddress(addressId: string | undefined) {

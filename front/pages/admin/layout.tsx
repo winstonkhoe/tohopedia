@@ -9,7 +9,7 @@ import {
 } from "../../components/transaction/TransactionStatus";
 import { DEFAULT_PROFILE_IMAGE } from "../../misc/global_constant";
 import { GetMerchantType } from "../../misc/shop_type";
-import Shop from "../../models/Shop";
+import { Shop } from "../../models/Shop";
 import { stateContext } from "../../services/StateProvider";
 import { userDetailsContext } from "../../services/UserDataProvider";
 import styles from "./layout.module.scss";
@@ -40,11 +40,9 @@ const AdminLayout = (props: { children: any }) => {
 
   return (
     <div className={styles.container}>
-      {/* Left Navbar */}
       <div className={styles.seller_navbar}>
         <nav>
           <div>
-            {/* Header */}
             <ul className={styles.seller_header}>
               <li>
                 <div className={styles.seller_header_container}>
@@ -61,24 +59,8 @@ const AdminLayout = (props: { children: any }) => {
                   </div>
                 </div>
               </li>
-              {/* <li>{GetMerchantType(userData?.type)}</li>
-              <li>
-                {userData?.isOpen &&
-                new Date().getTime() >
-                  new Date(userData?.openTime).getTime() &&
-                new Date().getTime() <
-                  new Date(userData?.closeTime).getTime() ? (
-                  <GreenLabel text="Toko Buka" />
-                ) : (
-                  <GreyLabel text="Toko Tutup" />
-                )}
-              </li> */}
             </ul>
-            {/* End Header */}
 
-            {/* Menus */}
-
-            {/* HOME */}
             <ItemSellerNavbar href={"/admin/home"} name={"Home"}>
               <svg
                 viewBox="0 0 24 24"
@@ -91,14 +73,6 @@ const AdminLayout = (props: { children: any }) => {
             </ItemSellerNavbar>
 
             <ItemSellerNavbar href={"/admin/manage-user"} name={"Manage User"}>
-              {/* <svg
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                fill="var(--GN500, #00AA5B)"
-              >
-                <path d="M17 3.25H7A3.71 3.71 0 003.25 7v14a.76.76 0 00.41.67.84.84 0 00.34.08.74.74 0 00.45-.15l3.8-2.85H17A3.71 3.71 0 0020.75 15V7A3.71 3.71 0 0017 3.25zm-4 10.49H8a.75.75 0 110-1.5h5a.75.75 0 110 1.5zm3-4H8a.75.75 0 010-1.5h8a.75.75 0 110 1.5z"></path>
-              </svg> */}
               <div className={styles.icon_relative}>
                 <Image src={"/logo/user_logo.svg"} alt="" layout="fill" objectFit="contain"/>
               </div>

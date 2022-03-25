@@ -4,7 +4,6 @@ import { DEFAULT_PROFILE_IMAGE } from "../../misc/global_constant";
 import { GET_ALL_USER_QUERY } from "../../misc/global_query";
 import AdminLayout from "./layout";
 import styles from "./manage-user.module.scss";
-import common from "../../styles/components/common.module.scss";
 import { Button } from "../../components/Button/button";
 import { useContext, useEffect, useState } from "react";
 import { stateContext } from "../../services/StateProvider";
@@ -88,14 +87,6 @@ export default function ManageUser() {
                         </div>
                       ) : null}
                     </div>
-                    {/* <button className={common.button_overlay}>
-                      <span>
-                        {user?.isSuspended === false
-                          ? "Suspend User"
-                          : "Unsuspend User"}
-                      </span>
-                        </button> */}
-
                     <div
                       className={styles.button_wrapper}
                       onClick={() => {
