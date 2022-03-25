@@ -135,7 +135,6 @@ function Section(props: {
   const [shopTypeFilter, setShopTypeFilter] = useState<number[]>();
   
 
-  console.log(props?.categoryId);
   const {
     loading: allProductLoading,
     error: allProductError,
@@ -166,9 +165,6 @@ function Section(props: {
   if (allProductLoading) {
     return null;
   }
-  // console.log(props.infinityScrolling ? "Infinity Scrolling" : "Not Infinity Scrolling")
-  console.log(data?.products)
-  // console.log(productLimit)
   window.onscroll = function (ev) {
     let infinityContainer = document.getElementById(
       "infinity-scrolling-container"

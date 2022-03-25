@@ -14,11 +14,11 @@ import { Address } from "../../../models/Address";
 
 export default function AddressPage() {
   const { tabIndexSetting, setTabIndexSetting} = useContext(stateContext);
-  const [tambahAlamat, setTambahAlamat] = useState(false);
-  const [ubahAlamat, setUbahAlamat] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [tambahAlamat, setTambahAlamat] = useState<any>(false);
+  const [ubahAlamat, setUbahAlamat] = useState<any>(false);
+  const [submitted, setSubmitted] = useState<any>(false);
   const {addressQuery, setAddressQuery} = useContext(stateContext)
-  const [newAddress, setNewAddress] = useState({
+  const [newAddress, setNewAddress] = useState<any>({
     label: "",
     receiver: "",
     phone: "",
@@ -27,7 +27,7 @@ export default function AddressPage() {
     address: "",
   });
   var updateAddressDefault = {}
-  const [updateAddress, setUpdateAddress] = useState({
+  const [updateAddress, setUpdateAddress] = useState<any>({
     label: "",
     receiver: "",
     phone: "",
@@ -36,7 +36,7 @@ export default function AddressPage() {
     address: "",
   }
   );
-  const [inputStyle, setInputStyle] = useState({
+  const [inputStyle, setInputStyle] = useState<any>({
     label: "",
     receiver: "",
     phone: "",
@@ -66,7 +66,6 @@ export default function AddressPage() {
 
   function handleUpdateProcess(addressId: string) {
     let addressObj = getAddress(addressId)[0]
-    console.log(addressObj)
     setUpdateAddress({
       id: addressId,
       label: addressObj?.label,
@@ -95,10 +94,7 @@ export default function AddressPage() {
     let currStyle = inputStyle;
     let allow = true;
     setSubmitted(true);
-    console.log(submitted && checkEmptyField(newAddress, "label"));
     Object.keys(newAddress).map((key: any) => {
-      console.log("key: " + key);
-      console.log(checkEmptyField(newAddress, key));
       if (checkEmptyField(newAddress, key)) {
         currStyle[key] = address.warning;
         allow = false;
@@ -107,7 +103,6 @@ export default function AddressPage() {
       }
     });
     setInputStyle(currStyle);
-    console.log(inputStyle);
     if (allow) {
       addAddress({
         variables: {
@@ -137,7 +132,6 @@ export default function AddressPage() {
       }
     });
     setInputStyle(currStyle);
-    console.log(inputStyle);
     if (allow) {
       updateAddressMutation({
         variables: {
@@ -399,7 +393,6 @@ export default function AddressPage() {
               >
                 <span>Batal</span>
               </button>
-              {/* <button style={{ marginLeft: "8px" }} className={address.green} onClick={()=>{console.log("kepencet")}}> */}
               <button
                 style={{ marginLeft: "8px" }}
                 className={address.green}
@@ -417,7 +410,6 @@ export default function AddressPage() {
   }
 
   function UbahOverlay() {
-    console.log(updateAddress)
     return (
       <Overlay>
         <div className={address.input_container}>
@@ -552,7 +544,6 @@ export default function AddressPage() {
               >
                 <span>Batal</span>
               </button>
-              {/* <button style={{ marginLeft: "8px" }} className={address.green} onClick={()=>{console.log("kepencet")}}> */}
               <button
                 style={{ marginLeft: "8px" }}
                 className={address.green}

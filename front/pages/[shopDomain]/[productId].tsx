@@ -12,6 +12,7 @@ import Navbar from "../../components/navbar";
 import RupiahFormat from "../../misc/currency";
 import styles from "../../styles/ProductDetail.module.scss";
 import { useToasts } from "react-toast-notifications";
+import { ProductImage } from "../../models/ProductImage";
 
 const ProductDetail: NextPage = () => {
   const { addToast } = useToasts();
@@ -149,10 +150,8 @@ const ProductDetail: NextPage = () => {
         setQuantity(Number(value));
     }
   }
-  console.log(productData);
   // Error Handling
   if (productData?.product?.name == "") {
-    console.log("Error");
     return (
       <div className={styles.container}>
         <ErrorNotFound />
@@ -201,7 +200,7 @@ const ProductDetail: NextPage = () => {
                 <div className={styles.product_image_lists_container}>
                   <div className={styles.product_image_lists_inner_container}>
                     <div className={styles.product_image_lists}>
-                      {productData.product.images.map((image: string) => {
+                      {productData.product.images.map((image: ProductImage) => {
                         return (
                           <div
                             key={image?.image}
@@ -324,7 +323,6 @@ const ProductDetail: NextPage = () => {
                       )}
                     </div>
                     <div className={styles.product_buy_actions_container}>
-                      {/* <div className={styles.product_buy_actions_inner_container}> */}
                       <button className={styles.product_buy_icon_chat}>
                         <div className={styles.product_buy_icon_container}>
                           <Image
@@ -410,7 +408,6 @@ const ProductDetail: NextPage = () => {
                             layout="fill"
                           />
                         </div>
-                        {/* <span class="css-1ngblhr">rating </span> */}
                         <span className={styles.product_detail_terjual_label}>
                           4.5
                         </span>
@@ -450,7 +447,6 @@ const ProductDetail: NextPage = () => {
                     </div>
                     <div className={styles.product_detail_desc_tab_panel}>
                       <ul className={styles.product_detail_information_lists}>
-                        {console.log(JSON.parse(productData.product.metadata))}
                         {JSON.parse(productData.product.metadata).map(
                           (metadata: any) => {
                             if (metadata.label.trim().length > 0) {
@@ -470,10 +466,6 @@ const ProductDetail: NextPage = () => {
                             }
                           }
                         )}
-                        {/* <li className={styles.product_detail_information_item}>
-                                <span className={styles.key_values}>Kondisi: </span>
-                                <span>Baru</span>
-                              </li> */}
                         <li className={styles.product_detail_information_item}>
                           <span className={styles.key_values}>Kategori: </span>
                           <Link href={""}>
@@ -487,13 +479,6 @@ const ProductDetail: NextPage = () => {
                         <span className={styles.product_detail_desc_area_inner}>
                           <span className={styles.product_detail_desc_area}>
                             <div className={styles.product_detail_desc_content}>
-                              {/* <p style={{ whiteSpace: "pre-line"}} className={styles.product_detail_desc_content}>{`Ready 5.5 inch
-      
-      Sangat nyaman digunakan dan hemat karena tekstur lubang-lubang pada pad yg mampu menyimpan obat sehingga saat poles dan obat hampir kering, tekanan ditambah maka obat akan keluar dari lobang tersebut agar anda bisa menambah waktu poles anda.
-      
-      Mohon tuliskan ukuran dan warna pad pada saat`}</p> */}
-                              {/* {productData.product.description} */}
-                              {/* {console.log(productData.product.description)} */}
                               {DescriptionPrinter(
                                 productData.product.description
                               )}

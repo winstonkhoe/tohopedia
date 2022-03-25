@@ -1,5 +1,4 @@
 export function OTPGenerator() {
-    console.log("OTPGenerator");
     var min = 0;
     var max = 9;
     var otp = "";
@@ -7,6 +6,5 @@ export function OTPGenerator() {
         var rand = min + (Math.random() * (max - min));
         otp += Math.ceil(rand);
     }
-    console.log("From OTP Function: " + otp);
     return otp;
 }

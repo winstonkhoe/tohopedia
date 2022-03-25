@@ -82,7 +82,6 @@ const Topay: NextPage = () => {
     getTopayToken,
     { loading: qTokenTopayLoad, error: qTokenTopayErr, data: qTokenTopayData },
   ] = useLazyQuery(GET_TOKEN_TOPAY);
-  console.log(userData)
     function handleTopUp(value: number) {
       
     var otp = OTPGenerator();
@@ -111,7 +110,6 @@ const Topay: NextPage = () => {
                 code: redeemCode
             }
             }).then((data: any) => {
-                console.log(data)
                 if (data?.data == undefined || data?.data?.id == "") {
                     setWarningText("Invalid Code")
                 } else if (data?.data?.redeemed === true) {
@@ -119,9 +117,6 @@ const Topay: NextPage = () => {
                 } else {
                     let now = new Date().getTime()
                     let codeValidTo = new Date(data?.data?.getTopayToken?.validTo).getTime()
-                    console.log(now)
-                    console.log(codeValidTo)
-                    console.log(codeValidTo < now)
                     if (codeValidTo < now) {
                         setWarningText("The code is expired!")
                     } else {

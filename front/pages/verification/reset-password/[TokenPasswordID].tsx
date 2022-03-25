@@ -71,8 +71,6 @@ const ResetPasswordFill: NextPage = () => {
     return <ErrorNotFound />;
   }
 
-  console.log(data?.getPasswordToken?.email);
-
   const handleUpdatePassword = () => {
     new Date().getTime() > new Date(data?.getPasswordToken?.validTo).getTime();
     if (password === cPassword && password !== "") {

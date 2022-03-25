@@ -5,7 +5,6 @@ import styles from "./carousel.module.scss";
 const Carousel = (props: { srcs: string[], slideInterval: number}) => {
   const [currIndex, setCurrIndex] = useState(0);
   const handlePrev = () => {
-    console.log(props.srcs.length - 1);
     setCurrIndex(currIndex == 0 ? props.srcs.length - 1 : currIndex - 1);
   };
 

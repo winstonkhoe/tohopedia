@@ -8,7 +8,6 @@ export function middleware(req: NextRequest, ev: NextFetchEvent) {
     // const loggedIn = validateToken(token)
     return NextResponse.next();
     if (pathname == '/login' || pathname == '/register/user') {
-        console.log(checkCookies('tokenid') === false)
         // return NextResponse.next();
         // return NextResponse.rewrite('/login')
     }

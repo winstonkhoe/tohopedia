@@ -106,7 +106,6 @@ export default function ManageUser() {
                           },
                         })
                           .then((data: any) => {
-                            console.log(data);
                             addToast(
                               !user?.isSuspended === true
                                 ? `Suspend ${user?.name} is successful`

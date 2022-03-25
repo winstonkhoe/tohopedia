@@ -271,7 +271,6 @@ const Shipment: NextPage = () => {
 
   function handleUpdateProcess(addressId: string) {
     let addressObj = getAddress(addressId)[0];
-    console.log(addressObj);
     setUpdateAddress(
       new Address(
         addressId,
@@ -287,9 +286,7 @@ const Shipment: NextPage = () => {
       )
     );
     // setUpdateAddress(addressObj)
-    console.log(updateAddress);
     setUbahAlamat(true);
-    console.log(updateAddress);
   }
 
   function handleNewAddress(attribute: string, value: string) {
@@ -302,7 +299,6 @@ const Shipment: NextPage = () => {
     let currValue: any = updateAddress;
     currValue[attribute] = value;
     setUpdateAddress(currValue);
-    console.log(Object.keys(currValue));
   }
 
   function handleSubmitNewAddress() {
@@ -384,16 +380,6 @@ const Shipment: NextPage = () => {
       original: totalOriginalPrice,
       discount: totalDiscountedPrice,
     });
-    console.log(
-      checkoutData?.getUserCheckedCart
-        ?.map((cart: any) => cart?.product?.shop)
-        .filter(
-          (value: any, index: any, self: string | any[]) =>
-            self.indexOf(value) === index
-        )
-    );
-    // console.log(checkoutData)
-    // console.log(checkoutData?.getUserCheckedCart?.carts.map((cart: any) => cart?.product?.shop).filter((value: any, index: any, self: string | any[]) => self.indexOf(value) === index))
   }, [checkoutData]);
 
   function getCart(cartId: string) {
@@ -431,9 +417,6 @@ const Shipment: NextPage = () => {
     setChosenShipment(curr);
   }
 
-  console.log(chosenShipment);
-  console.log(currAddress);
-
   function handleBayar(paymentMethod: string) {
     if (paymentMethod == "topay") {
       if (
@@ -467,10 +450,7 @@ const Shipment: NextPage = () => {
                 total: cartSummary.original - cartSummary.discount,
               },
             }).then((data: any) => {
-              console.log(data);
             });
-            // console.log(productList);
-            // console.log(quantityList);
           });
         addToast("Pembayaran Berhasil", { appearance: "success" });
         router.push("/");
@@ -507,10 +487,6 @@ const Shipment: NextPage = () => {
     }
   }
 
-  console.log(currAddress);
-  console.log(
-    getAddress(currAddress?.id) ? getAddress(currAddress?.id)[0] : ""
-  );
   return (
     <main className={styles.main}>
       <div className={styles.main_checkout_container}>
@@ -1302,7 +1278,6 @@ const Shipment: NextPage = () => {
               >
                 <span>Batal</span>
               </button>
-              {/* <button style={{ marginLeft: "8px" }} className={address.green} onClick={()=>{console.log("kepencet")}}> */}
               <button
                 style={{ marginLeft: "8px" }}
                 className={addressStyle.green}
@@ -1473,7 +1448,6 @@ const Shipment: NextPage = () => {
               >
                 <span>Batal</span>
               </button>
-              {/* <button style={{ marginLeft: "8px" }} className={address.green} onClick={()=>{console.log("kepencet")}}> */}
               <button
                 style={{ marginLeft: "8px" }}
                 className={addressStyle.green}

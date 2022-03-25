@@ -80,10 +80,8 @@ const Chat = (props: { children: any }) => {
   //     },
   //   }).then((data: any) => {
   //     let curr = shops;
-  //     console.log(data);
   //     curr[id] = data?.data?.getShopById;
   //     setShops(curr);
-  //     console.log(shops);
   //   });
   // };
 
@@ -92,15 +90,9 @@ const Chat = (props: { children: any }) => {
       setSocketConnection(new WebSocket(WSAddress + userData?.id));
     }
 
-    console.log(userData);
   }, [WSAddress, userData]);
 
   function getChatObj(shopId: string) {
-    console.log(
-      userData?.chats?.filter((chat: any) => {
-        return chat?.shop?.id === shopId;
-      })
-    );
     return userData?.chats?.filter((chat: any) => {
       return chat?.shop?.id === shopId;
     })[0];
@@ -151,7 +143,6 @@ const Chat = (props: { children: any }) => {
             //   message: `${sentBy} says: ${actualMessage}`,
             // });
             // alert(`${sentBy} says: ${actualMessage}`);
-            console.log(`${sentBy} says: ${actualMessage}`);
             setChatList([
               ...chatList,
               { content: actualMessage, opponent: true, time: new Date() },
@@ -163,7 +154,6 @@ const Chat = (props: { children: any }) => {
             break;
         }
       } catch (error) {
-        console.log(error);
         console.warn("Something went wrong while decoding the Message Payload");
       }
     };
@@ -175,15 +165,6 @@ const Chat = (props: { children: any }) => {
         chatDestination !== "" &&
         chatInput.trim().length > 0
       ) {
-        // console.log(JSON.stringify({
-        //   EventName: "message",
-        //   EventPayload: {
-        //     userID: targetId,
-        //     // userID: dat.id,
-        //     // userID: "75f4575c-c2a8-4189-9302-dccb8eb6a643",
-        //     message: chatInput,
-        //   },
-        // }))
         socketConnection.send(
           JSON.stringify({
             EventName: "message",
@@ -220,7 +201,6 @@ const Chat = (props: { children: any }) => {
                       )
                       .map((receiverId: string, index: number) => {
 */
-  console.log(chatList);
   return (
     <main className={styles.main}>
       <div className={styles.main_container}>

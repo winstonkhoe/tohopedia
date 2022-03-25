@@ -15,7 +15,6 @@ export function SellerNavbar() {
   // const [name, setName] = useState("")
   // const [shopName, setShopName] = useState("")
 
-  console.log(loggedIn)
   var userName, shopName;
   var shop = null;
   const NAVBAR_QUERY = gql`
@@ -41,7 +40,6 @@ export function SellerNavbar() {
     shop = data.getCurrentUser.shop;
     userName = user.name;
     shopName = shop.name;
-    console.log(shop)
   
   }
     return (

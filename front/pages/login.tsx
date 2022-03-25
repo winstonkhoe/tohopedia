@@ -51,7 +51,6 @@ const Login: NextPage = () => {
           },
         })
           .then((data: any) => {
-            console.log(data.data)
             setToken(data.data.auth.login.token);
             if (data.data.auth.login.isSuspended === true) {
               addToast("You are suspended", { appearance: "warning" });

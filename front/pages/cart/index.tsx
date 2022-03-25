@@ -152,8 +152,6 @@ const Cart: NextPage = () => {
       discount: totalDiscountedPrice,
     });
 
-    // console.log(cartData)
-    // console.log(cartData?.getCurrentUser?.carts.map((cart: any) => cart?.product?.shop).filter((value: any, index: any, self: string | any[]) => self.indexOf(value) === index))
   }, [cartData]);
 
   function handleQuantityChange(cartId: string, value: any) {
@@ -162,19 +160,13 @@ const Cart: NextPage = () => {
       getStock({
         variables: { id: getCart(cartId)?.product?.id },
       }).then((data) => {
-        // console.log(cartData?.getCurrentUser?.carts[index]?.id);
         if (Number(value) <= data.data.product.stock && Number(value) >= 1) {
-          // console.log(values)
-          // console.log(values[index].quantity)
-          // values[index].quantity = Number(value);
-          // console.log(values[index].quantity)
           getUpdateCart({
             variables: {
               id: cartId,
               quantity: Number(value),
             },
           });
-          // setCartsQty(values);
         }
       });
     }
@@ -201,11 +193,8 @@ const Cart: NextPage = () => {
   }
 
   function handleShopClick(shopId: string, value: boolean) {
-    console.log(shopId);
-    console.log(value);
     getShopCarts(shopId).map((cart: any) => {
       toggleCart({ variables: { id: cart?.id, checked: value } });
-      console.log(cart?.id);
     });
   }
 

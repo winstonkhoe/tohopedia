@@ -48,19 +48,14 @@ export function Navbar() {
     //     // });
     //     geolocation.getCurrentPosition(
     //       (position) => {
-    //         console.log("Location found");
-    //         console.log(position);
     //         resolve(position);
     //       },
     //       () => {
-    //         console.log("Location : Permission denied");
     //         reject(new Error("Permission denied"));
     //       }
     //     );
     //   });
     //   p.then((location: any) => {
-    //     console.log(location);
-    //     console.log(location.coords.latitude + ", " + location.coords.longitude);
     //     // this.setState({
     //     //   isLocating: false,
     //     // });
@@ -71,23 +66,15 @@ export function Navbar() {
     //     opencage
     //       .geocode({ q: `${location.coords.latitude}, ${location.coords.longitude}`, key: '8f5357a2d6914852a8b41d6185dcd5c7' })
     //       .then((data: any) => {
-    //         // console.log(JSON.stringify(data));
     //         if (data.results.length > 0) {
     //           const place = data.results[0];
-    //           console.log(place.formatted);
-    //           console.log(place.components.road);
     //           setCurrentLocation(place.components.road)
-    //           console.log(place.annotations.timezone.name);
     //         } else {
-    //           console.log("status", data.status.message);
-    //           console.log("total_results", data.total_results);
     //         }
     //       })
     //       .catch((error: any) => {
-    //         console.log("error", error.message);
     //         // if (error.status.code === 402) {
     //         //   console.log("hit free trial daily limit");
-    //         //   console.log("become a customer: https://opencagedata.com/pricing");
     //         // }
     //       });
     //   });

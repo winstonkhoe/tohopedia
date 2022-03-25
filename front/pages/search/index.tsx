@@ -18,25 +18,25 @@ import { Checkbox } from "../../components/Checkbox/Checkbox";
 import { GetMerchantType } from "../../misc/shop_type";
 import { ShopIcon } from "../../components/ShopDetails/ShopDetails";
 import { stateContext } from "../../services/StateProvider";
-import { ALL_PRODUCT_QUERY } from "../../misc/global_query";
 import { Dropdown } from "../../components/Dropdown/dropdown";
+import { Product } from "../../models/Product";
 
 const SearchPage: NextPage = () => {
   const { addToast } = useToasts();
   const router = useRouter();
   const { keyword, category, filter } = router.query;
-  const [sortDropdown, setSortDropdown] = useState(false);
-  const [offset, setOffset] = useState(0);
+  const [sortDropdown, setSortDropdown] = useState<any>(false);
+  const [offset, setOffset] = useState<any>(0);
   // const [limit, setLimit] = useState(10);
   const limit = 5;
-  const [content, setContent] = useState();
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterShop, setFilterShop] = useState({
+  const [content, setContent] = useState<any>();
+  const [filterCategory, setFilterCategory] = useState<any>("");
+  const [filterShop, setFilterShop] = useState<any>({
     // "-1": true,
   });
-  const [filterShopArr, setFilterShopArr] = useState();
+  const [filterShopArr, setFilterShopArr] = useState<any>();
   const { setPageTitle } = useContext(stateContext);
-  const { data: searchData } = useQuery(ALL_PRODUCT_QUERY, {
+  const { data: searchData } = useQuery(Product.ALL_PRODUCT_QUERY, {
     variables: {
       keyword: keyword,
     },
@@ -88,7 +88,6 @@ const SearchPage: NextPage = () => {
 
   const handleFilterShop = (data: any) => {
     //data --> obj {data: ..., check: ...}
-    console.log(data);
     let filters = filterShop;
     let obj = {
       data: data?.data,
@@ -96,8 +95,8 @@ const SearchPage: NextPage = () => {
     };
     filters[obj.data] = obj.check;
     setFilterShop(filters);
-    let tempFilterShop = [];
-    Object.keys(filters).map((key: number) => {
+    let tempFilterShop: any = [];
+    Object.keys(filters).map((key: any) => {
       if (filterShop[key] == true) {
         tempFilterShop.push(Number(key));
       }
@@ -109,7 +108,6 @@ const SearchPage: NextPage = () => {
       query: { keyword: keyword, filter: tempFilterShop },
     });
   };
-  console.log("offset: " + offset);
   // END Error Handling
   return (
     <main className={styles.main}>

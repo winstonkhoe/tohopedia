@@ -44,10 +44,8 @@ const Register: NextPage = () => {
   }, [setPageTitle]);
   init("user_3FcFw9m04bwuTvX6TklJs");
 
-  console.log(email);
   function First() {
     async function sendMail(formData: any) {
-      console.log(recaptchaRef.current);
       if (formData.email == "") {
         addToast("Field harus diisi semua", { appearance: "error" });
       } else {
@@ -308,14 +306,6 @@ const Register: NextPage = () => {
       console.log(error);
     }
   }
-
-  if (data) {
-    console.log(data);
-  }
-
-  // useEffect(() => {
-  //   recaptchaRef.current.execute()
-  // }, [recaptchaRef])
 
   return (
     <div className={styles.container}>

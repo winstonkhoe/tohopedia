@@ -62,7 +62,7 @@ const OrderList = (props: { children: any }) => {
   const userData = useContext(userDetailsContext);
 
   useEffect(() => {
-    let transactionSummary = {};
+    let transactionSummary: any = {};
     userData?.transactions.map((transaction: any) => {
       let transactionSum = 0;
       let transactionQuantity = 0;
@@ -100,18 +100,11 @@ const OrderList = (props: { children: any }) => {
   };
 
   function SelesaiOtomatisEstimation(date: string) {
-    // let d = new Date()
     let day = 60 * 60 * 24 * 1000;
     let d = new Date(new Date(date).getTime() + 2 * day);
-    // d.setDate(new Date(date).getDate() + 2)
-    console.log(date);
-    console.log(d);
     let curr = new Date();
-    console.log(curr);
     let dayDiff = Math.abs(curr.getDay() - d.getDay());
-    // let dayDiff = curr.getTime() - d.getTime() / (1000 * 3600 * 24)
     let hourDiff = Math.abs(curr.getHours() - d.getHours());
-    // let hourDiff = (curr.getTime() - d.getTime() / (1000 * 3600)) % 24
     return dayDiff + " Hari " + hourDiff + " Jam";
   }
   return (

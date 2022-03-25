@@ -148,7 +148,6 @@ export default function SellerSettings() {
           image = storeData?.image;
         }
 
-        console.log(image);
         try {
           await mutationEditShop({
             variables: {
@@ -170,7 +169,6 @@ export default function SellerSettings() {
 
   function handleDescription(event: any) {
     setDescriptionLength(event.target.value.length);
-    console.log(event.target.value);
   }
 
   return (

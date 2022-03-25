@@ -31,16 +31,12 @@ async function Upload(req: NextApiRequest, res: NextApiResponse){
                 mv(oldPath, newPath, function (err: any) {
                 });
 
-                // console.log(imageObj)
-                
                 counter++
                 currImage = files[`file${counter}`]
             }
 
             res.status(200).json(imageObjs)
         })
-
-        // console.log(imageObjs)
 
         return res
     })

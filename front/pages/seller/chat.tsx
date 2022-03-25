@@ -40,15 +40,9 @@ export default function SellerChat (props: { children: any }) {
       setSocketConnection(new WebSocket(WSAddress + shopData?.id));
     }
 
-    console.log(shopData);
   }, [WSAddress, shopData]);
 
   function getChatObj(customerId: string) {
-    console.log(
-      shopData?.chats?.filter((chat: any) => {
-        return chat?.customer?.id === customerId;
-      })
-    );
     return shopData?.chats?.filter((chat: any) => {
       return chat?.customer?.id === customerId;
     })[0];
@@ -95,11 +89,6 @@ export default function SellerChat (props: { children: any }) {
               : "An unnamed fellow";
             const actualMessage = messageContent.message;
 
-            // this.setState({
-            //   message: `${sentBy} says: ${actualMessage}`,
-            // });
-            // alert(`${sentBy} says: ${actualMessage}`);
-            console.log(`${sentBy} says: ${actualMessage}`);
             setChatList([
               ...chatList,
               { content: actualMessage, opponent: true, time: new Date() },
@@ -123,15 +112,6 @@ export default function SellerChat (props: { children: any }) {
         chatDestination !== "" &&
         chatInput.trim().length > 0
       ) {
-        // console.log(JSON.stringify({
-        //   EventName: "message",
-        //   EventPayload: {
-        //     userID: targetId,
-        //     // userID: dat.id,
-        //     // userID: "75f4575c-c2a8-4189-9302-dccb8eb6a643",
-        //     message: chatInput,
-        //   },
-        // }))
         socketConnection.send(
           JSON.stringify({
             EventName: "message",
@@ -154,21 +134,6 @@ export default function SellerChat (props: { children: any }) {
     }
   };
 
-  // if (shopData === undefined) {
-  //   return null;
-  // }
-
-  /*
-  FILTER UNIQUE FROM CHATS
-  shopData?.chats
-                      ?.map((chat: any) => chat?.receiver)
-                      .filter(
-                        (value: any, index: any, self: string | any[]) =>
-                          self.indexOf(value) === index
-                      )
-                      .map((receiverId: string, index: number) => {
-*/
-  console.log(chatList);
   return (
     <main className={styles.main}>
       {/* <div className={styles.main_container}> */}

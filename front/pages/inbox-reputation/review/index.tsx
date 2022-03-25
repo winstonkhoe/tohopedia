@@ -14,8 +14,7 @@ import { Button } from "../../../components/Button/button";
 import { TransactionDetail } from "../../../models/TransactionDetail";
 
 export default function ReviewPage() {
-  const { tabIndexSetting, setTabIndexSetting } = useContext(stateContext);
-  const { addressQuery, setAddressQuery } = useContext(stateContext);
+  const { setTabIndexSetting } = useContext(stateContext);
 
   const transactionData =
     useContext<Transaction[]>(userDetailsContext)?.transactions;
@@ -27,7 +26,6 @@ export default function ReviewPage() {
   function checkEmptyField(addressObj: any, key: string) {
     return addressObj[key].trim().length == 0;
   }
-  console.log(transactionData);
 
   return (
     <div className={styles.container}>

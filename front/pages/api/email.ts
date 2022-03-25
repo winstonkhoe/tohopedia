@@ -2,8 +2,6 @@ import { Message, SMTPClient } from "emailjs";
 
 export default async function handler(req: any, res: any) {
     const { email } = req.body;
-    console.log("hehe")
-  console.log(process.env)
 
   const client = new SMTPClient({
     user: process.env.mail,
@@ -13,8 +11,6 @@ export default async function handler(req: any, res: any) {
   });
 
     try {
-        console.log("hehe")
-        console.log(process.env)
     // const message = await client.sendAsync({
     //   text: `Just for testing purpose`,
     // //   from: "winstonkhoe@gmail.com",

@@ -15,7 +15,6 @@ import { TransactionDetail } from "../../../../models/TransactionDetail";
 import { useToasts } from "react-toast-notifications";
 import {
   Dropdown,
-  DropdownItem,
   DropdownItemList,
   DropdownItemProfile,
 } from "../../../../components/Dropdown/dropdown";
@@ -38,7 +37,7 @@ export default function InputReviewPage() {
   const [imagesDisplay, setImagesDisplay] = useState<
     (string | Blob | MediaSource)[]
   >([]);
-  const [imageFiles, setImageFiles] = useState<(FileList | File)[]>([]);
+  const [imageFiles, setImageFiles] = useState<(any)[]>([]);
   const ratingDesc = [
     "",
     "Sangat Buruk",
@@ -57,23 +56,21 @@ export default function InputReviewPage() {
     setTabIndexSetting(0);
   }, []);
 
-  function getTransaction(transactionID: string) {
+  function getTransaction(transactionID: string | string[] | undefined) {
     return transactionData?.filter((transaction: any) => {
       return transaction?.id === transactionID;
     })[0];
   }
 
   function getTransactionDetail(
-    transactionID: string,
-    transactionDetailID: string
+    transactionID: string | string[] | undefined,
+    transactionDetailID: string | string[] | undefined
   ) {
     return getTransaction(transactionID)?.details?.filter((detail: any) => {
       return detail?.id === transactionDetailID;
     })[0];
   }
 
-  // console.log(data);
-  // console.log(transactionData);
   useEffect(() => {
     setData(getTransactionDetail(TransactionID, TransactionDetailID));
   }, [TransactionDetailID, TransactionID, transactionData]);
@@ -123,12 +120,6 @@ export default function InputReviewPage() {
   const handleAddReview = async (shopId: string) => {
     let transactionDetailId = TransactionDetailID;
     let images = [];
-    console.log(shopId);
-    console.log(transactionDetailId);
-    console.log(rating);
-    console.log(message);
-    console.log(imageFiles);
-    console.log(anonymous);
     const body = new FormData();
     for (let index = 0; index < imageFiles.length; index++) {
       body.append(`file${index}`, imageFiles[index]);
@@ -399,9 +390,9 @@ export default function InputReviewPage() {
                   </p>
                   <ul className={styles.review_image_list}>
                     {imagesDisplay.map(
-                      (image: string | Blob | MediaSource, index: number) => {
+                      (image: any, index: number) => {
                         return (
-                          <li key={image}>
+                          <li key={index}>
                             <button>
                               <div className={styles.image_relative}>
                                 <Image

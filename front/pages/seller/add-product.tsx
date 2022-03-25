@@ -4,10 +4,10 @@ import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
 import { useToasts } from "react-toast-notifications";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import Shop from "../../models/Shop";
 import { userDetailsContext } from "../../services/UserDataProvider";
 import { ADD_PRODUCT_MUTATION } from "../../misc/global_mutation";
 import { CATEGORY_QUERY } from "../../misc/global_query";
+import { Shop } from "../../models/Shop";
 
 export default function AddProduct() {
   const { addToast } = useToasts();
@@ -19,11 +19,6 @@ export default function AddProduct() {
   
   const [
     mutationAddProduct,
-    {
-      loading: addProductLoading,
-      error: addProductError,
-      data: addProductData,
-    },
   ] = useMutation(ADD_PRODUCT_MUTATION);
 
   
@@ -44,7 +39,6 @@ export default function AddProduct() {
     let stock = formData.stock;
     let images = [];
 
-    console.log(typeof metadata);
     let listFields = [name, description, categoryId];
     let successValidation = true;
     for (let index = 0; index < listFields.length; index++) {
@@ -63,20 +57,14 @@ export default function AddProduct() {
       const body = new FormData();
       body.append("length", formData.image.length);
       for (let index = 0; index < formData.image.length; index++) {
-        // var extension = formData.image[index].name.split('.')[1]
-        // formData.image[index].name = `${Date.now().toString()}.${extension}`
         body.append(`file${index}`, formData.image[index]);
       }
-      console.log(body);
       let response = await fetch("/api/upload", {
         method: "POST",
         body,
       });
-      console.log(response);
 
       let data = await response.json();
-      console.log(data);
-      // console.log(data.length);
       images = data.map((d: any) => {
         return d.name;
       });
@@ -102,13 +90,11 @@ export default function AddProduct() {
   }
 
   function addFields() {
-    // displayData.push(field)
-    // console.log(displayData)
     setMetadatas([...metadatas, { label: "", value: "" }]);
   }
 
   function handleChange(index: any, event: any) {
-    const values = [...metadatas];
+    const values: any = [...metadatas];
     values[index][event.target.name] = event.target.value;
     setMetadatas(values);
   }
