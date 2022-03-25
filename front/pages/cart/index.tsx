@@ -1,6 +1,5 @@
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -173,7 +172,7 @@ const Cart: NextPage = () => {
     });
   }
 
-  function getShopChecked(shopId: string) {
+  function  getShopChecked(shopId: string) {
     let carts = getShopCarts(shopId);
     let checkedCounter = 0;
     carts.map((cart: any) => {
@@ -236,7 +235,7 @@ const Cart: NextPage = () => {
                               id=""
                               checked={getShopChecked(shop?.id)}
                               onClick={(e) =>
-                                handleShopClick(shop?.id, e.target.checked)
+                                handleShopClick(shop?.id, !getShopChecked(shop?.id))
                               }
                             />
                             <span
