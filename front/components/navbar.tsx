@@ -1,15 +1,10 @@
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import type { NextPage } from "next";
-import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/nav.module.scss";
 import cartStyle from "../styles/components/cart_overlay.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useEffect, useState, createContext, useContext } from "react";
 import { checkCookies, removeCookies } from "cookies-next";
 import Router, { useRouter } from "next/router";
-import { Url } from "url";
 import RupiahFormat from "../misc/currency";
 import Overlay from "./overlay/overlay";
 import { userDetailsContext } from "../services/UserDataProvider";
@@ -20,7 +15,7 @@ export function Navbar() {
   // const opencage = require("opencage-api-client");
   const DEFAULT_PROFILE_IMAGE = `/logo/user_profile.jpg`;
   const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
-  const [currentLocation, setCurrentLocation] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState("Jalan Sutera Utama 1");
   const [seeCartOverlay, setSeeCartOverlay] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
   

@@ -1,24 +1,13 @@
 import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-
-import InitFont from "../components/initialize_font";
-import Navbar from "../components/navbar";
 import styles from "../styles/Home.module.scss";
 
 import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
-import { gql, useQuery } from "@apollo/client";
 import { useContext, useEffect, useState } from "react";
-import RupiahFormat from "../misc/currency";
-import productSection from "../components/Product/ProductSection.module.scss";
 import common from "../styles/components/common.module.scss";
-import { Carousel, Item } from "../components/carousel/Carousel";
-import Footer from "../components/Footer/Footer";
+import { Carousel } from "../components/carousel/Carousel";
 import {
-  Product,
   Section,
-  SectionProduct,
 } from "../components/Product/ProductSection";
 import { stateContext } from "../services/StateProvider";
 const banners = [1, 2, 3];
@@ -26,24 +15,16 @@ const banners = [1, 2, 3];
 
 const Home: NextPage = () => {
   const [productLimit, setProductLimit] = useState(5);
-  const { setPageTitle } = useContext(stateContext)
-  
+  const { setPageTitle } = useContext(stateContext);
+
   useEffect(() => {
-    setPageTitle("Home | Tohopedia")
-  }, [setPageTitle])
+    setPageTitle("Home | Tohopedia");
+  }, [setPageTitle]);
   function getAllBanner() {
     let bannerItems = [];
     bannerItems = banners.map((bannerIndex: number) => {
       return (
-        // <div key={bannerIndex} className={styles.carousel_image_container}>
-        //   <Image
-        //     src={`/assets/banner/${bannerIndex}.webp`}
-        //     alt={`Banner ${bannerIndex}`}
-        //     layout="fill"
-        //   />
-        // </div>
         `/assets/banner/${bannerIndex}.webp`
-        // <Item key={bannerIndex} src={`/assets/banner/${bannerIndex}.webp`}/>
       );
     });
 
