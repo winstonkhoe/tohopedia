@@ -12,8 +12,8 @@ const token = getCookie('tokenid')
 // })
 
 const httpLink = new HttpLink({
-  // uri: 'https://tohopedia-app.herokuapp.com/query',
-  uri: 'http://localhost:8080/query',
+  uri: 'https://tohopedia-app.herokuapp.com/query',
+  // uri: 'http://localhost:8080/query',
   headers: token
     ? {
         Authorization: 'bearer ' + token,
