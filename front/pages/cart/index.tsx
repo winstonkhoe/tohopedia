@@ -55,7 +55,6 @@ const Cart: NextPage = () => {
     error: cartError,
     data: cartData,
   } = useQuery(USER_CARTS_QUERY, {
-    pollInterval: 100,
   });
 
   const PRODUCT_STOCK_QUERY = gql`

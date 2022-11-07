@@ -24,7 +24,7 @@ const httpLink = new HttpLink({
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (networkError) {
     if (networkError.name == 'TypeError') {
-       alert('Backend is down\n' + 'Network Error: ' + networkError.message)
+      //  alert('Backend is down\n' + 'Network Error: ' + networkError.message)
        Router.reload()
     }
   }

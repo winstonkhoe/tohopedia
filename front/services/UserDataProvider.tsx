@@ -8,7 +8,6 @@ export const userDetailsContext = createContext<User>(new User("", "", "", "", "
 
 const UserDataProvider = (props: { children: any }) => {
   const { addressQuery } = useContext(stateContext);
-  const { pollInterval } = useContext(stateContext);
 
   const USER_DATA_QUERY = gql`
     query GetUser($query: String) {
@@ -180,7 +179,6 @@ const UserDataProvider = (props: { children: any }) => {
   `;
 
   const { loading, error, data } = useQuery(USER_DATA_QUERY, {
-    pollInterval: pollInterval,
     variables: {
       query: addressQuery,
     },

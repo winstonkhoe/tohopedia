@@ -85,7 +85,6 @@ const Shipment: NextPage = () => {
     variables: {
       query: searchQuery,
     },
-    pollInterval: 1000,
   });
 
   const CHECKOUT_CARTS_QUERY = gql`
@@ -124,7 +123,6 @@ const Shipment: NextPage = () => {
     error: checkoutError,
     data: checkoutData,
   } = useQuery(CHECKOUT_CARTS_QUERY, {
-    pollInterval: 500,
   });
 
   const ADD_ADDRESS_MUTATION = gql`

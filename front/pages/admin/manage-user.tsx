@@ -26,7 +26,6 @@ export default function ManageUser() {
     },
   });
   const { loading, error, data } = useQuery(GET_ALL_USER_QUERY, {
-    pollInterval: 2000,
     variables: {
       limit: limit,
       offset: offset,

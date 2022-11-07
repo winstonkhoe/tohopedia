@@ -13,7 +13,7 @@ export default function BioData() {
   const { addToast } = useToasts();
 
   const userData = useContext<User>(userDetailsContext);
-  const { tabIndexSetting, setTabIndexSetting, setPollInterval } = useContext(stateContext);
+  const { tabIndexSetting, setTabIndexSetting } = useContext(stateContext);
 
   const [updateAuthentication] = useMutation(
     User.UPDATE_USER_AUTHENTICATION_MUTATION
@@ -21,8 +21,7 @@ export default function BioData() {
 
   useEffect(() => {
     setTabIndexSetting(2)
-    setPollInterval(2000);
-  }, [setPollInterval]);
+  }, []);
 
   return (
     <div className={styles.container}>

@@ -46,9 +46,7 @@ export default function AddressPage() {
   });
 
   const addressData: Address[] = useContext(userDetailsContext)?.addresses
-  const { setPollInterval } = useContext(stateContext);
   useEffect(() => {
-    setPollInterval(3000)
     setTabIndexSetting(1)
   }, []);
 

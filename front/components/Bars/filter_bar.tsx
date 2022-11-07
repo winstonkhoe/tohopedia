@@ -23,7 +23,6 @@ export function FilterBar() {
   `;
 
   const { loading: userLoad, error: userErr, data: userData } = useQuery(USER_DATA_QUERY, {
-    pollInterval: 2000,
   });
 
   return (

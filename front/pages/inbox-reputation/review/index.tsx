@@ -18,7 +18,6 @@ export default function ReviewPage() {
 
   const transactionData: Transaction[] =
     useContext(userDetailsContext)?.transactions;
-  const { setPollInterval } = useContext(stateContext);
   useEffect(() => {
     setTabIndexSetting(0);
   }, []);
